@@ -1,4 +1,4 @@
-html_clean = """<!DOCTYPE html>
+html_blank = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -157,7 +157,6 @@ html_clean = """<!DOCTYPE html>
   }
   select:focus, input:focus { border-color: var(--accent-orange); }
 
-  /* Compact Sched dropdown font */
   .sched-select {
     font-size: 0.72rem;
     padding-left: 2px;
@@ -385,14 +384,14 @@ const ratings = ['150', '300', '600', '900', '1500', '2500'];
 let flanges = [];
 let pipes = [];
 
-function addFlangeRow(def = { size: '12', rating: '150', type: 'WN', qty: 2 }) {
+function addFlangeRow(def = { size: '2', rating: '150', type: 'WN', qty: 1 }) {
   const id = Date.now() + Math.random();
   flanges.push({ id, ...def });
   renderFlanges();
   scrollSectionToBottom('flangeList');
 }
 
-function addPipeRow(def = { size: '12', sched: 'Std', insulated: 'No', ft: 4, in: 0 }) {
+function addPipeRow(def = { size: '2', sched: 'Std', insulated: 'No', ft: '', in: '' }) {
   const id = Date.now() + Math.random();
   pipes.push({ id, ...def });
   renderPipes();
@@ -505,11 +504,11 @@ function renderPipes() {
         </div>
         <div class="field-group">
           <label>Feet</label>
-          <input type="number" min="0" step="1" value="${p.ft}" oninput="updatePipe(${p.id}, 'ft', this.value, false)">
+          <input type="number" min="0" step="1" placeholder="0" value="${p.ft}" oninput="updatePipe(${p.id}, 'ft', this.value, false)">
         </div>
         <div class="field-group">
           <label>Inches</label>
-          <input type="number" min="0" max="11.9" step="0.5" value="${p.in}" oninput="updatePipe(${p.id}, 'in', this.value, false)">
+          <input type="number" min="0" max="11.9" step="0.5" placeholder="0" value="${p.in}" oninput="updatePipe(${p.id}, 'in', this.value, false)">
         </div>
       </div>
     `;
@@ -591,18 +590,15 @@ function resetAll() {
   }
 }
 
-// Initial demo matching your slide example
-addFlangeRow({ size: '12', rating: '150', type: 'WN', qty: 2 });
-addPipeRow({ size: '12', sched: 'Std', insulated: 'No', ft: 1, in: 10.5 });
-addPipeRow({ size: '12', sched: 'Std', insulated: 'No', ft: 4, in: 0 });
-addPipeRow({ size: '12', sched: 'Std', insulated: 'No', ft: 10, in: 7.5 });
-addPipeRow({ size: '8', sched: 'Std', insulated: 'No', ft: 2, in: 0 });
+// Initial state: Start clean with no preloaded demo rows
+renderFlanges();
+renderPipes();
 </script>
 </body>
 </html>
 """
 
 with open("daves-spool-weight-calculator.html", "w", encoding="utf-8") as f:
-    f.write(html_clean)
+    f.write(html_blank)
 
-print("Saved updated spool weight calculator.")
+print("Saved clean blank spool weight calculator.")
