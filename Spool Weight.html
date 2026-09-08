@@ -12,8 +12,11 @@
     --flange-bg: #1a293d;
     --pipe-head: #744210;
     --pipe-bg: #2d2415;
+    --hydro-head: #0e4e4e;
+    --hydro-bg: #132d2d;
     --accent: #00e676;
     --accent-orange: #ff9800;
+    --accent-cyan: #00e5ff;
     --text: #e0e6ed;
     --text-muted: #94a3b8;
     --border: #2d3748;
@@ -38,7 +41,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-bottom: 28px;
+    padding-bottom: 32px;
   }
 
   header { text-align: center; padding: 4px 0; }
@@ -76,6 +79,40 @@
   .sub-box.pipe { border-left: 4px solid #ecc94b; }
   .sub-title { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
   .sub-val { font-size: 1.1rem; font-weight: 700; color: #fff; margin-top: 1px; }
+
+  /* Hydro Test Card */
+  .hydro-card {
+    background: var(--hydro-bg);
+    border: 1px solid #1f5656;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .hydro-header {
+    background: var(--hydro-head);
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #a5f3fc;
+    display: flex;
+    justify-content: space-between;
+  }
+  .hydro-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .hydro-metric {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+    padding: 6px 4px;
+    border: 1px solid #164e4e;
+  }
+  .hydro-metric .title { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; font-weight: 600; }
+  .hydro-metric .val { font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 2px; }
+  .hydro-metric .val.accent { color: var(--accent-cyan); }
 
   /* Section Containers */
   .section-card {
@@ -182,14 +219,14 @@
 <div class="app-container">
   <header>
     <h1>Dave's Super-Awesome Pipe Spool Weight Calculator</h1>
-    <p>Mobile Field Rigging & Fab Estimate</p>
+    <p>Mobile Field Rigging, Fab & Hydrofill Estimator</p>
   </header>
 
   <!-- Sticky Scoreboard Header -->
   <div class="sticky-top-group">
     <div class="total-banner">
       <div>
-        <div class="lbl">Total Spool Weight</div>
+        <div class="lbl">Total Spool Dry Weight</div>
         <div style="font-size:0.65rem; color:#6ee7b7;">Flange-to-flange inclusion + Insulation</div>
       </div>
       <div class="val" id="grandTotal">0.0 <span style="font-size:0.9rem;">lbs</span></div>
@@ -203,6 +240,28 @@
       <div class="sub-box pipe">
         <div class="sub-title">Total Pipe Sections</div>
         <div class="sub-val" id="pipeTotal">0.0 lbs</div>
+      </div>
+    </div>
+
+    <!-- Hydro Test & Water Volume Metric Banner -->
+    <div class="hydro-card">
+      <div class="hydro-header">
+        <span>Hydrotest Fill & Flooded Weight</span>
+        <span style="font-size:0.65rem; color:#67e8f9;">Water @ 8.34 lbs/gal</span>
+      </div>
+      <div class="hydro-grid">
+        <div class="hydro-metric">
+          <div class="title">Test Water Vol</div>
+          <div class="val accent" id="hydroGal">0.0 gal</div>
+        </div>
+        <div class="hydro-metric">
+          <div class="title">Bbls of Water</div>
+          <div class="val" id="hydroBbl">0.00 bbl</div>
+        </div>
+        <div class="hydro-metric">
+          <div class="title">Total Flooded Wt</div>
+          <div class="val" id="hydroFlooded">0.0 lbs</div>
+        </div>
       </div>
     </div>
   </div>
@@ -234,7 +293,6 @@
 
 <script>
 const FLANGE_WEIGHTS = {
-  // 150#
   '1/2-150-WN': 2, '1/2-150-Blind': 2,
   '3/4-150-WN': 3, '3/4-150-Blind': 3,
   '1-150-WN': 4, '1-150-Blind': 4,
@@ -254,7 +312,6 @@ const FLANGE_WEIGHTS = {
   '20-150-WN': 195, '20-150-Blind': 285,
   '24-150-WN': 275, '24-150-Blind': 430,
 
-  // 300#
   '1/2-300-WN': 3, '1/2-300-Blind': 3,
   '3/4-300-WN': 4, '3/4-300-Blind': 4,
   '1-300-WN': 5, '1-300-Blind': 5,
@@ -274,7 +331,6 @@ const FLANGE_WEIGHTS = {
   '20-300-WN': 590, '20-300-Blind': 590,
   '24-300-WN': 860, '24-300-Blind': 860,
 
-  // 600#
   '1/2-600-WN': 4, '1/2-600-Blind': 4,
   '3/4-600-WN': 6, '3/4-600-Blind': 6,
   '1-600-WN': 8, '1-600-Blind': 8,
@@ -294,7 +350,6 @@ const FLANGE_WEIGHTS = {
   '20-600-WN': 960, '20-600-Blind': 960,
   '24-600-WN': 1450, '24-600-Blind': 1450,
 
-  // 900#
   '1/2-900-WN': 5, '1/2-900-Blind': 5,
   '3/4-900-WN': 7, '3/4-900-Blind': 7,
   '1-900-WN': 10, '1-900-Blind': 10,
@@ -314,7 +369,6 @@ const FLANGE_WEIGHTS = {
   '20-900-WN': 1350, '20-900-Blind': 1350,
   '24-900-WN': 2300, '24-900-Blind': 2300,
 
-  // 1500#
   '1/2-1500-WN': 5, '1/2-1500-Blind': 5,
   '3/4-1500-WN': 7, '3/4-1500-Blind': 7,
   '1-1500-WN': 10, '1-1500-Blind': 10,
@@ -334,7 +388,6 @@ const FLANGE_WEIGHTS = {
   '20-1500-WN': 2400, '20-1500-Blind': 2400,
   '24-1500-WN': 3800, '24-1500-Blind': 3800,
 
-  // 2500#
   '1/2-2500-WN': 8, '1/2-2500-Blind': 8,
   '3/4-2500-WN': 11, '3/4-2500-Blind': 11,
   '1-2500-WN': 15, '1-2500-Blind': 15,
@@ -369,6 +422,28 @@ const PIPE_WEIGHTS = {
   '18-Std': 70.65, '18-X-Stg': 93.54, '18-Sch160': 351.4,
   '20-Std': 78.67, '20-X-Stg': 104.23, '20-Sch160': 423.0,
   '24-Std': 94.71, '24-X-Stg': 125.61, '24-Sch160': 585.0
+};
+
+// Pipe Internal Diameter in Inches (ASME B36.10) for exact hydro volume calculation
+const PIPE_ID = {
+  '1/2-Std': 0.622, '1/2-X-Stg': 0.546, '1/2-Sch160': 0.466,
+  '3/4-Std': 0.824, '3/4-X-Stg': 0.742, '3/4-Sch160': 0.614,
+  '1-Std': 1.049, '1-X-Stg': 0.957, '1-Sch160': 0.815,
+  '1 1/4-Std': 1.380, '1 1/4-X-Stg': 1.278, '1 1/4-Sch160': 1.160,
+  '1 1/2-Std': 1.610, '1 1/2-X-Stg': 1.500, '1 1/2-Sch160': 1.338,
+  '2-Std': 2.067, '2-X-Stg': 1.939, '2-Sch160': 1.689,
+  '2 1/2-Std': 2.469, '2 1/2-X-Stg': 2.323, '2 1/2-Sch160': 2.125,
+  '3-Std': 3.068, '3-X-Stg': 2.900, '3-Sch160': 2.624,
+  '4-Std': 4.026, '4-X-Stg': 3.826, '4-Sch160': 3.438,
+  '6-Std': 6.065, '6-X-Stg': 5.761, '6-Sch160': 5.189,
+  '8-Std': 7.981, '8-X-Stg': 7.625, '8-Sch160': 6.813,
+  '10-Std': 10.020, '10-X-Stg': 9.750, '10-Sch160': 8.500,
+  '12-Std': 12.000, '12-X-Stg': 11.750, '12-Sch160': 10.126,
+  '14-Std': 13.250, '14-X-Stg': 13.000, '14-Sch160': 11.188,
+  '16-Std': 15.250, '16-X-Stg': 15.000, '16-Sch160': 12.814,
+  '18-Std': 17.250, '18-X-Stg': 17.000, '18-Sch160': 14.438,
+  '20-Std': 19.250, '20-X-Stg': 19.000, '20-Sch160': 16.064,
+  '24-Std': 23.250, '24-X-Stg': 23.000, '24-Sch160': 19.314
 };
 
 const INSULATION_ADDER = {
@@ -557,6 +632,8 @@ function recalcTotals() {
   });
 
   let pTot = 0;
+  let totalGal = 0;
+
   pipes.forEach((p, idx) => {
     const key = `${p.size}-${p.sched}`;
     let wtPerFt = PIPE_WEIGHTS[key] || 0;
@@ -569,16 +646,30 @@ function recalcTotals() {
     const rowWt = wtPerFt * totalFt;
     pTot += rowWt;
 
+    // Internal volume formula: Gallons = (ID^2 * 0.0408) * length_in_feet
+    const innerDia = PIPE_ID[key] || 0;
+    const galPerFt = Math.pow(innerDia, 2) * 0.0408;
+    totalGal += galPerFt * totalFt;
+
     const wtEl = document.getElementById(`pipe-wt-${p.id}`);
     const tEl = document.getElementById(`pipe-title-${p.id}`);
     if (wtEl) wtEl.textContent = rowWt.toFixed(1) + ' lbs';
     if (tEl) tEl.textContent = `#${idx + 1} PIPE (${wtPerFt.toFixed(2)} lbs/ft${p.insulated === 'Yes' ? ' - Insul' : ''})`;
   });
 
-  const grand = fTot + pTot;
+  const grandDry = fTot + pTot;
+  const waterWeight = totalGal * 8.34;
+  const totalBbl = totalGal / 42.0;
+  const floodedWeight = grandDry + waterWeight;
+
   document.getElementById('flangeTotal').textContent = fTot.toFixed(1) + ' lbs';
   document.getElementById('pipeTotal').textContent = pTot.toFixed(1) + ' lbs';
-  document.getElementById('grandTotal').innerHTML = `${grand.toFixed(1)} <span style="font-size:0.9rem;">lbs</span>`;
+  document.getElementById('grandTotal').innerHTML = `${grandDry.toFixed(1)} <span style="font-size:0.9rem;">lbs</span>`;
+
+  // Hydro metrics update
+  document.getElementById('hydroGal').textContent = totalGal.toFixed(1) + ' gal';
+  document.getElementById('hydroBbl').textContent = totalBbl.toFixed(2) + ' bbl';
+  document.getElementById('hydroFlooded').textContent = floodedWeight.toFixed(1) + ' lbs';
 }
 
 function resetAll() {
@@ -590,7 +681,7 @@ function resetAll() {
   }
 }
 
-// Initial state: Start clean with no preloaded demo rows
+// Initial state: starts blank
 renderFlanges();
 renderPipes();
 </script>
