@@ -1,0 +1,604 @@
+html_code = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dave's Super-Awesome Pipe Spool Weight Calculator</title>
+<style>
+  :root {
+    --bg: #121417;
+    --card: #1c212a;
+    --flange-head: #2a4365;
+    --flange-bg: #1a293d;
+    --pipe-head: #744210;
+    --pipe-bg: #2d2415;
+    --accent: #00e676;
+    --accent-orange: #ff9800;
+    --text: #e0e6ed;
+    --text-muted: #94a3b8;
+    --border: #2d3748;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+  }
+  body {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .app-container {
+    width: 100%;
+    max-width: 540px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 28px;
+  }
+
+  header { text-align: center; padding: 4px 0; }
+  header h1 { font-size: 1.15rem; color: var(--accent-orange); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+  header p { font-size: 0.72rem; color: var(--text-muted); }
+
+  /* Sticky Total Header */
+  .sticky-top-group {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  .total-banner {
+    background: #0d2818;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  .total-banner .lbl { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #a7f3d0; }
+  .total-banner .val { font-size: 1.6rem; font-weight: 800; color: #fff; text-shadow: 0 0 8px rgba(0, 230, 118, 0.4); }
+
+  .sub-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sub-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
+  .sub-box.flange { border-left: 4px solid #63b3ed; }
+  .sub-box.pipe { border-left: 4px solid #ecc94b; }
+  .sub-title { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+  .sub-val { font-size: 1.1rem; font-weight: 700; color: #fff; margin-top: 1px; }
+
+  /* Section Containers */
+  .section-card {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+  .section-header.flange-hdr { background: var(--flange-head); color: #bee3f8; }
+  .section-header.pipe-hdr { background: var(--pipe-head); color: #feebc8; }
+  .add-btn {
+    background: #ffffff22;
+    border: 1px solid #ffffff44;
+    color: #fff;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .add-btn:active { background: #ffffff44; }
+
+  /* Scrollable Item Container */
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    max-height: 290px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .empty-msg { font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 12px; font-style: italic; }
+
+  /* Item Row Cards */
+  .item-card {
+    border-radius: 6px;
+    border: 1px solid #374151;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .item-card.flange-item { background: var(--flange-bg); border-color: #2b4c7e; }
+  .item-card.pipe-item { background: var(--pipe-bg); border-color: #5c4419; }
+
+  .row-top { display: flex; justify-content: space-between; align-items: center; }
+  .row-num { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+  .row-weight { font-size: 0.95rem; font-weight: 800; color: #fff; }
+  .del-btn { background: transparent; border: none; color: var(--danger); font-size: 1.1rem; cursor: pointer; padding: 0 4px; line-height: 1; }
+
+  .inputs-grid { display: grid; gap: 6px; }
+  .flange-grid { grid-template-columns: 1.1fr 1fr 1.3fr 0.8fr; }
+  .pipe-grid { grid-template-columns: 1.1fr 1fr 1.1fr 0.8fr 0.8fr; }
+
+  .field-group { display: flex; flex-direction: column; }
+  .field-group label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
+  select, input {
+    background: #0f1318;
+    border: 1px solid #3b4252;
+    color: #fff;
+    border-radius: 4px;
+    padding: 6px 4px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    outline: none;
+    width: 100%;
+  }
+  select:focus, input:focus { border-color: var(--accent-orange); }
+
+  .clear-all-btn {
+    align-self: center;
+    background: transparent;
+    border: 1px solid #4a5568;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .clear-all-btn:active { background: #ef444422; color: #fca5a5; border-color: #ef4444; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <h1>Dave's Super-Awesome Pipe Spool Weight Calculator</h1>
+    <p>Mobile Field Rigging & Fab Estimate</p>
+  </header>
+
+  <!-- Sticky Scoreboard Header -->
+  <div class="sticky-top-group">
+    <div class="total-banner">
+      <div>
+        <div class="lbl">Total Spool Weight</div>
+        <div style="font-size:0.65rem; color:#6ee7b7;">Flange-to-flange inclusion + Insulation</div>
+      </div>
+      <div class="val" id="grandTotal">0.0 <span style="font-size:0.9rem;">lbs</span></div>
+    </div>
+
+    <div class="sub-summary">
+      <div class="sub-box flange">
+        <div class="sub-title">Total Flanges & Blinds</div>
+        <div class="sub-val" id="flangeTotal">0.0 lbs</div>
+      </div>
+      <div class="sub-box pipe">
+        <div class="sub-title">Total Pipe Sections</div>
+        <div class="sub-val" id="pipeTotal">0.0 lbs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flanges & Blinds Section -->
+  <div class="section-card">
+    <div class="section-header flange-hdr">
+      <span>Flanges & Blinds</span>
+      <button class="add-btn" onclick="addFlangeRow()">+ Add Flange</button>
+    </div>
+    <div class="item-list" id="flangeList">
+      <div class="empty-msg" id="flangeEmpty">No flanges or blinds added yet.</div>
+    </div>
+  </div>
+
+  <!-- Pipe Sections Section -->
+  <div class="section-card">
+    <div class="section-header pipe-hdr">
+      <span>Pipe Sections</span>
+      <button class="add-btn" onclick="addPipeRow()">+ Add Pipe</button>
+    </div>
+    <div class="item-list" id="pipeList">
+      <div class="empty-msg" id="pipeEmpty">No pipe sections added yet.</div>
+    </div>
+  </div>
+
+  <button class="clear-all-btn" onclick="resetAll()">Reset All Entries</button>
+</div>
+
+<script>
+// ASME B16.5 Standard Carbon Steel Flange & Blind weights (lbs)
+const FLANGE_WEIGHTS = {
+  // 150#
+  '1/2-150-WN': 2, '1/2-150-Blind': 2,
+  '3/4-150-WN': 3, '3/4-150-Blind': 3,
+  '1-150-WN': 4, '1-150-Blind': 4,
+  '1 1/4-150-WN': 5, '1 1/4-150-Blind': 5,
+  '1 1/2-150-WN': 7, '1 1/2-150-Blind': 7,
+  '2-150-WN': 9, '2-150-Blind': 9,
+  '2 1/2-150-WN': 14, '2 1/2-150-Blind': 14,
+  '3-150-WN': 16, '3-150-Blind': 16,
+  '4-150-WN': 23, '4-150-Blind': 23,
+  '6-150-WN': 35, '6-150-Blind': 35,
+  '8-150-WN': 55, '8-150-Blind': 55,
+  '10-150-WN': 75, '10-150-Blind': 75,
+  '12-150-WN': 88, '12-150-Blind': 88,
+  '14-150-WN': 115, '14-150-Blind': 140,
+  '16-150-WN': 140, '16-150-Blind': 180,
+  '18-150-WN': 160, '18-150-Blind': 220,
+  '20-150-WN': 195, '20-150-Blind': 285,
+  '24-150-WN': 275, '24-150-Blind': 430,
+
+  // 300#
+  '1/2-300-WN': 3, '1/2-300-Blind': 3,
+  '3/4-300-WN': 4, '3/4-300-Blind': 4,
+  '1-300-WN': 5, '1-300-Blind': 5,
+  '1 1/4-300-WN': 7, '1 1/4-300-Blind': 7,
+  '1 1/2-300-WN': 10, '1 1/2-300-Blind': 10,
+  '2-300-WN': 12, '2-300-Blind': 12,
+  '2 1/2-300-WN': 18, '2 1/2-300-Blind': 18,
+  '3-300-WN': 23, '3-300-Blind': 23,
+  '4-300-WN': 26.5, '4-300-Blind': 27,
+  '6-300-WN': 60, '6-300-Blind': 60,
+  '8-300-WN': 95, '8-300-Blind': 95,
+  '10-300-WN': 145, '10-300-Blind': 145,
+  '12-300-WN': 215, '12-300-Blind': 215,
+  '14-300-WN': 285, '14-300-Blind': 285,
+  '16-300-WN': 390, '16-300-Blind': 390,
+  '18-300-WN': 470, '18-300-Blind': 470,
+  '20-300-WN': 590, '20-300-Blind': 590,
+  '24-300-WN': 860, '24-300-Blind': 860,
+
+  // 600#
+  '1/2-600-WN': 4, '1/2-600-Blind': 4,
+  '3/4-600-WN': 6, '3/4-600-Blind': 6,
+  '1-600-WN': 8, '1-600-Blind': 8,
+  '1 1/4-600-WN': 10, '1 1/4-600-Blind': 10,
+  '1 1/2-600-WN': 15, '1 1/2-600-Blind': 15,
+  '2-600-WN': 18, '2-600-Blind': 18,
+  '2 1/2-600-WN': 26, '2 1/2-600-Blind': 26,
+  '3-600-WN': 35, '3-600-Blind': 35,
+  '4-600-WN': 54, '4-600-Blind': 55,
+  '6-600-WN': 110, '6-600-Blind': 110,
+  '8-600-WN': 165, '8-600-Blind': 165,
+  '10-600-WN': 290, '10-600-Blind': 290,
+  '12-600-WN': 370, '12-600-Blind': 370,
+  '14-600-WN': 440, '14-600-Blind': 440,
+  '16-600-WN': 600, '16-600-Blind': 600,
+  '18-600-WN': 750, '18-600-Blind': 750,
+  '20-600-WN': 960, '20-600-Blind': 960,
+  '24-600-WN': 1450, '24-600-Blind': 1450,
+
+  // 900#
+  '1/2-900-WN': 5, '1/2-900-Blind': 5,
+  '3/4-900-WN': 7, '3/4-900-Blind': 7,
+  '1-900-WN': 10, '1-900-Blind': 10,
+  '1 1/4-900-WN': 13, '1 1/4-900-Blind': 13,
+  '1 1/2-900-WN': 18, '1 1/2-900-Blind': 18,
+  '2-900-WN': 25, '2-900-Blind': 25,
+  '2 1/2-900-WN': 35, '2 1/2-900-Blind': 35,
+  '3-900-WN': 46, '3-900-Blind': 46,
+  '4-900-WN': 65, '4-900-Blind': 65,
+  '6-900-WN': 140, '6-900-Blind': 140,
+  '8-900-WN': 225, '8-900-Blind': 225,
+  '10-900-WN': 345, '10-900-Blind': 345,
+  '12-900-WN': 460, '12-900-Blind': 460,
+  '14-900-WN': 600, '14-900-Blind': 600,
+  '16-900-WN': 780, '16-900-Blind': 780,
+  '18-900-WN': 1060, '18-900-Blind': 1060,
+  '20-900-WN': 1350, '20-900-Blind': 1350,
+  '24-900-WN': 2300, '24-900-Blind': 2300,
+
+  // 1500#
+  '1/2-1500-WN': 5, '1/2-1500-Blind': 5,
+  '3/4-1500-WN': 7, '3/4-1500-Blind': 7,
+  '1-1500-WN': 10, '1-1500-Blind': 10,
+  '1 1/4-1500-WN': 13, '1 1/4-1500-Blind': 13,
+  '1 1/2-1500-WN': 18, '1 1/2-1500-Blind': 18,
+  '2-1500-WN': 27, '2-1500-Blind': 27,
+  '2 1/2-1500-WN': 40, '2 1/2-1500-Blind': 40,
+  '3-1500-WN': 54, '3-1500-Blind': 54,
+  '4-1500-WN': 85, '4-1500-Blind': 85,
+  '6-1500-WN': 185, '6-1500-Blind': 185,
+  '8-1500-WN': 320, '8-1500-Blind': 320,
+  '10-1500-WN': 530, '10-1500-Blind': 530,
+  '12-1500-WN': 810, '12-1500-Blind': 810,
+  '14-1500-WN': 1050, '14-1500-Blind': 1050,
+  '16-1500-WN': 1380, '16-1500-Blind': 1380,
+  '18-1500-WN': 1850, '18-1500-Blind': 1850,
+  '20-1500-WN': 2400, '20-1500-Blind': 2400,
+  '24-1500-WN': 3800, '24-1500-Blind': 3800,
+
+  // 2500#
+  '1/2-2500-WN': 8, '1/2-2500-Blind': 8,
+  '3/4-2500-WN': 11, '3/4-2500-Blind': 11,
+  '1-2500-WN': 15, '1-2500-Blind': 15,
+  '1 1/4-2500-WN': 20, '1 1/4-2500-Blind': 20,
+  '1 1/2-2500-WN': 27, '1 1/2-2500-Blind': 27,
+  '2-2500-WN': 45, '2-2500-Blind': 45,
+  '2 1/2-2500-WN': 65, '2 1/2-2500-Blind': 65,
+  '3-2500-WN': 95, '3-2500-Blind': 95,
+  '4-2500-WN': 150, '4-2500-Blind': 150,
+  '6-2500-WN': 335, '6-2500-Blind': 335,
+  '8-2500-WN': 600, '8-2500-Blind': 600,
+  '10-2500-WN': 1080, '10-2500-Blind': 1080,
+  '12-2500-WN': 1650, '12-2500-Blind': 1650
+};
+
+// Bare pipe linear weight (lbs / foot)
+const PIPE_WEIGHTS = {
+  '1/2-Std': 0.85, '1/2-X-Stg': 1.09, '1/2-Sch160': 1.31,
+  '3/4-Std': 1.13, '3/4-X-Stg': 1.48, '3/4-Sch160': 1.94,
+  '1-Std': 1.68, '1-X-Stg': 2.17, '1-Sch160': 2.84,
+  '1 1/4-Std': 2.27, '1 1/4-X-Stg': 3.00, '1 1/4-Sch160': 3.77,
+  '1 1/2-Std': 2.72, '1 1/2-X-Stg': 3.63, '1 1/2-Sch160': 4.86,
+  '2-Std': 3.66, '2-X-Stg': 5.03, '2-Sch160': 7.47,
+  '2 1/2-Std': 5.79, '2 1/2-X-Stg': 7.66, '2 1/2-Sch160': 11.41,
+  '3-Std': 7.58, '3-X-Stg': 10.26, '3-Sch160': 15.30,
+  '4-Std': 10.80, '4-X-Stg': 14.98, '4-Sch160': 27.57,
+  '6-Std': 18.99, '6-X-Stg': 28.60, '6-Sch160': 53.21,
+  '8-Std': 28.58, '8-X-Stg': 43.43, '8-Sch160': 90.57,
+  '10-Std': 40.52, '10-X-Stg': 54.79, '10-Sch160': 140.7,
+  '12-Std': 49.60, '12-X-Stg': 65.48, '12-Sch160': 193.3,
+  '14-Std': 54.62, '14-X-Stg': 72.16, '14-Sch160': 228.3,
+  '16-Std': 62.64, '16-X-Stg': 82.85, '16-Sch160': 286.6,
+  '18-Std': 70.65, '18-X-Stg': 93.54, '18-Sch160': 351.4,
+  '20-Std': 78.67, '20-X-Stg': 104.23, '20-Sch160': 423.0,
+  '24-Std': 94.71, '24-X-Stg': 125.61, '24-Sch160': 585.0
+};
+
+// Standard North Slope 2" Calcium Silicate / Mineral Wool + Galv Cladding weight adder (lbs / foot)
+const INSULATION_ADDER = {
+  '1/2': 2.1,
+  '3/4': 2.3,
+  '1': 2.6,
+  '1 1/4': 2.9,
+  '1 1/2': 3.2,
+  '2': 3.7,
+  '2 1/2': 4.2,
+  '3': 4.9,
+  '4': 5.8,
+  '6': 7.6,
+  '8': 9.5,
+  '10': 11.8,
+  '12': 14.1,
+  '14': 15.6,
+  '16': 17.5,
+  '18': 19.4,
+  '20': 21.5,
+  '24': 25.6
+};
+
+const sizes = ['1/2', '3/4', '1', '1 1/4', '1 1/2', '2', '2 1/2', '3', '4', '6', '8', '10', '12', '14', '16', '18', '20', '24'];
+const ratings = ['150', '300', '600', '900', '1500', '2500'];
+
+let flanges = [];
+let pipes = [];
+
+function addFlangeRow(def = { size: '12', rating: '150', type: 'WN', qty: 2 }) {
+  const id = Date.now() + Math.random();
+  flanges.push({ id, ...def });
+  renderFlanges();
+  scrollSectionToBottom('flangeList');
+}
+
+function addPipeRow(def = { size: '12', sched: 'Std', insulated: 'No', ft: 4, in: 0 }) {
+  const id = Date.now() + Math.random();
+  pipes.push({ id, ...def });
+  renderPipes();
+  scrollSectionToBottom('pipeList');
+}
+
+function scrollSectionToBottom(elementId) {
+  setTimeout(() => {
+    const el = document.getElementById(elementId);
+    if (el) el.scrollTop = el.scrollHeight;
+  }, 30);
+}
+
+function removeFlange(id) {
+  flanges = flanges.filter(f => f.id !== id);
+  renderFlanges();
+}
+
+function removePipe(id) {
+  pipes = pipes.filter(p => p.id !== id);
+  renderPipes();
+}
+
+function renderFlanges() {
+  const list = document.getElementById('flangeList');
+  document.getElementById('flangeEmpty').style.display = flanges.length ? 'none' : 'block';
+  list.querySelectorAll('.item-card').forEach(el => el.remove());
+
+  flanges.forEach((f, idx) => {
+    const key = `${f.size}-${f.rating}-${f.type}`;
+    const unitWt = FLANGE_WEIGHTS[key] || 0;
+    const rowWt = unitWt * (f.qty || 0);
+
+    const card = document.createElement('div');
+    card.className = 'item-card flange-item';
+    card.innerHTML = `
+      <div class="row-top">
+        <span class="row-num">#${idx + 1} FLANGE (${unitWt} lbs ea)</span>
+        <div>
+          <span class="row-weight">${rowWt.toFixed(1)} lbs</span>
+          <button class="del-btn" onclick="removeFlange(${f.id})">&times;</button>
+        </div>
+      </div>
+      <div class="inputs-grid flange-grid">
+        <div class="field-group">
+          <label>Size</label>
+          <select onchange="updateFlange(${f.id}, 'size', this.value)">
+            ${sizes.map(s => `<option value="${s}" ${s === f.size ? 'selected' : ''}>${s}"</option>`).join('')}
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Rating</label>
+          <select onchange="updateFlange(${f.id}, 'rating', this.value)">
+            ${ratings.map(r => `<option value="${r}" ${f.rating === r ? 'selected' : ''}>#${r}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Type</label>
+          <select onchange="updateFlange(${f.id}, 'type', this.value)">
+            <option value="WN" ${f.type === 'WN' ? 'selected' : ''}>Weld Neck</option>
+            <option value="Blind" ${f.type === 'Blind' ? 'selected' : ''}>Blind</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Qty</label>
+          <input type="number" min="1" max="99" value="${f.qty}" oninput="updateFlange(${f.id}, 'qty', this.value)">
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+  recalcTotals();
+}
+
+function renderPipes() {
+  const list = document.getElementById('pipeList');
+  document.getElementById('pipeEmpty').style.display = pipes.length ? 'none' : 'block';
+  list.querySelectorAll('.item-card').forEach(el => el.remove());
+
+  pipes.forEach((p, idx) => {
+    const key = `${p.size}-${p.sched}`;
+    let wtPerFt = PIPE_WEIGHTS[key] || 0;
+    if (p.insulated === 'Yes') {
+      wtPerFt += (INSULATION_ADDER[p.size] || 0);
+    }
+    const totalFt = (parseFloat(p.ft) || 0) + ((parseFloat(p.in) || 0) / 12);
+    const rowWt = wtPerFt * totalFt;
+
+    const card = document.createElement('div');
+    card.className = 'item-card pipe-item';
+    card.innerHTML = `
+      <div class="row-top">
+        <span class="row-num">#${idx + 1} PIPE (${wtPerFt.toFixed(2)} lbs/ft${p.insulated === 'Yes' ? ' - Insul' : ''})</span>
+        <div>
+          <span class="row-weight">${rowWt.toFixed(1)} lbs</span>
+          <button class="del-btn" onclick="removePipe(${p.id})">&times;</button>
+        </div>
+      </div>
+      <div class="inputs-grid pipe-grid">
+        <div class="field-group">
+          <label>Size</label>
+          <select onchange="updatePipe(${p.id}, 'size', this.value)">
+            ${sizes.map(s => `<option value="${s}" ${s === p.size ? 'selected' : ''}>${s}"</option>`).join('')}
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Sched</label>
+          <select onchange="updatePipe(${p.id}, 'sched', this.value)">
+            <option value="Std" ${p.sched === 'Std' ? 'selected' : ''}>Std / 40</option>
+            <option value="X-Stg" ${p.sched === 'X-Stg' ? 'selected' : ''}>X-Stg / 80</option>
+            <option value="Sch160" ${p.sched === 'Sch160' ? 'selected' : ''}>Sch 160</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Insulated?</label>
+          <select onchange="updatePipe(${p.id}, 'insulated', this.value)">
+            <option value="No" ${p.insulated === 'No' ? 'selected' : ''}>No</option>
+            <option value="Yes" ${p.insulated === 'Yes' ? 'selected' : ''}>Yes</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Feet</label>
+          <input type="number" min="0" step="1" value="${p.ft}" oninput="updatePipe(${p.id}, 'ft', this.value)">
+        </div>
+        <div class="field-group">
+          <label>Inches</label>
+          <input type="number" min="0" max="11.9" step="0.5" value="${p.in}" oninput="updatePipe(${p.id}, 'in', this.value)">
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+  recalcTotals();
+}
+
+function updateFlange(id, key, val) {
+  const f = flanges.find(x => x.id === id);
+  if (f) {
+    f[key] = key === 'qty' ? parseInt(val) || 0 : val;
+    renderFlanges();
+  }
+}
+
+function updatePipe(id, key, val) {
+  const p = pipes.find(x => x.id === id);
+  if (p) {
+    p[key] = (key === 'ft' || key === 'in') ? parseFloat(val) || 0 : val;
+    renderPipes();
+  }
+}
+
+function recalcTotals() {
+  let fTot = 0;
+  flanges.forEach(f => {
+    const key = `${f.size}-${f.rating}-${f.type}`;
+    fTot += (FLANGE_WEIGHTS[key] || 0) * (f.qty || 0);
+  });
+
+  let pTot = 0;
+  pipes.forEach(p => {
+    const key = `${p.size}-${p.sched}`;
+    let wtPerFt = PIPE_WEIGHTS[key] || 0;
+    if (p.insulated === 'Yes') {
+      wtPerFt += (INSULATION_ADDER[p.size] || 0);
+    }
+    const totalFt = (parseFloat(p.ft) || 0) + ((parseFloat(p.in) || 0) / 12);
+    pTot += wtPerFt * totalFt;
+  });
+
+  const grand = fTot + pTot;
+  document.getElementById('flangeTotal').textContent = fTot.toFixed(1) + ' lbs';
+  document.getElementById('pipeTotal').textContent = pTot.toFixed(1) + ' lbs';
+  document.getElementById('grandTotal').innerHTML = `${grand.toFixed(1)} <span style="font-size:0.9rem;">lbs</span>`;
+}
+
+function resetAll() {
+  if (confirm('Clear all pipe sections and flanges?')) {
+    flanges = [];
+    pipes = [];
+    renderFlanges();
+    renderPipes();
+  }
+}
+
+// Initial demo matching your slide example
+addFlangeRow({ size: '12', rating: '150', type: 'WN', qty: 2 });
+addPipeRow({ size: '12', sched: 'Std', insulated: 'No', ft: 1, in: 10.5 });
+addPipeRow({ size: '12', sched: 'Std', insulated: 'No', ft: 4, in: 0 });
+addPipeRow({ size: '12', sched: 'Std', insulated: 'No', ft: 10, in: 7.5 });
+addPipeRow({ size: '8', sched: 'Std', insulated: 'No', ft: 2, in: 0 });
+</script>
+</body>
+</html>
+"""
+
+with open("daves-spool-weight-calculator.html", "w", encoding="utf-8") as f:
+    f.write(html_code)
+
+print("File re-saved with #900 and Insulation support.")
