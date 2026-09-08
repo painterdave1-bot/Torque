@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dave's Super-Awesome bolt-up thing</title>
+<style>
+  :root {
+    --bg: #121417;
+    --card: #1b2028;
+    --accent: #ff9800;
+    --accent-dim: #b26a00;
+    --text: #e0e6ed;
+    --text-muted: #8b98a5;
+    --border: #2c333e;
+    --bolt-bg: #2d3748;
+    --wheel-radius: 95px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
+  body { display: flex; justify-content: center; align-items: center; padding: 8px; }
+  
+  .app-container {
+    width: 100%; max-width: 480px; height: 100%; max-height: 720px;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+  }
+
+  header { text-align: center; }
+  header h1 { font-size: 1.15rem; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 800; }
+  header p { font-size: 0.7rem; color: var(--text-muted); }
+
+  /* 3D Wheel Section */
+  .roller-container {
+    display: flex; gap: 10px; background: #0f1216;
+    border-radius: 8px; border: 1px solid var(--border); padding: 8px;
+  }
+  .roller-col { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+  .roller-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  
+  .wheel-stage {
+    position: relative; width: 100%; height: 130px;
+    perspective: 800px; overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, #202733 0%, #11151c 90%);
+    border-radius: 6px; border: 1px solid #28313e;
+    box-shadow: inset 0 10px 15px rgba(0,0,0,0.8), inset 0 -10px 15px rgba(0,0,0,0.8);
+  }
+
+  /* Center Fixed Rim Marker */
+  .wheel-center-bar {
+    position: absolute; top: 50%; left: 0; right: 0; height: 38px;
+    margin-top: -19px;
+    border-top: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    background: rgba(255, 152, 0, 0.12);
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.2);
+    pointer-events: none; z-index: 5;
+  }
+
+  /* Rotating 3D Drum */
+  .cylinder {
+    position: absolute; width: 100%; height: 38px; top: 50%; margin-top: -19px;
+    transform-style: preserve-3d;
+    transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+  .cylinder-item {
+    position: absolute; width: 100%; height: 38px;
+    line-height: 38px; text-align: center;
+    font-size: 0.95rem; font-weight: 700; color: #7e8d9f;
+    backface-visibility: hidden; cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 6px;
+    transition: color 0.2s, text-shadow 0.2s;
+  }
+  .cylinder-item.selected {
+    color: #fff; text-shadow: 0 0 6px rgba(255,255,255,0.6);
+  }
+
+  /* Clickable Spin Buttons for Desktop / Mouse */
+  .nav-btn {
+    background: #202632; border: 1px solid var(--border); color: var(--accent);
+    width: 100%; padding: 2px 0; font-size: 0.75rem; font-weight: bold;
+    cursor: pointer; border-radius: 4px; line-height: 1;
+  }
+  .nav-btn:hover { background: #2c3545; }
+  .nav-btn:active { background: var(--accent); color: #000; }
+
+  /* Spec Grid */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+  .spec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .spec-box { background: #222831; padding: 6px 4px; border-radius: 6px; text-align: center; border: 1px solid #2b323d; }
+  .spec-box.highlight { border-color: var(--accent-dim); background: #282218; grid-column: span 2; }
+  .spec-box.rtj-box { grid-column: span 1; }
+  .spec-title { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
+  .spec-val { font-size: 1rem; font-weight: 700; color: #fff; margin-top: 1px; }
+  .spec-val.accent { color: var(--accent); font-size: 1.25rem; }
+
+  /* Flange SVG */
+  .visual-card {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px; min-height: 0;
+  }
+  .visual-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+  svg { width: 100%; height: 100%; max-height: 240px; }
+  .bolt-circle { fill: var(--bolt-bg); stroke: #4a5568; stroke-width: 2; }
+  .bolt-text { fill: #fff; font-size: 12px; font-weight: bold; text-anchor: middle; dominant-baseline: central; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <h1>Dave's Super-Awesome bolt-up thing</h1>
+    <p>Conoco / SS-30 Jet-Lube Specs</p>
+  </header>
+
+  <!-- 3D Wheels -->
+  <div class="roller-container">
+    <div class="roller-col">
+      <span class="roller-label">Pipe Size</span>
+      <button class="nav-btn" onclick="stepSize(-1)">▲</button>
+      <div class="wheel-stage" id="sizeStage">
+        <div class="wheel-center-bar"></div>
+        <div class="cylinder" id="sizeCylinder"></div>
+      </div>
+      <button class="nav-btn" style="margin-top:2px;" onclick="stepSize(1)">▼</button>
+    </div>
+
+    <div class="roller-col">
+      <span class="roller-label">Rating / Gasket</span>
+      <button class="nav-btn" onclick="stepClass(-1)">▲</button>
+      <div class="wheel-stage" id="classStage">
+        <div class="wheel-center-bar"></div>
+        <div class="cylinder" id="classCylinder"></div>
+      </div>
+      <button class="nav-btn" style="margin-top:2px;" onclick="stepClass(1)">▼</button>
+    </div>
+  </div>
+
+  <!-- Specs Display -->
+  <div class="card">
+    <div class="spec-grid">
+      <div class="spec-box highlight">
+        <div class="spec-title">Target Torque (ft-lbs)</div>
+        <div class="spec-val accent" id="torqueVal">--</div>
+      </div>
+      <div class="spec-box rtj-box">
+        <div class="spec-title">RTJ Ring</div>
+        <div class="spec-val" id="rtjVal" style="color: #4fc3f7;">None</div>
+      </div>
+      <div class="spec-box">
+        <div class="spec-title">Stud Count</div>
+        <div class="spec-val" id="boltCount">--</div>
+      </div>
+      <div class="spec-box">
+        <div class="spec-title">Stud Dia</div>
+        <div class="spec-val" id="boltDia">--</div>
+      </div>
+      <div class="spec-box">
+        <div class="spec-title">Stud Length</div>
+        <div class="spec-val" id="boltLen">--</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flange Star Pattern Order -->
+  <div class="visual-card">
+    <span class="visual-label">Tightening Star Pattern Order</span>
+    <svg id="flangeSvg" viewBox="-125 -125 250 250"></svg>
+  </div>
+</div>
+
+<script>
+const rawData = [
+  ['1/2"', '#150 Flex', 4, '1/2"', '2 1/4"', '30-50', ''],
+  ['1/2"', '#300 Flex', 4, '1/2"', '2 1/2"', '30-40', ''],
+  ['1/2"', '#600 Flex', 4, '1/2"', '3"', '30-40', ''],
+  ['1/2"', '#900 RTJ',  4, '3/4"', '4 1/2"', '143', 'R12'],
+  ['1/2"', '#1500 RTJ', 4, '3/4"', '4 1/4"', '143', 'R12'],
+  ['1/2"', '#2500 RTJ', 4, '3/4"', '4 3/4"', '143', 'R13'],
+  ['3/4"', '#150 Flex', 4, '1/2"', '2 1/2"', '30-50', ''],
+  ['3/4"', '#300 Flex', 4, '5/8"', '3"', '60-80', ''],
+  ['3/4"', '#600 Flex', 4, '5/8"', '3 1/2"', '60-80', ''],
+  ['3/4"', '#900 RTJ',  4, '3/4"', '4 1/2"', '143', 'R14'],
+  ['3/4"', '#1500 RTJ', 4, '3/4"', '4 1/2"', '143', 'R14'],
+  ['3/4"', '#2500 RTJ', 4, '3/4"', '5"', '143', 'R16'],
+  ['1"', '#150 Flex', 4, '1/2"', '2 1/2"', '30-60', ''],
+  ['1"', '#300 Flex', 4, '5/8"', '3"', '60-80', ''],
+  ['1"', '#600 Flex', 4, '5/8"', '3 1/2"', '60-80', ''],
+  ['1"', '#900 RTJ',  4, '7/8"', '5"', '230', 'R16'],
+  ['1"', '#1500 RTJ', 4, '7/8"', '5"', '230', 'R16'],
+  ['1"', '#2500 RTJ', 4, '7/8"', '5 1/2"', '230', 'R18'],
+  ['1 1/4"', '#150 Flex', 4, '1/2"', '2 3/4"', '30-60', ''],
+  ['1 1/4"', '#300 Flex', 4, '5/8"', '3 1/4"', '60-80', ''],
+  ['1 1/4"', '#600 Flex', 4, '5/8"', '3 3/4"', '60-80', ''],
+  ['1 1/4"', '#900 RTJ',  4, '7/8"', '5"', '230', 'R18'],
+  ['1 1/4"', '#1500 RTJ', 4, '7/8"', '5"', '230', 'R18'],
+  ['1 1/4"', '#2500 RTJ', 4, '1"', '6"', '345', 'R21'],
+  ['1 1/2"', '#150 Flex', 4, '1/2"', '2 3/4"', '30-60', ''],
+  ['1 1/2"', '#300 Flex', 4, '3/4"', '3 1/2"', '100-140', ''],
+  ['1 1/2"', '#600 Flex', 4, '3/4"', '4 1/4"', '100-140', ''],
+  ['1 1/2"', '#900 RTJ',  4, '1"', '5 1/2"', '345', 'R20'],
+  ['1 1/2"', '#1500 RTJ', 4, '1"', '5 1/2"', '345', 'R20'],
+  ['1 1/2"', '#2500 RTJ', 4, '1 1/8"', '6 3/4"', '506', 'R23'],
+  ['2"', '#150 Flex', 4, '5/8"', '3 1/4"', '60-120', ''],
+  ['2"', '#300 Flex', 8, '5/8"', '3 1/2"', '60-80', ''],
+  ['2"', '#600 Flex', 8, '5/8"', '4 1/4"', '60-80', ''],
+  ['2"', '#900 RTJ',  8, '7/8"', '5 3/4"', '230', 'R24'],
+  ['2"', '#1500 RTJ', 8, '7/8"', '5 3/4"', '230', 'R24'],
+  ['2"', '#2500 RTJ', 8, '1"', '7"', '345', 'R26'],
+  ['2 1/2"', '#150 Flex', 4, '5/8"', '3 1/2"', '60-120', ''],
+  ['2 1/2"', '#300 Flex', 8, '3/4"', '4"', '100-140', ''],
+  ['2 1/2"', '#600 Flex', 8, '3/4"', '4 3/4"', '100-140', ''],
+  ['2 1/2"', '#900 RTJ',  8, '1"', '6 1/2"', '345', 'R27'],
+  ['2 1/2"', '#1500 RTJ', 8, '1"', '6 1/4"', '345', 'R27'],
+  ['2 1/2"', '#2500 RTJ', 8, '1 1/8"', '7 3/4"', '506', 'R28'],
+  ['3"', '#150 Flex', 4, '5/8"', '3 1/2"', '90-120', ''],
+  ['3"', '#300 Flex', 8, '3/4"', '4 1/4"', '100-150', ''],
+  ['3"', '#600 Flex', 8, '3/4"', '5"', '100-150', ''],
+  ['3"', '#900 RTJ',  8, '7/8"', '6"', '230', 'R31'],
+  ['3"', '#1500 RTJ', 8, '1 1/8"', '7"', '506', 'R35'],
+  ['3"', '#2500 RTJ', 8, '1 1/4"', '8 3/4"', '711', 'R32'],
+  ['3 1/2"', '#150 Flex', 8, '5/8"', '3 1/2"', '60-120', ''],
+  ['3 1/2"', '#300 Flex', 8, '3/4"', '4 1/4"', '100-170', ''],
+  ['3 1/2"', '#600 Flex', 8, '7/8"', '5 1/2"', '170-290', ''],
+  ['4"', '#150 Flex', 8, '5/8"', '3 1/2"', '70-120', ''],
+  ['4"', '#300 Flex', 8, '3/4"', '4 1/2"', '100-200', ''],
+  ['4"', '#600 Flex', 8, '7/8"', '5 3/4"', '190-320', ''],
+  ['4"', '#900 RTJ',  8, '1 1/8"', '7"', '506', 'R34'],
+  ['4"', '#1500 RTJ', 8, '1 1/4"', '7 3/4"', '711', 'R39'],
+  ['4"', '#2500 RTJ', 8, '1 1/2"', '10"', '1273', 'R38'],
+  ['6"', '#150 Flex', 8, '3/4"', '4"', '130-200', ''],
+  ['6"', '#300 Flex', 12, '3/4"', '4 3/4"', '110-200', ''],
+  ['6"', '#600 Flex', 12, '1"', '6 3/4"', '260-460', ''],
+  ['6"', '#900 RTJ',  12, '1 1/8"', '7 3/4"', '506', 'R45'],
+  ['6"', '#1500 RTJ', 12, '1 3/8"', '10 3/4"', '965', 'R46'],
+  ['6"', '#2500 RTJ', 8, '2"', '13 1/2"', '3152', 'R47'],
+  ['8"', '#150 Flex', 8, '3/4"', '4 1/2"', '180-200', ''],
+  ['8"', '#300 Flex', 12, '7/8"', '5 1/2"', '180-320', ''],
+  ['8"', '#600 Flex', 12, '1 1/8"', '7 1/2"', '400-700', ''],
+  ['8"', '#900 RTJ',  12, '1 3/8"', '9"', '965', 'R49'],
+  ['8"', '#1500 RTJ', 12, '1 5/8"', '11 1/2"', '1640', 'R50'],
+  ['8"', '#2500 RTJ', 12, '2"', '15"', '3152', 'R51'],
+  ['10"', '#150 Flex', 12, '7/8"', '4 1/2"', '170-320', ''],
+  ['10"', '#300 Flex', 16, '1"', '6 1/4"', '250-460', ''],
+  ['10"', '#600 Flex', 16, '1 1/4"', '8 1/2"', '500-800', ''],
+  ['10"', '#900 RTJ',  16, '1 3/8"', '9 1/2"', '965', 'R53'],
+  ['10"', '#1500 RTJ', 12, '1 7/8"', '13 1/4"', '2574', 'R54'],
+  ['10"', '#2500 RTJ', 12, '2 1/2"', '19 1/4"', '3152', 'R55'],
+  ['12"', '#150 Flex', 12, '7/8"', '4 3/4"', '240-320', ''],
+  ['12"', '#300 Flex', 16, '1 1/8"', '6 3/4"', '360-700', ''],
+  ['12"', '#600 Flex', 20, '1 1/4"', '8 3/4"', '500-850', ''],
+  ['12"', '#900 RTJ',  20, '1 3/8"', '10 1/4"', '965', 'R57'],
+  ['12"', '#1500 RTJ', 16, '2"', '14 3/4"', '3152', 'R58'],
+  ['12"', '#2500 RTJ', 12, '2 3/4"', '21 1/4"', 'R60', 'R60'],
+  ['14"', '#150 Flex', 12, '1"', '5 1/4"', '300-490', ''],
+  ['14"', '#300 Flex', 20, '1 1/8"', '7"', '360-610', ''],
+  ['14"', '#600 Flex', 20, '1 3/8"', '9 1/4"', '680-950', ''],
+  ['14"', '#900 RTJ',  20, '1 1/2"', '11 1/4"', '1273', 'R62'],
+  ['14"', '#1500 RTJ', 16, '2 1/4"', '16"', '4552', 'R93'],
+  ['16"', '#150 Flex', 16, '1"', '5 1/4"', '310-490', ''],
+  ['16"', '#300 Flex', 20, '1 1/4"', '7 1/2"', '500-920', ''],
+  ['16"', '#600 Flex', 20, '1 1/2"', '10"', '800-1210', ''],
+  ['16"', '#900 RTJ',  20, '1 5/8"', '11 3/4"', '1640', 'R66'],
+  ['16"', '#1500 RTJ', 16, '2 1/2"', '17 1/2"', '6316', 'R67'],
+  ['18"', '#150 Flex', 16, '1 1/8"', '5 3/4"', '490-710', ''],
+  ['18"', '#300 Flex', 24, '1 1/4"', '7 3/4"', '500-1000', ''],
+  ['18"', '#600 Flex', 20, '1 5/8"', '10 3/4"', '1100-1790', ''],
+  ['18"', '#900 RTJ',  20, '1 7/8"', '13 1/2"', '2574', 'R70'],
+  ['18"', '#1500 RTJ', 16, '2 3/4"', '19 3/4"', '--', ''],
+  ['20"', '#150 Flex', 20, '1 1/8"', '6 3/4"', '430-710', ''],
+  ['20"', '#300 Flex', 24, '1 1/4"', '8"', '500-1000', ''],
+  ['20"', '#600 Flex', 24, '1 5/8"', '11 1/4"', '1100-1640', ''],
+  ['20"', '#900 RTJ',  20, '2"', '14 1/4"', '3152', 'R74'],
+  ['20"', '#1500 RTJ', 16, '3"', '21 1/4"', '--', ''],
+  ['24"', '#150 Flex', 20, '1 1/4"', '6 3/4"', '620-1000', ''],
+  ['24"', '#300 Flex', 24, '1 1/2"', '9"', '800-1600', ''],
+  ['24"', '#600 Flex', 24, '1 7/8"', '13"', '2000-2670', ''],
+  ['24"', '#900 RTJ',  20, '2 1/2"', '17 3/4"', '6316', 'R78'],
+  ['24"', '#1500 RTJ', 16, '3 1/2"', '24 1/4"', '--', '']
+];
+
+const crossPatterns = {
+  4:  [1, 3, 2, 4],
+  8:  [1, 5, 3, 7, 2, 6, 4, 8],
+  12: [1, 7, 4, 10, 2, 8, 5, 11, 3, 9, 6, 12],
+  16: [1, 9, 5, 13, 3, 11, 7, 15, 2, 10, 6, 14, 4, 12, 8, 16],
+  20: [1, 11, 6, 16, 3, 13, 8, 18, 5, 15, 10, 20, 2, 12, 7, 17, 4, 14, 9, 19],
+  24: [1, 13, 7, 19, 4, 16, 10, 22, 2, 14, 8, 20, 5, 17, 11, 23, 3, 15, 9, 21, 6, 18, 12, 24]
+};
+
+const uniqueSizes = [...new Set(rawData.map(d => d[0]))];
+let sizeIdx = uniqueSizes.indexOf('2"');
+let currentClasses = [];
+let classIdx = 0;
+
+const RADIUS = 65;
+const ANGLE_STEP = 28;
+
+function buildCylinder(cylinderEl, items, activeIdx, onSelect) {
+  cylinderEl.innerHTML = '';
+  items.forEach((txt, i) => {
+    const el = document.createElement('div');
+    el.className = 'cylinder-item' + (i === activeIdx ? ' selected' : '');
+    el.textContent = txt;
+    const diff = i - activeIdx;
+    el.style.transform = `rotateX(${diff * -ANGLE_STEP}deg) translateZ(${RADIUS}px)`;
+    el.onclick = () => onSelect(i);
+    cylinderEl.appendChild(el);
+  });
+}
+
+function rotateCylinder(cylinderEl, activeIdx, totalItems) {
+  cylinderEl.querySelectorAll('.cylinder-item').forEach((el, i) => {
+    const diff = i - activeIdx;
+    el.style.transform = `rotateX(${diff * -ANGLE_STEP}deg) translateZ(${RADIUS}px)`;
+    el.classList.toggle('selected', i === activeIdx);
+    el.style.opacity = Math.abs(diff) > 2 ? '0' : (Math.abs(diff) === 2 ? '0.3' : (Math.abs(diff) === 1 ? '0.7' : '1'));
+  });
+}
+
+function initSizeWheel() {
+  const cyl = document.getElementById('sizeCylinder');
+  buildCylinder(cyl, uniqueSizes, sizeIdx, (newIdx) => {
+    sizeIdx = newIdx;
+    rotateCylinder(cyl, sizeIdx, uniqueSizes.length);
+    onSizeChange();
+  });
+  rotateCylinder(cyl, sizeIdx, uniqueSizes.length);
+}
+
+function initClassWheel() {
+  const sz = uniqueSizes[sizeIdx];
+  currentClasses = rawData.filter(d => d[0] === sz).map(d => d[1]);
+  if (classIdx >= currentClasses.length) classIdx = 0;
+  const cyl = document.getElementById('classCylinder');
+  buildCylinder(cyl, currentClasses, classIdx, (newIdx) => {
+    classIdx = newIdx;
+    rotateCylinder(cyl, classIdx, currentClasses.length);
+    updateDetails();
+  });
+  rotateCylinder(cyl, classIdx, currentClasses.length);
+}
+
+function onSizeChange() {
+  const sz = uniqueSizes[sizeIdx];
+  const oldClass = currentClasses[classIdx];
+  currentClasses = rawData.filter(d => d[0] === sz).map(d => d[1]);
+  const matched = currentClasses.indexOf(oldClass);
+  classIdx = matched !== -1 ? matched : 0;
+  initClassWheel();
+  updateDetails();
+}
+
+function stepSize(dir) {
+  sizeIdx = Math.max(0, Math.min(uniqueSizes.length - 1, sizeIdx + dir));
+  rotateCylinder(document.getElementById('sizeCylinder'), sizeIdx, uniqueSizes.length);
+  onSizeChange();
+}
+
+function stepClass(dir) {
+  classIdx = Math.max(0, Math.min(currentClasses.length - 1, classIdx + dir));
+  rotateCylinder(document.getElementById('classCylinder'), classIdx, currentClasses.length);
+  updateDetails();
+}
+
+// Mousewheel listener for wheels
+document.getElementById('sizeStage').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  stepSize(e.deltaY > 0 ? 1 : -1);
+}, { passive: false });
+
+document.getElementById('classStage').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  stepClass(e.deltaY > 0 ? 1 : -1);
+}, { passive: false });
+
+function updateDetails() {
+  const sz = uniqueSizes[sizeIdx];
+  const cl = currentClasses[classIdx];
+  const record = rawData.find(d => d[0] === sz && d[1] === cl);
+  if (!record) return;
+
+  const [, , bolts, dia, len, tq, rtj] = record;
+  document.getElementById('torqueVal').textContent = tq + (tq !== '--' && !tq.includes('R') ? ' ft-lbs' : '');
+  document.getElementById('boltCount').textContent = bolts;
+  document.getElementById('boltDia').textContent = dia;
+  document.getElementById('boltLen').textContent = len;
+  document.getElementById('rtjVal').textContent = rtj || 'None';
+
+  drawFlange(bolts);
+}
+
+function drawFlange(boltCount) {
+  const svg = document.getElementById('flangeSvg');
+  svg.innerHTML = '';
+
+  const outer = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  outer.setAttribute('cx', 0); outer.setAttribute('cy', 0); outer.setAttribute('r', 110);
+  outer.setAttribute('fill', '#171c24'); outer.setAttribute('stroke', '#374151'); outer.setAttribute('stroke-width', 4);
+  svg.appendChild(outer);
+
+  const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  inner.setAttribute('cx', 0); inner.setAttribute('cy', 0); inner.setAttribute('r', 50);
+  inner.setAttribute('fill', '#121417'); inner.setAttribute('stroke', '#374151'); inner.setAttribute('stroke-width', 3);
+  svg.appendChild(inner);
+
+  const r = 80;
+  const seq = crossPatterns[boltCount] || Array.from({length: boltCount}, (_, i) => i + 1);
+
+  for (let i = 0; i < boltCount; i++) {
+    const angle = (i * 2 * Math.PI / boltCount) - (Math.PI / 2);
+    const x = r * Math.cos(angle);
+    const y = r * Math.sin(angle);
+    const boltId = i + 1;
+    const seqOrder = seq.indexOf(boltId) + 1;
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x); circle.setAttribute('cy', y);
+    circle.setAttribute('r', boltCount > 16 ? 10 : 13);
+    circle.setAttribute('class', 'bolt-circle');
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('x', x); txt.setAttribute('y', y);
+    txt.setAttribute('class', 'bolt-text');
+    txt.textContent = seqOrder;
+
+    g.appendChild(circle);
+    g.appendChild(txt);
+    svg.appendChild(g);
+  }
+}
+
+// Initial Boot
+initSizeWheel();
+initClassWheel();
+updateDetails();
+</script>
+</body>
+</html>
