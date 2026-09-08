@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html_clean = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -140,22 +140,29 @@
 
   .inputs-grid { display: grid; gap: 6px; }
   .flange-grid { grid-template-columns: 1.1fr 1fr 1.3fr 0.8fr; }
-  .pipe-grid { grid-template-columns: 1.1fr 1fr 1.1fr 0.8fr 0.8fr; }
+  .pipe-grid { grid-template-columns: 1fr 1.2fr 1fr 0.9fr 0.9fr; }
 
-  .field-group { display: flex; flex-direction: column; }
+  .field-group { display: flex; flex-direction: column; min-width: 0; }
   .field-group label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
   select, input {
     background: #0f1318;
     border: 1px solid #3b4252;
     color: #fff;
     border-radius: 4px;
-    padding: 6px 4px;
+    padding: 6px 3px;
     font-size: 0.82rem;
     font-weight: 600;
     outline: none;
     width: 100%;
   }
   select:focus, input:focus { border-color: var(--accent-orange); }
+
+  /* Compact Sched dropdown font */
+  .sched-select {
+    font-size: 0.72rem;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
 
   .clear-all-btn {
     align-self: center;
@@ -227,7 +234,6 @@
 </div>
 
 <script>
-// ASME B16.5 Standard Carbon Steel Flange & Blind weights (lbs)
 const FLANGE_WEIGHTS = {
   // 150#
   '1/2-150-WN': 2, '1/2-150-Blind': 2,
@@ -345,7 +351,6 @@ const FLANGE_WEIGHTS = {
   '12-2500-WN': 1650, '12-2500-Blind': 1650
 };
 
-// Bare pipe linear weight (lbs / foot)
 const PIPE_WEIGHTS = {
   '1/2-Std': 0.85, '1/2-X-Stg': 1.09, '1/2-Sch160': 1.31,
   '3/4-Std': 1.13, '3/4-X-Stg': 1.48, '3/4-Sch160': 1.94,
@@ -367,26 +372,11 @@ const PIPE_WEIGHTS = {
   '24-Std': 94.71, '24-X-Stg': 125.61, '24-Sch160': 585.0
 };
 
-// Standard North Slope 2" Calcium Silicate / Mineral Wool + Galv Cladding weight adder (lbs / foot)
 const INSULATION_ADDER = {
-  '1/2': 2.1,
-  '3/4': 2.3,
-  '1': 2.6,
-  '1 1/4': 2.9,
-  '1 1/2': 3.2,
-  '2': 3.7,
-  '2 1/2': 4.2,
-  '3': 4.9,
-  '4': 5.8,
-  '6': 7.6,
-  '8': 9.5,
-  '10': 11.8,
-  '12': 14.1,
-  '14': 15.6,
-  '16': 17.5,
-  '18': 19.4,
-  '20': 21.5,
-  '24': 25.6
+  '1/2': 2.1, '3/4': 2.3, '1': 2.6, '1 1/4': 2.9, '1 1/2': 3.2,
+  '2': 3.7, '2 1/2': 4.2, '3': 4.9, '4': 5.8, '6': 7.6,
+  '8': 9.5, '10': 11.8, '12': 14.1, '14': 15.6, '16': 17.5,
+  '18': 19.4, '20': 21.5, '24': 25.6
 };
 
 const sizes = ['1/2', '3/4', '1', '1 1/4', '1 1/2', '2', '2 1/2', '3', '4', '6', '8', '10', '12', '14', '16', '18', '20', '24'];
@@ -432,43 +422,40 @@ function renderFlanges() {
   list.querySelectorAll('.item-card').forEach(el => el.remove());
 
   flanges.forEach((f, idx) => {
-    const key = `${f.size}-${f.rating}-${f.type}`;
-    const unitWt = FLANGE_WEIGHTS[key] || 0;
-    const rowWt = unitWt * (f.qty || 0);
-
     const card = document.createElement('div');
     card.className = 'item-card flange-item';
+    card.id = `flange-card-${f.id}`;
     card.innerHTML = `
       <div class="row-top">
-        <span class="row-num">#${idx + 1} FLANGE (${unitWt} lbs ea)</span>
+        <span class="row-num" id="flange-title-${f.id}">#${idx + 1} FLANGE</span>
         <div>
-          <span class="row-weight">${rowWt.toFixed(1)} lbs</span>
+          <span class="row-weight" id="flange-wt-${f.id}">0.0 lbs</span>
           <button class="del-btn" onclick="removeFlange(${f.id})">&times;</button>
         </div>
       </div>
       <div class="inputs-grid flange-grid">
         <div class="field-group">
           <label>Size</label>
-          <select onchange="updateFlange(${f.id}, 'size', this.value)">
+          <select onchange="updateFlange(${f.id}, 'size', this.value, true)">
             ${sizes.map(s => `<option value="${s}" ${s === f.size ? 'selected' : ''}>${s}"</option>`).join('')}
           </select>
         </div>
         <div class="field-group">
           <label>Rating</label>
-          <select onchange="updateFlange(${f.id}, 'rating', this.value)">
+          <select onchange="updateFlange(${f.id}, 'rating', this.value, true)">
             ${ratings.map(r => `<option value="${r}" ${f.rating === r ? 'selected' : ''}>#${r}</option>`).join('')}
           </select>
         </div>
         <div class="field-group">
           <label>Type</label>
-          <select onchange="updateFlange(${f.id}, 'type', this.value)">
+          <select onchange="updateFlange(${f.id}, 'type', this.value, true)">
             <option value="WN" ${f.type === 'WN' ? 'selected' : ''}>Weld Neck</option>
             <option value="Blind" ${f.type === 'Blind' ? 'selected' : ''}>Blind</option>
           </select>
         </div>
         <div class="field-group">
           <label>Qty</label>
-          <input type="number" min="1" max="99" value="${f.qty}" oninput="updateFlange(${f.id}, 'qty', this.value)">
+          <input type="number" min="1" max="99" value="${f.qty}" oninput="updateFlange(${f.id}, 'qty', this.value, false)">
         </div>
       </div>
     `;
@@ -483,53 +470,46 @@ function renderPipes() {
   list.querySelectorAll('.item-card').forEach(el => el.remove());
 
   pipes.forEach((p, idx) => {
-    const key = `${p.size}-${p.sched}`;
-    let wtPerFt = PIPE_WEIGHTS[key] || 0;
-    if (p.insulated === 'Yes') {
-      wtPerFt += (INSULATION_ADDER[p.size] || 0);
-    }
-    const totalFt = (parseFloat(p.ft) || 0) + ((parseFloat(p.in) || 0) / 12);
-    const rowWt = wtPerFt * totalFt;
-
     const card = document.createElement('div');
     card.className = 'item-card pipe-item';
+    card.id = `pipe-card-${p.id}`;
     card.innerHTML = `
       <div class="row-top">
-        <span class="row-num">#${idx + 1} PIPE (${wtPerFt.toFixed(2)} lbs/ft${p.insulated === 'Yes' ? ' - Insul' : ''})</span>
+        <span class="row-num" id="pipe-title-${p.id}">#${idx + 1} PIPE</span>
         <div>
-          <span class="row-weight">${rowWt.toFixed(1)} lbs</span>
+          <span class="row-weight" id="pipe-wt-${p.id}">0.0 lbs</span>
           <button class="del-btn" onclick="removePipe(${p.id})">&times;</button>
         </div>
       </div>
       <div class="inputs-grid pipe-grid">
         <div class="field-group">
           <label>Size</label>
-          <select onchange="updatePipe(${p.id}, 'size', this.value)">
+          <select onchange="updatePipe(${p.id}, 'size', this.value, true)">
             ${sizes.map(s => `<option value="${s}" ${s === p.size ? 'selected' : ''}>${s}"</option>`).join('')}
           </select>
         </div>
         <div class="field-group">
           <label>Sched</label>
-          <select onchange="updatePipe(${p.id}, 'sched', this.value)">
-            <option value="Std" ${p.sched === 'Std' ? 'selected' : ''}>Std / 40</option>
-            <option value="X-Stg" ${p.sched === 'X-Stg' ? 'selected' : ''}>X-Stg / 80</option>
-            <option value="Sch160" ${p.sched === 'Sch160' ? 'selected' : ''}>Sch 160</option>
+          <select class="sched-select" onchange="updatePipe(${p.id}, 'sched', this.value, true)">
+            <option value="Std" ${p.sched === 'Std' ? 'selected' : ''}>Std/40</option>
+            <option value="X-Stg" ${p.sched === 'X-Stg' ? 'selected' : ''}>XS/80</option>
+            <option value="Sch160" ${p.sched === 'Sch160' ? 'selected' : ''}>S160</option>
           </select>
         </div>
         <div class="field-group">
-          <label>Insulated?</label>
-          <select onchange="updatePipe(${p.id}, 'insulated', this.value)">
+          <label>Insul?</label>
+          <select onchange="updatePipe(${p.id}, 'insulated', this.value, true)">
             <option value="No" ${p.insulated === 'No' ? 'selected' : ''}>No</option>
             <option value="Yes" ${p.insulated === 'Yes' ? 'selected' : ''}>Yes</option>
           </select>
         </div>
         <div class="field-group">
           <label>Feet</label>
-          <input type="number" min="0" step="1" value="${p.ft}" oninput="updatePipe(${p.id}, 'ft', this.value)">
+          <input type="number" min="0" step="1" value="${p.ft}" oninput="updatePipe(${p.id}, 'ft', this.value, false)">
         </div>
         <div class="field-group">
           <label>Inches</label>
-          <input type="number" min="0" max="11.9" step="0.5" value="${p.in}" oninput="updatePipe(${p.id}, 'in', this.value)">
+          <input type="number" min="0" max="11.9" step="0.5" value="${p.in}" oninput="updatePipe(${p.id}, 'in', this.value, false)">
         </div>
       </div>
     `;
@@ -538,38 +518,62 @@ function renderPipes() {
   recalcTotals();
 }
 
-function updateFlange(id, key, val) {
+function updateFlange(id, key, val, shouldRebuild) {
   const f = flanges.find(x => x.id === id);
   if (f) {
-    f[key] = key === 'qty' ? parseInt(val) || 0 : val;
-    renderFlanges();
+    f[key] = key === 'qty' ? (val === '' ? '' : parseInt(val) || 0) : val;
+    if (shouldRebuild) {
+      renderFlanges();
+    } else {
+      recalcTotals();
+    }
   }
 }
 
-function updatePipe(id, key, val) {
+function updatePipe(id, key, val, shouldRebuild) {
   const p = pipes.find(x => x.id === id);
   if (p) {
-    p[key] = (key === 'ft' || key === 'in') ? parseFloat(val) || 0 : val;
-    renderPipes();
+    p[key] = (key === 'ft' || key === 'in') ? (val === '' ? '' : parseFloat(val) || 0) : val;
+    if (shouldRebuild) {
+      renderPipes();
+    } else {
+      recalcTotals();
+    }
   }
 }
 
 function recalcTotals() {
   let fTot = 0;
-  flanges.forEach(f => {
+  flanges.forEach((f, idx) => {
     const key = `${f.size}-${f.rating}-${f.type}`;
-    fTot += (FLANGE_WEIGHTS[key] || 0) * (f.qty || 0);
+    const unitWt = FLANGE_WEIGHTS[key] || 0;
+    const qtyNum = f.qty === '' ? 0 : (parseInt(f.qty) || 0);
+    const rowWt = unitWt * qtyNum;
+    fTot += rowWt;
+
+    const wtEl = document.getElementById(`flange-wt-${f.id}`);
+    const tEl = document.getElementById(`flange-title-${f.id}`);
+    if (wtEl) wtEl.textContent = rowWt.toFixed(1) + ' lbs';
+    if (tEl) tEl.textContent = `#${idx + 1} FLANGE (${unitWt} lbs ea)`;
   });
 
   let pTot = 0;
-  pipes.forEach(p => {
+  pipes.forEach((p, idx) => {
     const key = `${p.size}-${p.sched}`;
     let wtPerFt = PIPE_WEIGHTS[key] || 0;
     if (p.insulated === 'Yes') {
       wtPerFt += (INSULATION_ADDER[p.size] || 0);
     }
-    const totalFt = (parseFloat(p.ft) || 0) + ((parseFloat(p.in) || 0) / 12);
-    pTot += wtPerFt * totalFt;
+    const ftNum = p.ft === '' ? 0 : (parseFloat(p.ft) || 0);
+    const inNum = p.in === '' ? 0 : (parseFloat(p.in) || 0);
+    const totalFt = ftNum + (inNum / 12);
+    const rowWt = wtPerFt * totalFt;
+    pTot += rowWt;
+
+    const wtEl = document.getElementById(`pipe-wt-${p.id}`);
+    const tEl = document.getElementById(`pipe-title-${p.id}`);
+    if (wtEl) wtEl.textContent = rowWt.toFixed(1) + ' lbs';
+    if (tEl) tEl.textContent = `#${idx + 1} PIPE (${wtPerFt.toFixed(2)} lbs/ft${p.insulated === 'Yes' ? ' - Insul' : ''})`;
   });
 
   const grand = fTot + pTot;
@@ -596,3 +600,9 @@ addPipeRow({ size: '8', sched: 'Std', insulated: 'No', ft: 2, in: 0 });
 </script>
 </body>
 </html>
+"""
+
+with open("daves-spool-weight-calculator.html", "w", encoding="utf-8") as f:
+    f.write(html_clean)
+
+print("Saved updated spool weight calculator.")
