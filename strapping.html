@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dave's Super-Awesome Tank Strapping & Load Calc</title>
+<style>
+  :root {
+    --bg: #121417;
+    --card: #1c212a;
+    --card-sub: #141922;
+    --accent: #ff9800;
+    --accent-green: #00e676;
+    --accent-cyan: #00e5ff;
+    --text: #e0e6ed;
+    --text-muted: #94a3b8;
+    --border: #2d3748;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--text); }
+  body { padding: 10px; display: flex; justify-content: center; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .app-container { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
+
+  header { text-align: center; padding: 4px 0; }
+  header h1 { font-size: 1.15rem; color: var(--accent); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+  header p { font-size: 0.72rem; color: var(--text-muted); }
+
+  .sticky-top-group {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  .transfer-banner {
+    background: #0d2818;
+    border: 2px solid var(--accent-green);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  .transfer-banner .lbl { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #a7f3d0; }
+  .transfer-banner .val { font-size: 1.6rem; font-weight: 800; color: #fff; text-shadow: 0 0 8px rgba(0, 230, 118, 0.4); }
+
+  .sub-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .sub-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; text-align: center; }
+  .sub-box .title { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+  .sub-box .val { font-size: 1.05rem; font-weight: 800; color: #fff; margin-top: 1px; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .card-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--accent-cyan); display: flex; justify-content: space-between; }
+
+  .inputs-grid { display: grid; gap: 6px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-gauge { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field-group { display: flex; flex-direction: column; min-width: 0; }
+  .field-group label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; font-weight: 700; }
+  select, input {
+    background: #0f1318; border: 1px solid #3b4252; color: #fff; border-radius: 4px;
+    padding: 7px 5px; font-size: 0.85rem; font-weight: 600; outline: none; width: 100%;
+  }
+  select:focus, input:focus { border-color: var(--accent); }
+
+  .gauge-panel {
+    background: var(--card-sub);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .gauge-hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .vac-truck-alert {
+    background: #251e12;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+  }
+  .truck-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .truck-badge.ok { background: #064e3b; color: #6ee7b7; border: 1px solid var(--accent-green); }
+  .truck-badge.warn { background: #7c2d12; color: #fed7aa; border: 1px solid var(--accent); }
+  .truck-badge.over { background: #7f1d1d; color: #fca5a5; border: 1px solid var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <h1>Dave's Super-Awesome Tank Strapping Calc</h1>
+    <p>Field Tank Gauge & Vac Truck Transfer Estimator</p>
+  </header>
+
+  <div class="sticky-top-group">
+    <div class="transfer-banner">
+      <div>
+        <div class="lbl">Net Volume Transferred</div>
+        <div style="font-size:0.65rem; color:#6ee7b7;" id="actionDesc">Liquid Pumped / Loaded</div>
+      </div>
+      <div class="val" id="transBbl">0.0 <span style="font-size:0.9rem;">bbl</span></div>
+    </div>
+
+    <div class="sub-summary">
+      <div class="sub-box">
+        <div class="title">Net Gallons</div>
+        <div class="val" id="transGal">0 gal</div>
+      </div>
+      <div class="sub-box">
+        <div class="title">Fluid Weight</div>
+        <div class="val" id="transWt">0 lbs</div>
+      </div>
+      <div class="sub-box">
+        <div class="title">325 Vac Truck</div>
+        <div class="val" id="truckLoadPct">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>1. Tank Type & Strap Factor</span>
+      <span style="color:var(--accent);" id="strapFactorDisp">1.68 bbl / in</span>
+    </div>
+
+    <div class="inputs-grid grid-2">
+      <div class="field-group">
+        <label>Tank Size / Style</label>
+        <select id="tankType" onchange="onTankTypeChange()">
+          <option value="400-std">400 Bbl Upright (12' dia x 20')</option>
+          <option value="500-std">500 Bbl Upright (12' dia x 25')</option>
+          <option value="500-wide">500 Bbl Upright (15.5' dia x 16')</option>
+          <option value="600-std">600 Bbl Upright (15.5' dia x 18')</option>
+          <option value="500-frac">500 Bbl Mobile Frac Tank</option>
+          <option value="custom">Custom Strap Factor</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Fluid Type</label>
+        <select id="fluidType" onchange="recalc()">
+          <option value="8.34">Water / Glycol (8.34 lbs/gal)</option>
+          <option value="7.20">Crude Oil (~7.20 lbs/gal)</option>
+          <option value="9.50">Heavy Brine / Kill Fluid (9.5 lbs/gal)</option>
+          <option value="8.80">Produced Water / Brine (8.8 lbs/gal)</option>
+          <option value="7.00">Diesel / Fuel (~7.00 lbs/gal)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="inputs-grid grid-2" id="customStrapRow" style="display:none;">
+      <div class="field-group">
+        <label>Custom Bbl / Inch</label>
+        <input type="number" id="customBpi" value="1.678" step="0.001" oninput="recalc()">
+      </div>
+      <div class="field-group">
+        <label>Total Tank Cap (Bbl)</label>
+        <input type="number" id="customCap" value="400" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>2. Gauging Tape Readings</span>
+      <span style="color:var(--text-muted); font-size:0.65rem;">INNAGE (LIQUID DEPTH)</span>
+    </div>
+
+    <div class="gauge-panel">
+      <div class="gauge-hdr">
+        <span style="color:#60a5fa;">Initial Tank Gauge (Before)</span>
+        <span id="startBblTotal">0.0 bbl</span>
+      </div>
+      <div class="inputs-grid grid-gauge">
+        <div class="field-group">
+          <label>Feet</label>
+          <input type="number" id="startFt" placeholder="0" min="0" oninput="recalc()">
+        </div>
+        <div class="field-group">
+          <label>Inches</label>
+          <input type="number" id="startIn" placeholder="0" min="0" max="11" oninput="recalc()">
+        </div>
+        <div class="field-group">
+          <label>Fraction</label>
+          <select id="startFrac" onchange="recalc()">
+            <option value="0">0"</option>
+            <option value="0.125">1/8"</option>
+            <option value="0.25">1/4"</option>
+            <option value="0.375">3/8"</option>
+            <option value="0.5">1/2"</option>
+            <option value="0.625">5/8"</option>
+            <option value="0.75">3/4"</option>
+            <option value="0.875">7/8"</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="gauge-panel">
+      <div class="gauge-hdr">
+        <span style="color:#f472b6;">Final Tank Gauge (After)</span>
+        <span id="endBblTotal">0.0 bbl</span>
+      </div>
+      <div class="inputs-grid grid-gauge">
+        <div class="field-group">
+          <label>Feet</label>
+          <input type="number" id="endFt" placeholder="0" min="0" oninput="recalc()">
+        </div>
+        <div class="field-group">
+          <label>Inches</label>
+          <input type="number" id="endIn" placeholder="0" min="0" max="11" oninput="recalc()">
+        </div>
+        <div class="field-group">
+          <label>Fraction</label>
+          <select id="endFrac" onchange="recalc()">
+            <option value="0">0"</option>
+            <option value="0.125">1/8"</option>
+            <option value="0.25">1/4"</option>
+            <option value="0.375">3/8"</option>
+            <option value="0.5">1/2"</option>
+            <option value="0.625">5/8"</option>
+            <option value="0.75">3/4"</option>
+            <option value="0.875">7/8"</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="vac-truck-alert">
+      <div>
+        <div style="font-weight:700;">325 Bbl Vac Truck Capacity Status</div>
+        <div style="font-size:0.65rem; color:#cbd5e1;" id="truckRemainText">325.0 bbl capacity remaining</div>
+      </div>
+      <div id="truckBadge" class="truck-badge ok">EMPTY</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TANK_SPECS = {
+  '400-std': { bpi: 1.6786, cap: 400, name: "12' Dia (1.68 bbl/in)" },
+  '500-std': { bpi: 1.6786, cap: 500, name: "12' Dia (1.68 bbl/in)" },
+  '500-wide': { bpi: 2.8000, cap: 500, name: "15.5' Dia (2.80 bbl/in)" },
+  '600-std': { bpi: 2.8000, cap: 600, name: "15.5' Dia (2.80 bbl/in)" },
+  '500-frac': { bpi: 5.2500, cap: 500, name: "Frac Tank (~5.25 bbl/in)" },
+  'custom': { bpi: 1.6786, cap: 400, name: "Custom" }
+};
+
+function onTankTypeChange() {
+  const type = document.getElementById('tankType').value;
+  const customRow = document.getElementById('customStrapRow');
+  if (type === 'custom') {
+    customRow.style.display = 'grid';
+  } else {
+    customRow.style.display = 'none';
+  }
+  recalc();
+}
+
+function getBpi() {
+  const type = document.getElementById('tankType').value;
+  if (type === 'custom') {
+    return parseFloat(document.getElementById('customBpi').value) || 1.6786;
+  }
+  return TANK_SPECS[type].bpi;
+}
+
+function readInches(ftId, inId, fracId) {
+  const ft = parseFloat(document.getElementById(ftId).value) || 0;
+  const inches = parseFloat(document.getElementById(inId).value) || 0;
+  const frac = parseFloat(document.getElementById(fracId).value) || 0;
+  return (ft * 12) + inches + frac;
+}
+
+function recalc() {
+  const bpi = getBpi();
+  document.getElementById('strapFactorDisp').textContent = bpi.toFixed(2) + ' bbl / in';
+
+  const startTotalIn = readInches('startFt', 'startIn', 'startFrac');
+  const endTotalIn = readInches('endFt', 'endIn', 'endFrac');
+
+  const startBbl = startTotalIn * bpi;
+  const endBbl = endTotalIn * bpi;
+
+  document.getElementById('startBblTotal').textContent = startBbl.toFixed(1) + ' bbl';
+  document.getElementById('endBblTotal').textContent = endBbl.toFixed(1) + ' bbl';
+
+  const deltaBbl = Math.abs(endBbl - startBbl);
+  const deltaGal = deltaBbl * 42.0;
+
+  const density = parseFloat(document.getElementById('fluidType').value) || 8.34;
+  const fluidWt = deltaGal * density;
+
+  const actionDesc = document.getElementById('actionDesc');
+  if (endTotalIn < startTotalIn) {
+    actionDesc.textContent = "Liquid Hauled Away (Tank Pumped Down)";
+  } else if (endTotalIn > startTotalIn) {
+    actionDesc.textContent = "Liquid Delivered (Tank Filled Up)";
+  } else {
+    actionDesc.textContent = "No Change / Static";
+  }
+
+  document.getElementById('transBbl').innerHTML = `${deltaBbl.toFixed(1)} <span style="font-size:0.9rem;">bbl</span>`;
+  document.getElementById('transGal').textContent = Math.round(deltaGal).toLocaleString() + ' gal';
+  document.getElementById('transWt').textContent = Math.round(fluidWt).toLocaleString() + ' lbs';
+
+  const truckCap = 325.0;
+  const loadPct = (deltaBbl / truckCap) * 100;
+  document.getElementById('truckLoadPct').textContent = Math.round(loadPct) + '%';
+
+  const remainBbl = truckCap - deltaBbl;
+  const remainText = document.getElementById('truckRemainText');
+  const badge = document.getElementById('truckBadge');
+
+  if (deltaBbl === 0) {
+    remainText.textContent = "325.0 bbl capacity remaining";
+    badge.className = "truck-badge ok";
+    badge.textContent = "EMPTY";
+  } else if (deltaBbl <= 310) {
+    remainText.textContent = `${remainBbl.toFixed(1)} bbl room left in 325 vac trailer`;
+    badge.className = "truck-badge ok";
+    badge.textContent = "LEGAL LOAD";
+  } else if (deltaBbl <= 325) {
+    remainText.textContent = `${remainBbl.toFixed(1)} bbl room left (Near Capacity)`;
+    badge.className = "truck-badge warn";
+    badge.textContent = "TOPPED OFF";
+  } else {
+    const over = deltaBbl - truckCap;
+    remainText.textContent = `EXCEEDS 325 BBL CAPACITY BY ${over.toFixed(1)} BBL!`;
+    badge.className = "truck-badge over";
+    badge.textContent = "OVERLOAD";
+  }
+}
+
+recalc();
+</script>
+</body>
+</html>
