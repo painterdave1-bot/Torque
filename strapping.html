@@ -26,6 +26,41 @@
   header h1 { font-size: 1.15rem; color: var(--accent); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
   header p { font-size: 0.72rem; color: var(--text-muted); }
 
+  .mode-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .mode-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px 6px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    transition: all 0.2s;
+  }
+  .mode-btn .sub-text { font-size: 0.65rem; font-weight: 600; opacity: 0.8; }
+  .mode-btn.active.pull {
+    border-color: #f59e0b;
+    background: #2b1d06;
+    color: #fbbf24;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  }
+  .mode-btn.active.fill {
+    border-color: #38bdf8;
+    background: #082338;
+    color: #7dd3fc;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+  }
+
   .sticky-top-group {
     position: sticky;
     top: 0;
@@ -38,17 +73,24 @@
   }
 
   .transfer-banner {
-    background: #0d2818;
-    border: 2px solid var(--accent-green);
     border-radius: 8px;
     padding: 10px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s;
   }
-  .transfer-banner .lbl { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #a7f3d0; }
-  .transfer-banner .val { font-size: 1.6rem; font-weight: 800; color: #fff; text-shadow: 0 0 8px rgba(0, 230, 118, 0.4); }
+  .transfer-banner.pull-banner {
+    background: #291804;
+    border: 2px solid #f59e0b;
+  }
+  .transfer-banner.fill-banner {
+    background: #061d2d;
+    border: 2px solid #38bdf8;
+  }
+  .transfer-banner .lbl { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
+  .transfer-banner .val { font-size: 1.6rem; font-weight: 800; color: #fff; }
 
   .sub-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .sub-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; text-align: center; }
@@ -118,11 +160,22 @@
     <p>Field Tank Gauge & Vac Truck Transfer Estimator</p>
   </header>
 
+  <div class="mode-switch">
+    <button class="mode-btn active pull" id="btnPull" onclick="setMode('PULL')">
+      <span>⬇ Taking Out (Pull)</span>
+      <span class="sub-text">Hauling from Tank into Truck</span>
+    </button>
+    <button class="mode-btn fill" id="btnFill" onclick="setMode('FILL')">
+      <span>⬆ Adding To (Fill)</span>
+      <span class="sub-text">Discharging Truck into Tank</span>
+    </button>
+  </div>
+
   <div class="sticky-top-group">
-    <div class="transfer-banner">
+    <div class="transfer-banner pull-banner" id="bannerCard">
       <div>
-        <div class="lbl">Net Volume Transferred</div>
-        <div style="font-size:0.65rem; color:#6ee7b7;" id="actionDesc">Liquid Pumped / Loaded</div>
+        <div class="lbl" id="bannerLabel" style="color:#fde68a;">Liquid Hauled Away</div>
+        <div style="font-size:0.65rem; color:#cbd5e1;" id="bannerSub">Tank level drops</div>
       </div>
       <div class="val" id="transBbl">0.0 <span style="font-size:0.9rem;">bbl</span></div>
     </div>
@@ -137,7 +190,7 @@
         <div class="val" id="transWt">0 lbs</div>
       </div>
       <div class="sub-box">
-        <div class="title">325 Vac Truck</div>
+        <div class="title" id="truckBoxTitle">325 Vac Load</div>
         <div class="val" id="truckLoadPct">0%</div>
       </div>
     </div>
@@ -188,13 +241,13 @@
 
   <div class="card">
     <div class="card-title">
-      <span>2. Gauging Tape Readings</span>
+      <span id="gaugingTitle">2. Gauging Tape Readings (Taking Out)</span>
       <span style="color:var(--text-muted); font-size:0.65rem;">INNAGE (LIQUID DEPTH)</span>
     </div>
 
     <div class="gauge-panel">
       <div class="gauge-hdr">
-        <span style="color:#60a5fa;">Initial Tank Gauge (Before)</span>
+        <span id="labelStart" style="color:#60a5fa;">1. Starting Gauge (High Level)</span>
         <span id="startBblTotal">0.0 bbl</span>
       </div>
       <div class="inputs-grid grid-gauge">
@@ -224,7 +277,7 @@
 
     <div class="gauge-panel">
       <div class="gauge-hdr">
-        <span style="color:#f472b6;">Final Tank Gauge (After)</span>
+        <span id="labelEnd" style="color:#f472b6;">2. Ending Gauge (Low Level)</span>
         <span id="endBblTotal">0.0 bbl</span>
       </div>
       <div class="inputs-grid grid-gauge">
@@ -254,7 +307,7 @@
 
     <div class="vac-truck-alert">
       <div>
-        <div style="font-weight:700;">325 Bbl Vac Truck Capacity Status</div>
+        <div style="font-weight:700;" id="alertTitle">325 Bbl Vac Truck Load Status</div>
         <div style="font-size:0.65rem; color:#cbd5e1;" id="truckRemainText">325.0 bbl capacity remaining</div>
       </div>
       <div id="truckBadge" class="truck-badge ok">EMPTY</div>
@@ -263,6 +316,8 @@
 </div>
 
 <script>
+let currentMode = 'PULL';
+
 const TANK_SPECS = {
   '400-std': { bpi: 1.6786, cap: 400, name: "12' Dia (1.68 bbl/in)" },
   '500-std': { bpi: 1.6786, cap: 500, name: "12' Dia (1.68 bbl/in)" },
@@ -272,14 +327,49 @@ const TANK_SPECS = {
   'custom': { bpi: 1.6786, cap: 400, name: "Custom" }
 };
 
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnPull').className = 'mode-btn' + (mode === 'PULL' ? ' active pull' : '');
+  document.getElementById('btnFill').className = 'mode-btn' + (mode === 'FILL' ? ' active fill' : '');
+
+  const banner = document.getElementById('bannerCard');
+  const bannerLabel = document.getElementById('bannerLabel');
+  const bannerSub = document.getElementById('bannerSub');
+  const gaugingTitle = document.getElementById('gaugingTitle');
+  const labelStart = document.getElementById('labelStart');
+  const labelEnd = document.getElementById('labelEnd');
+  const truckBoxTitle = document.getElementById('truckBoxTitle');
+  const alertTitle = document.getElementById('alertTitle');
+
+  if (mode === 'PULL') {
+    banner.className = 'transfer-banner pull-banner';
+    bannerLabel.textContent = "Liquid Hauled Away (Tank Pumped Down)";
+    bannerLabel.style.color = "#fde68a";
+    bannerSub.textContent = "Top-level to lower level drop";
+    gaugingTitle.textContent = "2. Gauging Tape (Taking Out / Hauling)";
+    labelStart.textContent = "1. Before Pulling (Initial High)";
+    labelEnd.textContent = "2. After Pulling (Final Low)";
+    truckBoxTitle.textContent = "325 Vac Load";
+    alertTitle.textContent = "325 Bbl Vac Truck Load Status";
+  } else {
+    banner.className = 'transfer-banner fill-banner';
+    bannerLabel.textContent = "Liquid Delivered (Tank Filled Up)";
+    bannerLabel.style.color = "#bae6fd";
+    bannerSub.textContent = "Lower level to higher level rise";
+    gaugingTitle.textContent = "2. Gauging Tape (Adding To / Delivering)";
+    labelStart.textContent = "1. Before Discharge (Initial Low)";
+    labelEnd.textContent = "2. After Discharge (Final High)";
+    truckBoxTitle.textContent = "Discharged";
+    alertTitle.textContent = "Vac Truck Offload Status";
+  }
+
+  recalc();
+}
+
 function onTankTypeChange() {
   const type = document.getElementById('tankType').value;
   const customRow = document.getElementById('customStrapRow');
-  if (type === 'custom') {
-    customRow.style.display = 'grid';
-  } else {
-    customRow.style.display = 'none';
-  }
+  customRow.style.display = (type === 'custom') ? 'grid' : 'none';
   recalc();
 }
 
@@ -317,15 +407,6 @@ function recalc() {
   const density = parseFloat(document.getElementById('fluidType').value) || 8.34;
   const fluidWt = deltaGal * density;
 
-  const actionDesc = document.getElementById('actionDesc');
-  if (endTotalIn < startTotalIn) {
-    actionDesc.textContent = "Liquid Hauled Away (Tank Pumped Down)";
-  } else if (endTotalIn > startTotalIn) {
-    actionDesc.textContent = "Liquid Delivered (Tank Filled Up)";
-  } else {
-    actionDesc.textContent = "No Change / Static";
-  }
-
   document.getElementById('transBbl').innerHTML = `${deltaBbl.toFixed(1)} <span style="font-size:0.9rem;">bbl</span>`;
   document.getElementById('transGal').textContent = Math.round(deltaGal).toLocaleString() + ' gal';
   document.getElementById('transWt').textContent = Math.round(fluidWt).toLocaleString() + ' lbs';
@@ -345,7 +426,7 @@ function recalc() {
   } else if (deltaBbl <= 310) {
     remainText.textContent = `${remainBbl.toFixed(1)} bbl room left in 325 vac trailer`;
     badge.className = "truck-badge ok";
-    badge.textContent = "LEGAL LOAD";
+    badge.textContent = currentMode === 'PULL' ? "LEGAL LOAD" : "DISCHARGED";
   } else if (deltaBbl <= 325) {
     remainText.textContent = `${remainBbl.toFixed(1)} bbl room left (Near Capacity)`;
     badge.className = "truck-badge warn";
@@ -358,7 +439,7 @@ function recalc() {
   }
 }
 
-recalc();
+setMode('PULL');
 </script>
 </body>
 </html>
