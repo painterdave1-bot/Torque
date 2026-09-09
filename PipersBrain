@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Piper's Book of Knowledge | Mobile Field Reference</title>
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --border: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent: #38bdf8;
+  --accent-hover: #0284c7;
+  --highlight: #f59e0b;
+  --row-alt: #172033;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.4;
+  padding-bottom: 60px;
+}
+header {
+  position: sticky;
+  top: 0;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  z-index: 100;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.logo-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.logo-title span { color: var(--accent); }
+.badge-count {
+  font-size: 0.72rem;
+  background: var(--border);
+  padding: 2px 7px;
+  border-radius: 12px;
+  color: var(--text-secondary);
+}
+.search-box-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-box-wrapper input {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box-wrapper input:focus { border-color: var(--accent); }
+.clear-search {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: none;
+}
+.nav-tabs-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 16px;
+  background: #0b1120;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+.nav-tabs-bar::-webkit-scrollbar { display: none; }
+.nav-pill {
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.nav-pill.active {
+  background: var(--accent);
+  color: #0f172a;
+  font-weight: 600;
+  border-color: var(--accent);
+}
+.container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin: 20px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.hub-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 70px;
+}
+.hub-card:active {
+  transform: scale(0.98);
+  border-color: var(--accent);
+}
+.hub-card .card-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+.hub-card .card-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+.hub-card.primary-card {
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(145deg, #1e293b, #152238);
+}
+#viewer-view { display: none; }
+.viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.back-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  -webkit-overflow-scrolling: touch;
+}
+table.sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+}
+table.sheet-table th, table.sheet-table td {
+  padding: 8px 10px;
+  border: 1px solid #283548;
+  white-space: nowrap;
+}
+table.sheet-table th {
+  background: #0b1120;
+  color: var(--accent);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+table.sheet-table tr:nth-child(even) { background: var(--row-alt); }
+table.sheet-table tr:hover { background: rgba(56, 189, 248, 0.08); }
+.search-hit-group {
+  margin-bottom: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.search-hit-header {
+  padding: 8px 12px;
+  background: #131c2e;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--accent);
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.highlight-hit {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  font-weight: bold;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+.floating-home-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #0f172a;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 99;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo-title" onclick="showDashboard()">
+      <span>⚙️</span> PIPER'S FIELD REF <span class="badge-count">66 TABS</span>
+    </div>
+  </div>
+  <div class="search-box-wrapper">
+    <input type="text" id="global-search" placeholder="Quick search any pipe, bolt, flange, or shape..." oninput="handleSearch(this.value)">
+    <button class="clear-search" id="clear-search-btn" onclick="clearSearch()">&times;</button>
+  </div>
+</header>
+
+<div class="nav-tabs-bar" id="category-pills">
+  <div class="nav-pill active" onclick="filterCategory('All', this)">All (66)</div>
+  <div class="nav-pill" onclick="filterCategory('Piping, Flanges & Fasteners', this)">Pipe & Flanges</div>
+  <div class="nav-pill" onclick="filterCategory('Fittings & Weldolets', this)">Fittings</div>
+  <div class="nav-pill" onclick="filterCategory('Structural Shapes (US)', this)">US Structural</div>
+  <div class="nav-pill" onclick="filterCategory('Structural Shapes (International)', this)">Intl Structural</div>
+  <div class="nav-pill" onclick="filterCategory('Vessel, Supports & Rigging', this)">Supports & Rigging</div>
+  <div class="nav-pill" onclick="filterCategory('Math, Stress & Engineering', this)">Engineering & Math</div>
+</div>
+
+<div class="container">
+  <div id="dashboard-view"><div id="category-sections"></div></div>
+  <div id="search-results-view" style="display:none;">
+    <div style="margin-bottom:12px; font-size:0.9rem; color:var(--text-secondary);" id="search-stat-msg"></div>
+    <div id="search-hits-container"></div>
+  </div>
+  <div id="viewer-view" style="display:none;">
+    <div class="viewer-header">
+      <button class="back-btn" onclick="showDashboard()">← Hub Menu</button>
+      <div style="font-size:1.05rem; font-weight:700;" id="viewer-title">Sheet Name</div>
+      <div style="font-size:0.75rem; color:var(--text-secondary);" id="viewer-row-count"></div>
+    </div>
+    <div class="search-box-wrapper" style="margin-bottom: 10px;">
+      <input type="text" id="sheet-local-filter" placeholder="Filter rows in this table..." oninput="filterLocalTable(this.value)">
+    </div>
+    <div class="table-wrapper" id="table-container"></div>
+  </div>
+</div>
+
+<button class="floating-home-btn" id="floating-btn" style="display:none;" onclick="showDashboard()">🏠</button>
+
+<script>
+// JSON payload is injected here
+const RAW_DATA = /* Injected JSON containing all 66 sheets */;
+const CATEGORIES = /* Injected JSON with categories */;
+
+let currentSheet = null;
+
+function renderDashboard(selectedCat = 'All') {
+  const container = document.getElementById('category-sections');
+  container.innerHTML = '';
+  for (const [catName, sheetList] of Object.entries(CATEGORIES)) {
+    if (selectedCat !== 'All' && selectedCat !== catName) continue;
+    const sec = document.createElement('div');
+    sec.style.marginBottom = '20px';
+    sec.innerHTML = `<div class="section-title"><span>${catName}</span> <span class="badge-count">${sheetList.length}</span></div>`;
+    const grid = document.createElement('div');
+    grid.className = 'card-grid';
+    sheetList.forEach(sheetName => {
+      const data = RAW_DATA[sheetName];
+      if (!data) return;
+      const card = document.createElement('div');
+      card.className = 'hub-card' + (catName.includes('Piping') || catName.includes('Fittings') ? ' primary-card' : '');
+      card.onclick = () => openSheet(sheetName);
+      card.innerHTML = `<div class="card-name">${sheetName}</div><div class="card-meta">${data.length} rows • ${data[0] ? data[0].length : 0} cols</div>`;
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  }
+}
+
+function showDashboard() {
+  document.getElementById('dashboard-view').style.display = 'block';
+  document.getElementById('viewer-view').style.display = 'none';
+  document.getElementById('search-results-view').style.display = 'none';
+  document.getElementById('floating-btn').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openSheet(sheetName) {
+  currentSheet = sheetName;
+  document.getElementById('dashboard-view').style.display = 'none';
+  document.getElementById('search-results-view').style.display = 'none';
+  document.getElementById('viewer-view').style.display = 'block';
+  document.getElementById('floating-btn').style.display = 'flex';
+  document.getElementById('viewer-title').innerText = sheetName;
+  document.getElementById('sheet-local-filter').value = '';
+  const data = RAW_DATA[sheetName] || [];
+  document.getElementById('viewer-row-count').innerText = `${data.length} records`;
+  renderTable(data);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderTable(rows) {
+  const container = document.getElementById('table-container');
+  if (!rows || rows.length === 0) {
+    container.innerHTML = '<div style="padding:20px; color:var(--text-secondary);">No data in this sheet.</div>';
+    return;
+  }
+  let html = '<table class="sheet-table" id="active-data-table"><thead><tr>';
+  rows[0].forEach((h, i) => { html += `<th>${h || 'Col ' + (i+1)}</th>`; });
+  html += '</tr></thead><tbody>';
+  for (let r = 1; r < rows.length; r++) {
+    html += '<tr>';
+    for (let c = 0; c < rows[0].length; c++) {
+      html += `<td>${rows[r][c] !== undefined ? rows[r][c] : ''}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function filterLocalTable(query) {
+  const q = query.toLowerCase().trim();
+  const table = document.getElementById('active-data-table');
+  if (!table) return;
+  const trs = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+  for (let i = 0; i < trs.length; i++) {
+    trs[i].style.display = trs[i].textContent.toLowerCase().includes(q) ? '' : 'none';
+  }
+}
+
+function handleSearch(val) {
+  const q = val.toLowerCase().trim();
+  const clearBtn = document.getElementById('clear-search-btn');
+  if (!q) {
+    clearBtn.style.display = 'none';
+    showDashboard();
+    return;
+  }
+  clearBtn.style.display = 'block';
+  document.getElementById('dashboard-view').style.display = 'none';
+  document.getElementById('viewer-view').style.display = 'none';
+  document.getElementById('search-results-view').style.display = 'block';
+  document.getElementById('floating-btn').style.display = 'flex';
+
+  const hitsContainer = document.getElementById('search-hits-container');
+  hitsContainer.innerHTML = '';
+  let totalHits = 0, matchedSheets = 0;
+
+  for (const [sheetName, rows] of Object.entries(RAW_DATA)) {
+    if (!rows || rows.length < 2) continue;
+    const header = rows[0];
+    const matchingRows = [];
+    for (let r = 1; r < rows.length; r++) {
+      if (rows[r].some(cell => String(cell).toLowerCase().includes(q))) {
+        matchingRows.push(rows[r]);
+        totalHits++;
+        if (matchingRows.length >= 10) break;
+      }
+    }
+    if (matchingRows.length > 0) {
+      matchedSheets++;
+      const group = document.createElement('div');
+      group.className = 'search-hit-group';
+      group.innerHTML = `<div class="search-hit-header" onclick="openSheet('${sheetName}')">
+        <span>${sheetName}</span><span>Open Full Sheet →</span>
+      </div>`;
+      let tableHtml = '<div class="table-wrapper"><table class="sheet-table"><thead><tr>';
+      header.forEach(h => { tableHtml += `<th>${h || ''}</th>`; });
+      tableHtml += '</tr></thead><tbody>';
+      matchingRows.forEach(row => {
+        tableHtml += '<tr>';
+        for (let c = 0; c < header.length; c++) {
+          let cellText = row[c] !== undefined ? String(row[c]) : '';
+          if (q && cellText.toLowerCase().includes(q)) {
+            const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')})`, 'gi');
+            cellText = cellText.replace(re, '<span class="highlight-hit">$1</span>');
+          }
+          tableHtml += `<td>${cellText}</td>`;
+        }
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</tbody></table></div>';
+      group.innerHTML += tableHtml;
+      hitsContainer.appendChild(group);
+    }
+  }
+  document.getElementById('search-stat-msg').innerText = `Found ${totalHits} matching rows across ${matchedSheets} tabs.`;
+}
+
+function clearSearch() {
+  document.getElementById('global-search').value = '';
+  document.getElementById('clear-search-btn').style.display = 'none';
+  showDashboard();
+}
+
+window.onload = () => renderDashboard();
+</script>
+</body>
+</html>
