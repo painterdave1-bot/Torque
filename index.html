@@ -35,7 +35,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       margin-top: 0;
       border-bottom: 2px solid var(--accent);
       padding-bottom: 0.5rem;
@@ -171,6 +171,10 @@
       <span class="val" id="wrenchSizeDisplay">--</span>
     </div>
     <div class="card-row">
+      <span>Stud Length (RF / RTJ):</span>
+      <span class="val" id="studLengthDisplay">--</span>
+    </div>
+    <div class="card-row">
       <span>RTJ Gasket Ring:</span>
       <span class="val" id="gasketDisplay">--</span>
     </div>
@@ -218,63 +222,63 @@
 </div>
 
 <script>
-// Standard ANSI Flange Database
+// Standard ANSI Flange Database with ASME B16.5 Stud Lengths (RF & RTJ)
 const flangeDB = {
   "2": {
-    "150":  { count: 4,  stud: 0.625, torque: 60,   rtj: "N/A" },
-    "300":  { count: 8,  stud: 0.625, torque: 80,   rtj: "R-23" },
-    "600":  { count: 8,  stud: 0.625, torque: 110,  rtj: "R-23" },
-    "900":  { count: 8,  stud: 0.875, torque: 260,  rtj: "R-24" },
-    "1500": { count: 8,  stud: 0.875, torque: 260,  rtj: "R-24" },
-    "2500": { count: 8,  stud: 1.000, torque: 420,  rtj: "R-26" }
+    "150":  { count: 4,  stud: 0.625, lenRF: `3-1/4"`, lenRTJ: `N/A`,     torque: 60,   rtj: "N/A" },
+    "300":  { count: 8,  stud: 0.625, lenRF: `3-1/2"`, lenRTJ: `4-1/4"`, torque: 80,   rtj: "R-23" },
+    "600":  { count: 8,  stud: 0.625, lenRF: `4-1/4"`, lenRTJ: `4-1/4"`, torque: 110,  rtj: "R-23" },
+    "900":  { count: 8,  stud: 0.875, lenRF: `5-3/4"`, lenRTJ: `5-3/4"`, torque: 260,  rtj: "R-24" },
+    "1500": { count: 8,  stud: 0.875, lenRF: `5-3/4"`, lenRTJ: `5-3/4"`, torque: 260,  rtj: "R-24" },
+    "2500": { count: 8,  stud: 1.000, lenRF: `7"`,     lenRTJ: `7-1/4"`, torque: 420,  rtj: "R-26" }
   },
   "3": {
-    "150":  { count: 4,  stud: 0.625, torque: 80,   rtj: "N/A" },
-    "300":  { count: 8,  stud: 0.750, torque: 135,  rtj: "R-31" },
-    "600":  { count: 8,  stud: 0.750, torque: 155,  rtj: "R-31" },
-    "900":  { count: 8,  stud: 0.875, torque: 260,  rtj: "R-31" },
-    "1500": { count: 8,  stud: 1.125, torque: 620,  rtj: "R-35" },
-    "2500": { count: 8,  stud: 1.250, torque: 890,  rtj: "R-32" }
+    "150":  { count: 4,  stud: 0.625, lenRF: `3-1/2"`, lenRTJ: `N/A`,     torque: 80,   rtj: "N/A" },
+    "300":  { count: 8,  stud: 0.750, lenRF: `4-1/4"`, lenRTJ: `5"`,     torque: 135,  rtj: "R-31" },
+    "600":  { count: 8,  stud: 0.750, lenRF: `5"`,     lenRTJ: `5"`,     torque: 155,  rtj: "R-31" },
+    "900":  { count: 8,  stud: 0.875, lenRF: `5-3/4"`, lenRTJ: `6"`,     torque: 260,  rtj: "R-31" },
+    "1500": { count: 8,  stud: 1.125, lenRF: `7-3/4"`, lenRTJ: `7-3/4"`, torque: 620,  rtj: "R-35" },
+    "2500": { count: 8,  stud: 1.250, lenRF: `8-3/4"`, lenRTJ: `9"`,     torque: 890,  rtj: "R-32" }
   },
   "4": {
-    "150":  { count: 8,  stud: 0.625, torque: 85,   rtj: "N/A" },
-    "300":  { count: 8,  stud: 0.750, torque: 145,  rtj: "R-37" },
-    "600":  { count: 8,  stud: 0.875, torque: 260,  rtj: "R-37" },
-    "900":  { count: 8,  stud: 1.125, torque: 620,  rtj: "R-37" },
-    "1500": { count: 8,  stud: 1.250, torque: 890,  rtj: "R-39" },
-    "2500": { count: 8,  stud: 1.500, torque: 1650, rtj: "R-38" }
+    "150":  { count: 8,  stud: 0.625, lenRF: `3-1/2"`, lenRTJ: `N/A`,     torque: 85,   rtj: "N/A" },
+    "300":  { count: 8,  stud: 0.750, lenRF: `4-1/2"`, lenRTJ: `5-1/4"`, torque: 145,  rtj: "R-37" },
+    "600":  { count: 8,  stud: 0.875, lenRF: `5-3/4"`, lenRTJ: `5-3/4"`, torque: 260,  rtj: "R-37" },
+    "900":  { count: 8,  stud: 1.125, lenRF: `6-3/4"`, lenRTJ: `7"`,     torque: 620,  rtj: "R-37" },
+    "1500": { count: 8,  stud: 1.250, lenRF: `7-3/4"`, lenRTJ: `8"`,     torque: 890,  rtj: "R-39" },
+    "2500": { count: 8,  stud: 1.500, lenRF: `10"`,    lenRTJ: `10-1/4"`,torque: 1650, rtj: "R-38" }
   },
   "6": {
-    "150":  { count: 8,  stud: 0.750, torque: 140,  rtj: "N/A" },
-    "300":  { count: 12, stud: 0.750, torque: 160,  rtj: "R-45" },
-    "600":  { count: 12, stud: 1.000, torque: 420,  rtj: "R-45" },
-    "900":  { count: 12, stud: 1.125, torque: 620,  rtj: "R-45" },
-    "1500": { count: 12, stud: 1.375, torque: 1250, rtj: "R-46" },
-    "2500": { count: 8,  stud: 2.000, torque: 4200, rtj: "R-47" }
+    "150":  { count: 8,  stud: 0.750, lenRF: `4"`,     lenRTJ: `N/A`,     torque: 140,  rtj: "N/A" },
+    "300":  { count: 12, stud: 0.750, lenRF: `4-3/4"`, lenRTJ: `5-1/2"`, torque: 160,  rtj: "R-45" },
+    "600":  { count: 12, stud: 1.000, lenRF: `6-3/4"`, lenRTJ: `7"`,     torque: 420,  rtj: "R-45" },
+    "900":  { count: 12, stud: 1.125, lenRF: `7-1/2"`, lenRTJ: `7-3/4"`, torque: 620,  rtj: "R-45" },
+    "1500": { count: 12, stud: 1.375, lenRF: `10-1/4"`,lenRTJ: `10-1/2"`,torque: 1250, rtj: "R-46" },
+    "2500": { count: 8,  stud: 2.000, lenRF: `13-1/2"`,lenRTJ: `14"`,    torque: 4200, rtj: "R-47" }
   },
   "8": {
-    "150":  { count: 8,  stud: 0.750, torque: 160,  rtj: "N/A" },
-    "300":  { count: 12, stud: 0.875, torque: 260,  rtj: "R-49" },
-    "600":  { count: 12, stud: 1.125, torque: 620,  rtj: "R-49" },
-    "900":  { count: 12, stud: 1.375, torque: 1250, rtj: "R-49" },
-    "1500": { count: 12, stud: 1.625, torque: 2150, rtj: "R-50" },
-    "2500": { count: 12, stud: 2.000, torque: 4200, rtj: "R-51" }
+    "150":  { count: 8,  stud: 0.750, lenRF: `4-1/4"`, lenRTJ: `N/A`,     torque: 160,  rtj: "N/A" },
+    "300":  { count: 12, stud: 0.875, lenRF: `5-1/2"`, lenRTJ: `6-1/4"`, torque: 260,  rtj: "R-49" },
+    "600":  { count: 12, stud: 1.125, lenRF: `7-1/2"`, lenRTJ: `7-3/4"`, torque: 620,  rtj: "R-49" },
+    "900":  { count: 12, stud: 1.375, lenRF: `8-3/4"`, lenRTJ: `9"`,     torque: 1250, rtj: "R-49" },
+    "1500": { count: 12, stud: 1.625, lenRF: `11-1/2"`,lenRTJ: `12"`,    torque: 2150, rtj: "R-50" },
+    "2500": { count: 12, stud: 2.000, lenRF: `15"`,    lenRTJ: `15-1/2"`,torque: 4200, rtj: "R-51" }
   },
   "10": {
-    "150":  { count: 12, stud: 0.875, torque: 240,  rtj: "N/A" },
-    "300":  { count: 16, stud: 1.000, torque: 400,  rtj: "R-53" },
-    "600":  { count: 16, stud: 1.250, torque: 890,  rtj: "R-53" },
-    "900":  { count: 16, stud: 1.375, torque: 1250, rtj: "R-53" },
-    "1500": { count: 12, stud: 1.875, torque: 3400, rtj: "R-54" },
-    "2500": { count: 12, stud: 2.500, torque: 8400, rtj: "R-55" }
+    "150":  { count: 12, stud: 0.875, lenRF: `4-1/2"`, lenRTJ: `N/A`,     torque: 240,  rtj: "N/A" },
+    "300":  { count: 16, stud: 1.000, lenRF: `6-1/4"`, lenRTJ: `7"`,     torque: 400,  rtj: "R-53" },
+    "600":  { count: 16, stud: 1.250, lenRF: `8-1/2"`, lenRTJ: `8-3/4"`, torque: 890,  rtj: "R-53" },
+    "900":  { count: 16, stud: 1.375, lenRF: `9-1/4"`, lenRTJ: `9-1/2"`, torque: 1250, rtj: "R-53" },
+    "1500": { count: 12, stud: 1.875, lenRF: `13-1/4"`,lenRTJ: `13-3/4"`,torque: 3400, rtj: "R-54" },
+    "2500": { count: 12, stud: 2.500, lenRF: `19-1/4"`,lenRTJ: `20"`,    torque: 8400, rtj: "R-55" }
   },
   "12": {
-    "150":  { count: 12, stud: 0.875, torque: 260,  rtj: "N/A" },
-    "300":  { count: 16, stud: 1.125, torque: 580,  rtj: "R-57" },
-    "600":  { count: 20, stud: 1.250, torque: 890,  rtj: "R-57" },
-    "900":  { count: 20, stud: 1.375, torque: 1250, rtj: "R-57" },
-    "1500": { count: 16, stud: 2.000, torque: 4200, rtj: "R-58" },
-    "2500": { count: 12, stud: 2.750, torque: 11000,rtj: "R-60" }
+    "150":  { count: 12, stud: 0.875, lenRF: `4-3/4"`, lenRTJ: `N/A`,     torque: 260,  rtj: "N/A" },
+    "300":  { count: 16, stud: 1.125, lenRF: `6-3/4"`, lenRTJ: `7-1/2"`, torque: 580,  rtj: "R-57" },
+    "600":  { count: 20, stud: 1.250, lenRF: `8-3/4"`, lenRTJ: `9"`,     torque: 890,  rtj: "R-57" },
+    "900":  { count: 20, stud: 1.375, lenRF: `10"`,    lenRTJ: `10-1/4"`,torque: 1250, rtj: "R-57" },
+    "1500": { count: 16, stud: 2.000, lenRF: `14-3/4"`,lenRTJ: `15-1/2"`,torque: 4200, rtj: "R-58" },
+    "2500": { count: 12, stud: 2.750, lenRF: `21-1/4"`,lenRTJ: `22"`,    torque: 11000,rtj: "R-60" }
   }
 };
 
@@ -375,6 +379,9 @@ function updateFlangeData() {
   document.getElementById("gasketDisplay").innerText = data.rtj;
   document.getElementById("torqueDisplay").innerText = `${data.torque} ft-lbs`;
   document.getElementById("sequenceDisplay").innerText = sequences[data.count] || "Follow standard cross-pattern";
+
+  // Stud Length: RF vs RTJ
+  document.getElementById("studLengthDisplay").innerText = `${data.lenRF} (RF) / ${data.lenRTJ} (RTJ)`;
 
   // Wrench Size: Stud Dia * 1.5 + 1/8" (0.125)
   const wrenchDec = (data.stud * 1.5) + 0.125;
