@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dave's Super-Awesome Control Valve & Actuator Tool</title>
+<style>
+  :root {
+    --bg: #121417;
+    --card: #1c212a;
+    --card-sub: #151a21;
+    --accent-orange: #ff9800;
+    --accent-green: #00e676;
+    --accent-cyan: #00e5ff;
+    --text: #e0e6ed;
+    --text-muted: #94a3b8;
+    --border: #2d3748;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--text); }
+  body { padding: 10px; display: flex; justify-content: center; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .app-container { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 28px; }
+
+  header { text-align: center; padding: 4px 0; }
+  header h1 { font-size: 1.15rem; color: var(--accent-orange); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+  header p { font-size: 0.72rem; color: var(--text-muted); }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .card-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--accent-cyan); display: flex; justify-content: space-between; align-items: center; }
+
+  .inputs-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; }
+  .field-group { display: flex; flex-direction: column; }
+  .field-group label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; font-weight: 700; }
+  select, input {
+    background: #0f1318; border: 1px solid #3b4252; color: #fff; border-radius: 4px;
+    padding: 6px 4px; font-size: 0.82rem; font-weight: 600; outline: none; width: 100%;
+  }
+  select:focus, input:focus { border-color: var(--accent-orange); }
+
+  /* Bench Table */
+  table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 0.78rem; text-align: center; }
+  th { background: #263242; color: #a5f3fc; padding: 5px 4px; font-weight: 700; border: 1px solid var(--border); }
+  td { padding: 5px 4px; border: 1px solid var(--border); background: var(--card-sub); font-weight: 600; }
+  tr:nth-child(even) td { background: #182029; }
+  .highlight-col { color: var(--accent-orange); font-weight: 800; }
+
+  /* Leakage & ESD Cards */
+  .leak-box { background: var(--card-sub); border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 0.75rem; line-height: 1.35; }
+  .leak-box strong { color: var(--accent-green); }
+
+  .esd-banner {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--card-sub); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+  }
+  .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+  .badge.pass { background: #064e3b; color: #6ee7b7; border: 1px solid var(--accent-green); }
+  .badge.fail { background: #7f1d1d; color: #fca5a5; border: 1px solid var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <h1>Dave's Super-Awesome Valve & Actuator Tool</h1>
+    <p>Bench-Set • Seat Leakage • Stroke Times</p>
+  </header>
+
+  <!-- Actuator Bench-Set Section -->
+  <div class="card">
+    <div class="card-title">
+      <span>1. Actuator Bench-Set Calibration</span>
+      <span style="color:var(--accent-orange); font-size:0.65rem;" id="failActionTag">FAIL-CLOSED (ATO)</span>
+    </div>
+    
+    <div class="inputs-grid">
+      <div class="field-group">
+        <label>Spring Range</label>
+        <select id="springRange" onchange="calcBench()">
+          <option value="3-15">3 - 15 psig</option>
+          <option value="6-30">6 - 30 psig</option>
+          <option value="8-20">8 - 20 psig</option>
+          <option value="3-9">3 - 9 psig</option>
+          <option value="9-15">9 - 15 psig</option>
+          <option value="custom">Custom (Edit below)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Travel (Inches)</label>
+        <select id="valveTravel" onchange="calcBench()">
+          <option value="0.75">0.75" (3/4")</option>
+          <option value="1.125">1.125" (1-1/8")</option>
+          <option value="1.5">1.50" (1-1/2")</option>
+          <option value="2.0">2.00"</option>
+          <option value="2.5">2.50"</option>
+          <option value="3.0">3.00"</option>
+          <option value="4.0">4.00"</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Valve Action</label>
+        <select id="valveAction" onchange="calcBench()">
+          <option value="ATO">Air to Open (ATO)</option>
+          <option value="ATC">Air to Close (ATC)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="inputs-grid" id="customRangeRow" style="display: none; grid-template-columns: 1fr 1fr; margin-top:2px;">
+      <div class="field-group">
+        <label>Custom Low (psig)</label>
+        <input type="number" id="customLow" value="4" oninput="calcBench()">
+      </div>
+      <div class="field-group">
+        <label>Custom High (psig)</label>
+        <input type="number" id="customHigh" value="24" oninput="calcBench()">
+      </div>
+    </div>
+
+    <!-- Live 5-Point Calibration Sheet -->
+    <table>
+      <thead>
+        <tr>
+          <th>Signal %</th>
+          <th>Bench Air (psig)</th>
+          <th>Target Travel</th>
+          <th>Valve State</th>
+        </tr>
+      </thead>
+      <tbody id="benchTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- FCI / ANSI 70-2 Leakage Classes -->
+  <div class="card">
+    <div class="card-title">2. Seat Leakage Class Reference (ANSI/FCI 70-2)</div>
+    <div class="field-group">
+      <label>Seat Leakage Rating</label>
+      <select id="leakClass" onchange="updateLeakage()">
+        <option value="II">Class II - Commercial double-port / metal seat (0.5% rated Cv)</option>
+        <option value="III">Class III - Metal seat heavy duty (0.1% rated Cv)</option>
+        <option value="IV" selected>Class IV - Standard plant metal seat (0.01% rated Cv)</option>
+        <option value="V">Class V - Critical shutoff / severe service (Water test)</option>
+        <option value="VI">Class VI - Soft-seat bubble tight (Resilient seat / Air test)</option>
+      </select>
+    </div>
+    <div class="leak-box" id="leakDesc">
+      <strong>Class IV Limit:</strong> Max 0.01% of rated valve capacity ($C_v$). Test fluid: Air/water at 45–60 psig. Standard commercial tolerance for metal-to-metal plug & seat.
+    </div>
+  </div>
+
+  <!-- API 6D ESD Closure Speed -->
+  <div class="card">
+    <div class="card-title">3. ESD Valve Full-Stroke Closure Speed</div>
+    <div class="inputs-grid" style="grid-template-columns: 1.2fr 1fr 1.2fr;">
+      <div class="field-group">
+        <label>Line Nominal Size</label>
+        <select id="esdSize" onchange="checkStroke()">
+          <option value="2">2" Valve</option>
+          <option value="4">4" Valve</option>
+          <option value="6">6" Valve</option>
+          <option value="8">8" Valve</option>
+          <option value="10">10" Valve</option>
+          <option value="12" selected>12" Valve</option>
+          <option value="16">16" Valve</option>
+          <option value="20">20" Valve</option>
+          <option value="24">24" Valve</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Time (Seconds)</label>
+        <input type="number" id="esdTime" value="6.5" step="0.5" min="0.1" oninput="checkStroke()">
+      </div>
+
+      <div class="field-group">
+        <label>Industry Rule</label>
+        <select id="esdRule" onchange="checkStroke()">
+          <option value="1.0">1.0 sec / inch (Standard)</option>
+          <option value="0.5">0.5 sec / inch (Fast Trip)</option>
+          <option value="2.0">2.0 sec / inch (Gentle)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="esd-banner">
+      <div>
+        <div style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase;">Allowable Max Limit</div>
+        <div style="font-size:1rem; font-weight:800; color:#fff;" id="esdAllowable">12.0 Seconds</div>
+      </div>
+      <div id="esdStatus" class="badge pass">Pass: Fast Trip</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEAK_DATA = {
+  'II': '<strong>Class II Limit:</strong> 0.5% of rated valve capacity (Cv). Test medium: Air or water at 45–60 psig. Common on standard balanced double-port valves.',
+  'III': '<strong>Class III Limit:</strong> 0.1% of rated valve capacity (Cv). Test medium: Air or water at 45–60 psig. Typical for heavy-duty metal-to-metal seating.',
+  'IV': '<strong>Class IV Limit:</strong> 0.01% of rated valve capacity (Cv). Test medium: Air at 45–60 psig. The industry standard for modern globe style metal-seated control valves.',
+  'V': '<strong>Class V Limit:</strong> 0.0005 ml of water per minute, per inch of port diameter, per psi differential. Hydrostatic water test at operating pressure. Critical tight-shutoff applications.',
+  'VI': '<strong>Class VI Limit:</strong> Soft-seat "Bubble-Tight". Test medium: Air or Nitrogen at 50 psig or delta P. Bubbles counted per minute using a submerged water tube (e.g., 2" port allows max 5 bubbles/min; 6" port allows max 27 bubbles/min).'
+};
+
+function calcBench() {
+  const rangeVal = document.getElementById('springRange').value;
+  const customRow = document.getElementById('customRangeRow');
+  let pLow = 3, pHigh = 15;
+
+  if (rangeVal === 'custom') {
+    customRow.style.display = 'grid';
+    pLow = parseFloat(document.getElementById('customLow').value) || 0;
+    pHigh = parseFloat(document.getElementById('customHigh').value) || 0;
+  } else {
+    customRow.style.display = 'none';
+    const parts = rangeVal.split('-');
+    pLow = parseFloat(parts[0]);
+    pHigh = parseFloat(parts[1]);
+  }
+
+  const travel = parseFloat(document.getElementById('valveTravel').value) || 1.0;
+  const action = document.getElementById('valveAction').value;
+  document.getElementById('failActionTag').textContent = action === 'ATO' ? 'FAIL-CLOSED (ATO)' : 'FAIL-OPEN (ATC)';
+
+  const tbody = document.getElementById('benchTableBody');
+  tbody.innerHTML = '';
+
+  const steps = [0, 25, 50, 75, 100];
+  steps.forEach(pct => {
+    const fraction = pct / 100;
+    const psi = pLow + (pHigh - pLow) * fraction;
+    const targetIn = (travel * fraction).toFixed(3);
+
+    let state = '';
+    if (action === 'ATO') {
+      state = pct === 0 ? 'Full Closed' : (pct === 100 ? 'Full Open' : `${pct}% Open`);
+    } else {
+      state = pct === 0 ? 'Full Open' : (pct === 100 ? 'Full Closed' : `${100 - pct}% Open`);
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${pct}%</td>
+      <td class="highlight-col">${psi.toFixed(1)}</td>
+      <td>${targetIn}"</td>
+      <td>${state}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateLeakage() {
+  const sel = document.getElementById('leakClass').value;
+  document.getElementById('leakDesc').innerHTML = LEAK_DATA[sel] || '';
+}
+
+function checkStroke() {
+  const size = parseFloat(document.getElementById('esdSize').value) || 2;
+  const time = parseFloat(document.getElementById('esdTime').value) || 0;
+  const multiplier = parseFloat(document.getElementById('esdRule').value) || 1.0;
+
+  const maxAllowable = size * multiplier;
+  document.getElementById('esdAllowable').textContent = `${maxAllowable.toFixed(1)} Seconds`;
+
+  const statusEl = document.getElementById('esdStatus');
+  if (time <= maxAllowable) {
+    statusEl.className = 'badge pass';
+    statusEl.textContent = `PASS (${time.toFixed(1)}s)`;
+  } else {
+    statusEl.className = 'badge fail';
+    statusEl.textContent = `FAIL: EXCEEDS (${time.toFixed(1)}s)`;
+  }
+}
+
+// Initial Boot
+calcBench();
+updateLeakage();
+checkStroke();
+</script>
+</body>
+</html>
