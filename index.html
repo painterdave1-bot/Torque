@@ -1,439 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dave's Super-Awesome bolt-up thing</title>
-<style>
-  :root {
-    --bg: #121417;
-    --card: #1b2028;
-    --accent: #ff9800;
-    --accent-dim: #b26a00;
-    --text: #e0e6ed;
-    --text-muted: #8b98a5;
-    --border: #2c333e;
-    --bolt-bg: #2d3748;
-    --wheel-radius: 95px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
-  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
-  body { display: flex; justify-content: center; align-items: center; padding: 8px; }
-  
-  .app-container {
-    width: 100%; max-width: 480px; height: 100%; max-height: 720px;
-    display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
-  }
-
-  header { text-align: center; }
-  header h1 { font-size: 1.15rem; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 800; }
-  header p { font-size: 0.7rem; color: var(--text-muted); }
-
-  /* 3D Wheel Section */
-  .roller-container {
-    display: flex; gap: 10px; background: #0f1216;
-    border-radius: 8px; border: 1px solid var(--border); padding: 8px;
-  }
-  .roller-col { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
-  .roller-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-  
-  .wheel-stage {
-    position: relative; width: 100%; height: 130px;
-    perspective: 800px; overflow: hidden;
-    background: radial-gradient(circle at 50% 50%, #202733 0%, #11151c 90%);
-    border-radius: 6px; border: 1px solid #28313e;
-    box-shadow: inset 0 10px 15px rgba(0,0,0,0.8), inset 0 -10px 15px rgba(0,0,0,0.8);
-  }
-
-  /* Center Fixed Rim Marker */
-  .wheel-center-bar {
-    position: absolute; top: 50%; left: 0; right: 0; height: 38px;
-    margin-top: -19px;
-    border-top: 2px solid var(--accent);
-    border-bottom: 2px solid var(--accent);
-    background: rgba(255, 152, 0, 0.12);
-    box-shadow: 0 0 8px rgba(255, 152, 0, 0.2);
-    pointer-events: none; z-index: 5;
-  }
-
-  /* Rotating 3D Drum */
-  .cylinder {
-    position: absolute; width: 100%; height: 38px; top: 50%; margin-top: -19px;
-    transform-style: preserve-3d;
-    transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
-  }
-  .cylinder-item {
-    position: absolute; width: 100%; height: 38px;
-    line-height: 38px; text-align: center;
-    font-size: 0.95rem; font-weight: 700; color: #7e8d9f;
-    backface-visibility: hidden; cursor: pointer;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 6px;
-    transition: color 0.2s, text-shadow 0.2s;
-  }
-  .cylinder-item.selected {
-    color: #fff; text-shadow: 0 0 6px rgba(255,255,255,0.6);
-  }
-
-  /* Clickable Spin Buttons for Desktop / Mouse */
-  .nav-btn {
-    background: #202632; border: 1px solid var(--border); color: var(--accent);
-    width: 100%; padding: 2px 0; font-size: 0.75rem; font-weight: bold;
-    cursor: pointer; border-radius: 4px; line-height: 1;
-  }
-  .nav-btn:hover { background: #2c3545; }
-  .nav-btn:active { background: var(--accent); color: #000; }
-
-  /* Spec Grid */
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
-  .spec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .spec-box { background: #222831; padding: 6px 4px; border-radius: 6px; text-align: center; border: 1px solid #2b323d; }
-  .spec-box.highlight { border-color: var(--accent-dim); background: #282218; grid-column: span 2; }
-  .spec-box.rtj-box { grid-column: span 1; }
-  .spec-title { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
-  .spec-val { font-size: 1rem; font-weight: 700; color: #fff; margin-top: 1px; }
-  .spec-val.accent { color: var(--accent); font-size: 1.25rem; }
-
-  /* Flange SVG */
-  .visual-card {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px; min-height: 0;
-  }
-  .visual-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
-  svg { width: 100%; height: 100%; max-height: 240px; }
-  .bolt-circle { fill: var(--bolt-bg); stroke: #4a5568; stroke-width: 2; }
-  .bolt-text { fill: #fff; font-size: 12px; font-weight: bold; text-anchor: middle; dominant-baseline: central; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flange Bolt-Up & Hytorc PSI Calculator</title>
+  <style>
+    :root {
+      --bg: #1e1e24;
+      --card-bg: #2a2a32;
+      --accent: #f59e0b;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: #3f3f46;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 1.5rem;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 580px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.35rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+      color: #fff;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    input, select {
+      width: 100%;
+      padding: 0.65rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #18181b;
+      color: #fff;
+      font-size: 1rem;
+    }
+    input:focus, select:focus {
+      outline: 2px solid var(--accent);
+    }
+    .card {
+      margin-top: 1.5rem;
+      background: #18181b;
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+      font-size: 0.95rem;
+    }
+    .card-row:last-child { margin-bottom: 0; }
+    .val {
+      font-weight: bold;
+      color: #fff;
+    }
+    .psi-highlight {
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+    .nav-links {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      font-size: 0.85rem;
+    }
+    .nav-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
 
-<div class="app-container">
-  <header>
-    <h1>Dave's Super-Awesome bolt-up thing</h1>
-    <p>Conoco / SS-30 Jet-Lube Specs</p>
-  </header>
+<div class="container">
+  <h2>Bolt-Up & Hytorc Calculator</h2>
 
-  <!-- 3D Wheels -->
-  <div class="roller-container">
-    <div class="roller-col">
-      <span class="roller-label">Pipe Size</span>
-      <button class="nav-btn" onclick="stepSize(-1)">▲</button>
-      <div class="wheel-stage" id="sizeStage">
-        <div class="wheel-center-bar"></div>
-        <div class="cylinder" id="sizeCylinder"></div>
-      </div>
-      <button class="nav-btn" style="margin-top:2px;" onclick="stepSize(1)">▼</button>
-    </div>
-
-    <div class="roller-col">
-      <span class="roller-label">Rating / Gasket</span>
-      <button class="nav-btn" onclick="stepClass(-1)">▲</button>
-      <div class="wheel-stage" id="classStage">
-        <div class="wheel-center-bar"></div>
-        <div class="cylinder" id="classCylinder"></div>
-      </div>
-      <button class="nav-btn" style="margin-top:2px;" onclick="stepClass(1)">▼</button>
-    </div>
+  <div class="form-group">
+    <label for="studSize">Stud Diameter (Inches)</label>
+    <select id="studSize" onchange="recalculate()">
+      <option value="0.5">1/2"</option>
+      <option value="0.625">5/8"</option>
+      <option value="0.75" selected>3/4"</option>
+      <option value="0.875">7/8"</option>
+      <option value="1.0">1"</option>
+      <option value="1.125">1-1/8"</option>
+      <option value="1.25">1-1/4"</option>
+      <option value="1.375">1-3/8"</option>
+      <option value="1.5">1-1/2"</option>
+      <option value="1.625">1-5/8"</option>
+      <option value="1.75">1-3/4"</option>
+      <option value="1.875">1-7/8"</option>
+      <option value="2.0">2"</option>
+    </select>
   </div>
 
-  <!-- Specs Display -->
+  <div class="form-group">
+    <label for="torqueTarget">Target Torque (ft-lbs)</label>
+    <input type="number" id="torqueTarget" value="350" min="50" max="10000" oninput="recalculate()" />
+  </div>
+
+  <div class="form-group">
+    <label for="headModel">Hytorc Head Model</label>
+    <select id="headModel" onchange="recalculate()">
+      <option value="2-X">2-X (Stealth)</option>
+      <option value="4-X">4-X (Stealth)</option>
+      <option value="8-X">8-X (Stealth)</option>
+      <option value="2-S">2-S (Avanti / Square Drive)</option>
+      <option value="4-S">4-S (Avanti / Square Drive)</option>
+      <option value="8-S">8-S (Avanti / Square Drive)</option>
+    </select>
+  </div>
+
   <div class="card">
-    <div class="spec-grid">
-      <div class="spec-box highlight">
-        <div class="spec-title">Target Torque (ft-lbs)</div>
-        <div class="spec-val accent" id="torqueVal">--</div>
-      </div>
-      <div class="spec-box rtj-box">
-        <div class="spec-title">RTJ Ring</div>
-        <div class="spec-val" id="rtjVal" style="color: #4fc3f7;">None</div>
-      </div>
-      <div class="spec-box">
-        <div class="spec-title">Stud Count</div>
-        <div class="spec-val" id="boltCount">--</div>
-      </div>
-      <div class="spec-box">
-        <div class="spec-title">Stud Dia</div>
-        <div class="spec-val" id="boltDia">--</div>
-      </div>
-      <div class="spec-box">
-        <div class="spec-title">Stud Length</div>
-        <div class="spec-val" id="boltLen">--</div>
-      </div>
+    <div class="card-row">
+      <span>Heavy Hex Nut / Wrench Size:</span>
+      <span class="val" id="wrenchSizeDisplay">--</span>
+    </div>
+    <div class="card-row">
+      <span>Wrench Decimal:</span>
+      <span class="val" id="wrenchDecDisplay">--</span>
+    </div>
+    <div class="card-row">
+      <span>Required Pump Pressure:</span>
+      <span class="val psi-highlight" id="psiDisplay">--</span>
     </div>
   </div>
 
-  <!-- Flange Star Pattern Order -->
-  <div class="visual-card">
-    <span class="visual-label">Tightening Star Pattern Order</span>
-    <svg id="flangeSvg" viewBox="-125 -125 250 250"></svg>
+  <div class="nav-links">
+    <a href="index.html">← Back to Overview</a>
   </div>
 </div>
 
 <script>
-const rawData = [
-  ['1/2"', '#150 Flex', 4, '1/2"', '2 1/4"', '30-50', ''],
-  ['1/2"', '#300 Flex', 4, '1/2"', '2 1/2"', '30-40', ''],
-  ['1/2"', '#600 Flex', 4, '1/2"', '3"', '30-40', ''],
-  ['1/2"', '#900 RTJ',  4, '3/4"', '4 1/2"', '143', 'R12'],
-  ['1/2"', '#1500 RTJ', 4, '3/4"', '4 1/4"', '143', 'R12'],
-  ['1/2"', '#2500 RTJ', 4, '3/4"', '4 3/4"', '143', 'R13'],
-  ['3/4"', '#150 Flex', 4, '1/2"', '2 1/2"', '30-50', ''],
-  ['3/4"', '#300 Flex', 4, '5/8"', '3"', '60-80', ''],
-  ['3/4"', '#600 Flex', 4, '5/8"', '3 1/2"', '60-80', ''],
-  ['3/4"', '#900 RTJ',  4, '3/4"', '4 1/2"', '143', 'R14'],
-  ['3/4"', '#1500 RTJ', 4, '3/4"', '4 1/2"', '143', 'R14'],
-  ['3/4"', '#2500 RTJ', 4, '3/4"', '5"', '143', 'R16'],
-  ['1"', '#150 Flex', 4, '1/2"', '2 1/2"', '30-60', ''],
-  ['1"', '#300 Flex', 4, '5/8"', '3"', '60-80', ''],
-  ['1"', '#600 Flex', 4, '5/8"', '3 1/2"', '60-80', ''],
-  ['1"', '#900 RTJ',  4, '7/8"', '5"', '230', 'R16'],
-  ['1"', '#1500 RTJ', 4, '7/8"', '5"', '230', 'R16'],
-  ['1"', '#2500 RTJ', 4, '7/8"', '5 1/2"', '230', 'R18'],
-  ['1 1/4"', '#150 Flex', 4, '1/2"', '2 3/4"', '30-60', ''],
-  ['1 1/4"', '#300 Flex', 4, '5/8"', '3 1/4"', '60-80', ''],
-  ['1 1/4"', '#600 Flex', 4, '5/8"', '3 3/4"', '60-80', ''],
-  ['1 1/4"', '#900 RTJ',  4, '7/8"', '5"', '230', 'R18'],
-  ['1 1/4"', '#1500 RTJ', 4, '7/8"', '5"', '230', 'R18'],
-  ['1 1/4"', '#2500 RTJ', 4, '1"', '6"', '345', 'R21'],
-  ['1 1/2"', '#150 Flex', 4, '1/2"', '2 3/4"', '30-60', ''],
-  ['1 1/2"', '#300 Flex', 4, '3/4"', '3 1/2"', '100-140', ''],
-  ['1 1/2"', '#600 Flex', 4, '3/4"', '4 1/4"', '100-140', ''],
-  ['1 1/2"', '#900 RTJ',  4, '1"', '5 1/2"', '345', 'R20'],
-  ['1 1/2"', '#1500 RTJ', 4, '1"', '5 1/2"', '345', 'R20'],
-  ['1 1/2"', '#2500 RTJ', 4, '1 1/8"', '6 3/4"', '506', 'R23'],
-  ['2"', '#150 Flex', 4, '5/8"', '3 1/4"', '60-120', ''],
-  ['2"', '#300 Flex', 8, '5/8"', '3 1/2"', '60-80', ''],
-  ['2"', '#600 Flex', 8, '5/8"', '4 1/4"', '60-80', ''],
-  ['2"', '#900 RTJ',  8, '7/8"', '5 3/4"', '230', 'R24'],
-  ['2"', '#1500 RTJ', 8, '7/8"', '5 3/4"', '230', 'R24'],
-  ['2"', '#2500 RTJ', 8, '1"', '7"', '345', 'R26'],
-  ['2 1/2"', '#150 Flex', 4, '5/8"', '3 1/2"', '60-120', ''],
-  ['2 1/2"', '#300 Flex', 8, '3/4"', '4"', '100-140', ''],
-  ['2 1/2"', '#600 Flex', 8, '3/4"', '4 3/4"', '100-140', ''],
-  ['2 1/2"', '#900 RTJ',  8, '1"', '6 1/2"', '345', 'R27'],
-  ['2 1/2"', '#1500 RTJ', 8, '1"', '6 1/4"', '345', 'R27'],
-  ['2 1/2"', '#2500 RTJ', 8, '1 1/8"', '7 3/4"', '506', 'R28'],
-  ['3"', '#150 Flex', 4, '5/8"', '3 1/2"', '90-120', ''],
-  ['3"', '#300 Flex', 8, '3/4"', '4 1/4"', '100-150', ''],
-  ['3"', '#600 Flex', 8, '3/4"', '5"', '100-150', ''],
-  ['3"', '#900 RTJ',  8, '7/8"', '6"', '230', 'R31'],
-  ['3"', '#1500 RTJ', 8, '1 1/8"', '7"', '506', 'R35'],
-  ['3"', '#2500 RTJ', 8, '1 1/4"', '8 3/4"', '711', 'R32'],
-  ['3 1/2"', '#150 Flex', 8, '5/8"', '3 1/2"', '60-120', ''],
-  ['3 1/2"', '#300 Flex', 8, '3/4"', '4 1/4"', '100-170', ''],
-  ['3 1/2"', '#600 Flex', 8, '7/8"', '5 1/2"', '170-290', ''],
-  ['4"', '#150 Flex', 8, '5/8"', '3 1/2"', '70-120', ''],
-  ['4"', '#300 Flex', 8, '3/4"', '4 1/2"', '100-200', ''],
-  ['4"', '#600 Flex', 8, '7/8"', '5 3/4"', '190-320', ''],
-  ['4"', '#900 RTJ',  8, '1 1/8"', '7"', '506', 'R34'],
-  ['4"', '#1500 RTJ', 8, '1 1/4"', '7 3/4"', '711', 'R39'],
-  ['4"', '#2500 RTJ', 8, '1 1/2"', '10"', '1273', 'R38'],
-  ['6"', '#150 Flex', 8, '3/4"', '4"', '130-200', ''],
-  ['6"', '#300 Flex', 12, '3/4"', '4 3/4"', '110-200', ''],
-  ['6"', '#600 Flex', 12, '1"', '6 3/4"', '260-460', ''],
-  ['6"', '#900 RTJ',  12, '1 1/8"', '7 3/4"', '506', 'R45'],
-  ['6"', '#1500 RTJ', 12, '1 3/8"', '10 3/4"', '965', 'R46'],
-  ['6"', '#2500 RTJ', 8, '2"', '13 1/2"', '3152', 'R47'],
-  ['8"', '#150 Flex', 8, '3/4"', '4 1/2"', '180-200', ''],
-  ['8"', '#300 Flex', 12, '7/8"', '5 1/2"', '180-320', ''],
-  ['8"', '#600 Flex', 12, '1 1/8"', '7 1/2"', '400-700', ''],
-  ['8"', '#900 RTJ',  12, '1 3/8"', '9"', '965', 'R49'],
-  ['8"', '#1500 RTJ', 12, '1 5/8"', '11 1/2"', '1640', 'R50'],
-  ['8"', '#2500 RTJ', 12, '2"', '15"', '3152', 'R51'],
-  ['10"', '#150 Flex', 12, '7/8"', '4 1/2"', '170-320', ''],
-  ['10"', '#300 Flex', 16, '1"', '6 1/4"', '250-460', ''],
-  ['10"', '#600 Flex', 16, '1 1/4"', '8 1/2"', '500-800', ''],
-  ['10"', '#900 RTJ',  16, '1 3/8"', '9 1/2"', '965', 'R53'],
-  ['10"', '#1500 RTJ', 12, '1 7/8"', '13 1/4"', '2574', 'R54'],
-  ['10"', '#2500 RTJ', 12, '2 1/2"', '19 1/4"', '3152', 'R55'],
-  ['12"', '#150 Flex', 12, '7/8"', '4 3/4"', '240-320', ''],
-  ['12"', '#300 Flex', 16, '1 1/8"', '6 3/4"', '360-700', ''],
-  ['12"', '#600 Flex', 20, '1 1/4"', '8 3/4"', '500-850', ''],
-  ['12"', '#900 RTJ',  20, '1 3/8"', '10 1/4"', '965', 'R57'],
-  ['12"', '#1500 RTJ', 16, '2"', '14 3/4"', '3152', 'R58'],
-  ['12"', '#2500 RTJ', 12, '2 3/4"', '21 1/4"', 'R60', 'R60'],
-  ['14"', '#150 Flex', 12, '1"', '5 1/4"', '300-490', ''],
-  ['14"', '#300 Flex', 20, '1 1/8"', '7"', '360-610', ''],
-  ['14"', '#600 Flex', 20, '1 3/8"', '9 1/4"', '680-950', ''],
-  ['14"', '#900 RTJ',  20, '1 1/2"', '11 1/4"', '1273', 'R62'],
-  ['14"', '#1500 RTJ', 16, '2 1/4"', '16"', '4552', 'R93'],
-  ['16"', '#150 Flex', 16, '1"', '5 1/4"', '310-490', ''],
-  ['16"', '#300 Flex', 20, '1 1/4"', '7 1/2"', '500-920', ''],
-  ['16"', '#600 Flex', 20, '1 1/2"', '10"', '800-1210', ''],
-  ['16"', '#900 RTJ',  20, '1 5/8"', '11 3/4"', '1640', 'R66'],
-  ['16"', '#1500 RTJ', 16, '2 1/2"', '17 1/2"', '6316', 'R67'],
-  ['18"', '#150 Flex', 16, '1 1/8"', '5 3/4"', '490-710', ''],
-  ['18"', '#300 Flex', 24, '1 1/4"', '7 3/4"', '500-1000', ''],
-  ['18"', '#600 Flex', 20, '1 5/8"', '10 3/4"', '1100-1790', ''],
-  ['18"', '#900 RTJ',  20, '1 7/8"', '13 1/2"', '2574', 'R70'],
-  ['18"', '#1500 RTJ', 16, '2 3/4"', '19 3/4"', '--', ''],
-  ['20"', '#150 Flex', 20, '1 1/8"', '6 3/4"', '430-710', ''],
-  ['20"', '#300 Flex', 24, '1 1/4"', '8"', '500-1000', ''],
-  ['20"', '#600 Flex', 24, '1 5/8"', '11 1/4"', '1100-1640', ''],
-  ['20"', '#900 RTJ',  20, '2"', '14 1/4"', '3152', 'R74'],
-  ['20"', '#1500 RTJ', 16, '3"', '21 1/4"', '--', ''],
-  ['24"', '#150 Flex', 20, '1 1/4"', '6 3/4"', '620-1000', ''],
-  ['24"', '#300 Flex', 24, '1 1/2"', '9"', '800-1600', ''],
-  ['24"', '#600 Flex', 24, '1 7/8"', '13"', '2000-2670', ''],
-  ['24"', '#900 RTJ',  20, '2 1/2"', '17 3/4"', '6316', 'R78'],
-  ['24"', '#1500 RTJ', 16, '3 1/2"', '24 1/4"', '--', '']
+// Pressure table from calibration chart
+const chart = [
+  { psi: 1500, "2-X": 243, "4-X": 580, "8-X": 1143, "2-S": 278, "4-S": 604, "8-S": 1199 },
+  { psi: 1600, "2-X": 259, "4-X": 618, "8-X": 1234, "2-S": 297, "4-S": 644, "8-S": 1276 },
+  { psi: 1800, "2-X": 292, "4-X": 694, "8-X": 1417, "2-S": 336, "4-S": 725, "8-S": 1431 },
+  { psi: 2000, "2-X": 325, "4-X": 770, "8-X": 1600, "2-S": 375, "4-S": 806, "8-S": 1585 },
+  { psi: 2200, "2-X": 359, "4-X": 847, "8-X": 1754, "2-S": 413, "4-S": 885, "8-S": 1743 },
+  { psi: 2400, "2-X": 392, "4-X": 924, "8-X": 1907, "2-S": 450, "4-S": 924, "8-S": 1901 },
+  { psi: 2600, "2-X": 426, "4-X": 1001, "8-X": 2061, "2-S": 488, "4-S": 1043, "8-S": 2060 },
+  { psi: 2800, "2-X": 459, "4-X": 1078, "8-X": 2214, "2-S": 525, "4-S": 1122, "8-S": 2218 },
+  { psi: 3000, "2-X": 493, "4-X": 1155, "8-X": 2368, "2-S": 563, "4-S": 1201, "8-S": 2376 },
+  { psi: 3200, "2-X": 526, "4-X": 1232, "8-X": 2533, "2-S": 600, "4-S": 1281, "8-S": 2539 },
+  { psi: 3400, "2-X": 559, "4-X": 1309, "8-X": 2698, "2-S": 638, "4-S": 1361, "8-S": 2702 },
+  { psi: 3600, "2-X": 591, "4-X": 1386, "8-X": 2864, "2-S": 675, "4-S": 1442, "8-S": 2865 },
+  { psi: 3800, "2-X": 624, "4-X": 1463, "8-X": 3029, "2-S": 713, "4-S": 1522, "8-S": 3028 },
+  { psi: 4000, "2-X": 657, "4-X": 1540, "8-X": 3194, "2-S": 750, "4-S": 1602, "8-S": 3191 },
+  { psi: 4200, "2-X": 691, "4-X": 1624, "8-X": 3358, "2-S": 787, "4-S": 1680, "8-S": 3354 },
+  { psi: 4400, "2-X": 726, "4-X": 1708, "8-X": 3522, "2-S": 825, "4-S": 1758, "8-S": 3517 },
+  { psi: 4600, "2-X": 760, "4-X": 1792, "8-X": 3685, "2-S": 862, "4-S": 1837, "8-S": 3681 },
+  { psi: 4800, "2-X": 795, "4-X": 1876, "8-X": 3849, "2-S": 900, "4-S": 1915, "8-S": 3844 },
+  { psi: 5000, "2-X": 829, "4-X": 1960, "8-X": 4013, "2-S": 937, "4-S": 1993, "8-S": 4007 },
+  { psi: 5200, "2-X": 863, "4-X": 2031, "8-X": 4176, "2-S": 974, "4-S": 2075, "8-S": 4172 },
+  { psi: 5400, "2-X": 897, "4-X": 2102, "8-X": 4340, "2-S": 1011, "4-S": 2157, "8-S": 4337 },
+  { psi: 5600, "2-X": 931, "4-X": 2173, "8-X": 4503, "2-S": 1048, "4-S": 2240, "8-S": 4502 },
+  { psi: 5800, "2-X": 965, "4-X": 2244, "8-X": 4667, "2-S": 1085, "4-S": 2322, "8-S": 4667 },
+  { psi: 6000, "2-X": 999, "4-X": 2315, "8-X": 4830, "2-S": 1122, "4-S": 2404, "8-S": 4832 },
+  { psi: 6200, "2-X": 1033, "4-X": 2392, "8-X": 4996, "2-S": 1160, "4-S": 2485, "8-S": 4988 },
+  { psi: 6400, "2-X": 1067, "4-X": 2469, "8-X": 5161, "2-S": 1198, "4-S": 2566, "8-S": 5145 },
+  { psi: 6600, "2-X": 1102, "4-X": 2546, "8-X": 5327, "2-S": 1235, "4-S": 2647, "8-S": 5301 },
+  { psi: 6800, "2-X": 1136, "4-X": 2623, "8-X": 5492, "2-S": 1273, "4-S": 2728, "8-S": 5458 },
+  { psi: 7000, "2-X": 1170, "4-X": 2700, "8-X": 5658, "2-S": 1311, "4-S": 2809, "8-S": 5614 },
+  { psi: 7200, "2-X": 1204, "4-X": 2777, "8-X": 5825, "2-S": 1348, "4-S": 2887, "8-S": 5773 },
+  { psi: 7400, "2-X": 1239, "4-X": 2854, "8-X": 5992, "2-S": 1385, "4-S": 2965, "8-S": 5931 },
+  { psi: 7600, "2-X": 1273, "4-X": 2931, "8-X": 6158, "2-S": 1421, "4-S": 3042, "8-S": 6090 },
+  { psi: 7800, "2-X": 1308, "4-X": 3008, "8-X": 6325, "2-S": 1458, "4-S": 3120, "8-S": 6248 },
+  { psi: 8000, "2-X": 1342, "4-X": 3085, "8-X": 6492, "2-S": 1495, "4-S": 3198, "8-S": 6407 },
+  { psi: 8200, "2-X": 1377, "4-X": 3163, "8-X": 6658, "2-S": 1532, "4-S": 3280, "8-S": 6565 },
+  { psi: 8400, "2-X": 1412, "4-X": 3241, "8-X": 6823, "2-S": 1570, "4-S": 3362, "8-S": 6723 },
+  { psi: 8600, "2-X": 1446, "4-X": 3319, "8-X": 6989, "2-S": 1607, "4-S": 3444, "8-S": 6881 },
+  { psi: 8800, "2-X": 1481, "4-X": 3397, "8-X": 7154, "2-S": 1645, "4-S": 3526, "8-S": 7039 },
+  { psi: 9000, "2-X": 1516, "4-X": 3475, "8-X": 7320, "2-S": 1682, "4-S": 3608, "8-S": 7197 },
+  { psi: 9200, "2-X": 1550, "4-X": 3551, "8-X": 7486, "2-S": 1719, "4-S": 3690, "8-S": 7354 },
+  { psi: 9400, "2-X": 1584, "4-X": 3627, "8-X": 7652, "2-S": 1757, "4-S": 3773, "8-S": 7512 },
+  { psi: 9600, "2-X": 1619, "4-X": 3703, "8-X": 7819, "2-S": 1794, "4-S": 3855, "8-S": 7669 },
+  { psi: 9800, "2-X": 1653, "4-X": 3779, "8-X": 7985, "2-S": 1832, "4-S": 3938, "8-S": 7827 },
+  { psi: 10000, "2-X": 1687, "4-X": 3855, "8-X": 8151, "2-S": 1869, "4-S": 4020, "8-S": 7984 }
 ];
 
-const crossPatterns = {
-  4:  [1, 3, 2, 4],
-  8:  [1, 5, 3, 7, 2, 6, 4, 8],
-  12: [1, 7, 4, 10, 2, 8, 5, 11, 3, 9, 6, 12],
-  16: [1, 9, 5, 13, 3, 11, 7, 15, 2, 10, 6, 14, 4, 12, 8, 16],
-  20: [1, 11, 6, 16, 3, 13, 8, 18, 5, 15, 10, 20, 2, 12, 7, 17, 4, 14, 9, 19],
-  24: [1, 13, 7, 19, 4, 16, 10, 22, 2, 14, 8, 20, 5, 17, 11, 23, 3, 15, 9, 21, 6, 18, 12, 24]
-};
-
-const uniqueSizes = [...new Set(rawData.map(d => d[0]))];
-let sizeIdx = uniqueSizes.indexOf('2"');
-let currentClasses = [];
-let classIdx = 0;
-
-const RADIUS = 65;
-const ANGLE_STEP = 28;
-
-function buildCylinder(cylinderEl, items, activeIdx, onSelect) {
-  cylinderEl.innerHTML = '';
-  items.forEach((txt, i) => {
-    const el = document.createElement('div');
-    el.className = 'cylinder-item' + (i === activeIdx ? ' selected' : '');
-    el.textContent = txt;
-    const diff = i - activeIdx;
-    el.style.transform = `rotateX(${diff * -ANGLE_STEP}deg) translateZ(${RADIUS}px)`;
-    el.onclick = () => onSelect(i);
-    cylinderEl.appendChild(el);
-  });
+function gcd(a, b) {
+  return b ? gcd(b, a % b) : a;
 }
 
-function rotateCylinder(cylinderEl, activeIdx, totalItems) {
-  cylinderEl.querySelectorAll('.cylinder-item').forEach((el, i) => {
-    const diff = i - activeIdx;
-    el.style.transform = `rotateX(${diff * -ANGLE_STEP}deg) translateZ(${RADIUS}px)`;
-    el.classList.toggle('selected', i === activeIdx);
-    el.style.opacity = Math.abs(diff) > 2 ? '0' : (Math.abs(diff) === 2 ? '0.3' : (Math.abs(diff) === 1 ? '0.7' : '1'));
-  });
+function decimalToFraction(val) {
+  const whole = Math.floor(val);
+  const remainder = val - whole;
+  const sixteenths = Math.round(remainder * 16);
+  
+  if (sixteenths === 0) return whole > 0 ? `${whole}"` : `0"`;
+  if (sixteenths === 16) return `${whole + 1}"`;
+
+  const divisor = gcd(sixteenths, 16);
+  const num = sixteenths / divisor;
+  const den = 16 / divisor;
+
+  return whole > 0 ? `${whole}-${num}/${den}"` : `${num}/${den}"`;
 }
 
-function initSizeWheel() {
-  const cyl = document.getElementById('sizeCylinder');
-  buildCylinder(cyl, uniqueSizes, sizeIdx, (newIdx) => {
-    sizeIdx = newIdx;
-    rotateCylinder(cyl, sizeIdx, uniqueSizes.length);
-    onSizeChange();
-  });
-  rotateCylinder(cyl, sizeIdx, uniqueSizes.length);
-}
+function recalculate() {
+  const stud = parseFloat(document.getElementById("studSize").value);
+  const targetTorque = parseFloat(document.getElementById("torqueTarget").value);
+  const head = document.getElementById("headModel").value;
 
-function initClassWheel() {
-  const sz = uniqueSizes[sizeIdx];
-  currentClasses = rawData.filter(d => d[0] === sz).map(d => d[1]);
-  if (classIdx >= currentClasses.length) classIdx = 0;
-  const cyl = document.getElementById('classCylinder');
-  buildCylinder(cyl, currentClasses, classIdx, (newIdx) => {
-    classIdx = newIdx;
-    rotateCylinder(cyl, classIdx, currentClasses.length);
-    updateDetails();
-  });
-  rotateCylinder(cyl, classIdx, currentClasses.length);
-}
+  // Wrench size = Stud Dia * 1.5 + 0.125 (1/8")
+  const wrenchDec = (stud * 1.5) + 0.125;
+  document.getElementById("wrenchSizeDisplay").innerText = decimalToFraction(wrenchDec);
+  document.getElementById("wrenchDecDisplay").innerText = wrenchDec.toFixed(3) + `"`;
 
-function onSizeChange() {
-  const sz = uniqueSizes[sizeIdx];
-  const oldClass = currentClasses[classIdx];
-  currentClasses = rawData.filter(d => d[0] === sz).map(d => d[1]);
-  const matched = currentClasses.indexOf(oldClass);
-  classIdx = matched !== -1 ? matched : 0;
-  initClassWheel();
-  updateDetails();
-}
+  // Pressure lookups
+  if (isNaN(targetTorque) || targetTorque <= 0) {
+    document.getElementById("psiDisplay").innerText = "Enter torque";
+    return;
+  }
 
-function stepSize(dir) {
-  sizeIdx = Math.max(0, Math.min(uniqueSizes.length - 1, sizeIdx + dir));
-  rotateCylinder(document.getElementById('sizeCylinder'), sizeIdx, uniqueSizes.length);
-  onSizeChange();
-}
+  const minTorque = chart[0][head];
+  const maxTorque = chart[chart.length - 1][head];
 
-function stepClass(dir) {
-  classIdx = Math.max(0, Math.min(currentClasses.length - 1, classIdx + dir));
-  rotateCylinder(document.getElementById('classCylinder'), classIdx, currentClasses.length);
-  updateDetails();
-}
+  if (targetTorque < minTorque) {
+    document.getElementById("psiDisplay").innerText = `< 1,500 PSI (Below Range)`;
+    return;
+  }
+  if (targetTorque > maxTorque) {
+    document.getElementById("psiDisplay").innerText = `> 10,000 PSI (Max Exceeded)`;
+    return;
+  }
 
-// Mousewheel listener for wheels
-document.getElementById('sizeStage').addEventListener('wheel', (e) => {
-  e.preventDefault();
-  stepSize(e.deltaY > 0 ? 1 : -1);
-}, { passive: false });
-
-document.getElementById('classStage').addEventListener('wheel', (e) => {
-  e.preventDefault();
-  stepClass(e.deltaY > 0 ? 1 : -1);
-}, { passive: false });
-
-function updateDetails() {
-  const sz = uniqueSizes[sizeIdx];
-  const cl = currentClasses[classIdx];
-  const record = rawData.find(d => d[0] === sz && d[1] === cl);
-  if (!record) return;
-
-  const [, , bolts, dia, len, tq, rtj] = record;
-  document.getElementById('torqueVal').textContent = tq + (tq !== '--' && !tq.includes('R') ? ' ft-lbs' : '');
-  document.getElementById('boltCount').textContent = bolts;
-  document.getElementById('boltDia').textContent = dia;
-  document.getElementById('boltLen').textContent = len;
-  document.getElementById('rtjVal').textContent = rtj || 'None';
-
-  drawFlange(bolts);
-}
-
-function drawFlange(boltCount) {
-  const svg = document.getElementById('flangeSvg');
-  svg.innerHTML = '';
-
-  const outer = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  outer.setAttribute('cx', 0); outer.setAttribute('cy', 0); outer.setAttribute('r', 110);
-  outer.setAttribute('fill', '#171c24'); outer.setAttribute('stroke', '#374151'); outer.setAttribute('stroke-width', 4);
-  svg.appendChild(outer);
-
-  const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  inner.setAttribute('cx', 0); inner.setAttribute('cy', 0); inner.setAttribute('r', 50);
-  inner.setAttribute('fill', '#121417'); inner.setAttribute('stroke', '#374151'); inner.setAttribute('stroke-width', 3);
-  svg.appendChild(inner);
-
-  const r = 80;
-  const seq = crossPatterns[boltCount] || Array.from({length: boltCount}, (_, i) => i + 1);
-
-  for (let i = 0; i < boltCount; i++) {
-    const angle = (i * 2 * Math.PI / boltCount) - (Math.PI / 2);
-    const x = r * Math.cos(angle);
-    const y = r * Math.sin(angle);
-    const boltId = i + 1;
-    const seqOrder = seq.indexOf(boltId) + 1;
-
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', x); circle.setAttribute('cy', y);
-    circle.setAttribute('r', boltCount > 16 ? 10 : 13);
-    circle.setAttribute('class', 'bolt-circle');
-
-    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    txt.setAttribute('x', x); txt.setAttribute('y', y);
-    txt.setAttribute('class', 'bolt-text');
-    txt.textContent = seqOrder;
-
-    g.appendChild(circle);
-    g.appendChild(txt);
-    svg.appendChild(g);
+  // Linear Interpolation
+  for (let i = 0; i < chart.length - 1; i++) {
+    const r1 = chart[i];
+    const r2 = chart[i + 1];
+    if (targetTorque >= r1[head] && targetTorque <= r2[head]) {
+      const slope = (r2.psi - r1.psi) / (r2[head] - r1[head]);
+      const calculatedPsi = Math.round(r1.psi + (targetTorque - r1[head]) * slope);
+      document.getElementById("psiDisplay").innerText = `${calculatedPsi.toLocaleString()} PSI`;
+      return;
+    }
   }
 }
 
-// Initial Boot
-initSizeWheel();
-initClassWheel();
-updateDetails();
+// Initial calculation on page load
+window.onload = recalculate;
 </script>
 </body>
 </html>
