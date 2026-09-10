@@ -33,8 +33,46 @@
     padding-bottom: 40px;
   }
 
-  header { text-align: center; padding: 4px 0 2px; }
-  header h1 { font-size: 1.25rem; color: #ff9800; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+  /* Top View Navigation Tabs */
+  .view-switch {
+    display: flex;
+    background: #141920;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 4px;
+    margin-top: 2px;
+  }
+  .view-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 4px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .view-btn.active {
+    background: #232d3d;
+    color: #fff;
+    border: 1px solid #00e5ff;
+    box-shadow: 0 2px 8px rgba(0, 229, 255, 0.2);
+  }
+  .view-btn:active {
+    filter: brightness(1.2);
+  }
+
+  header { text-align: center; padding: 2px 0; }
+  header h1 { font-size: 1.25rem; color: #ff9800; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; transition: color 0.2s; }
   header p { font-size: 0.72rem; color: var(--text-muted); }
 
   .sticky-header {
@@ -74,8 +112,8 @@
     padding: 4px;
   }
 
-  /* 3 Balanced Rows (3x3 Grid) */
-  .pills-container {
+  /* Balanced Grid Button Layouts */
+  .pills-grid-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 6px;
@@ -99,7 +137,7 @@
   }
   .pill:active { filter: brightness(1.2); }
 
-  /* Unique Button Theme Colors */
+  /* Field Theme Colors */
   .pill.pill-all { border-color: #475569; color: #cbd5e1; }
   .pill.pill-all.active { background: #cbd5e1; color: #0f172a; border-color: #cbd5e1; }
 
@@ -110,7 +148,7 @@
   .pill.pill-maint.active { background: #f59e0b; color: #000; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
 
   .pill.pill-support { border-color: #10b981; color: #a7f3d0; background: #042f2e; }
-  .pill.pill-support.active { background: #10b981; color: #000; box-shadow: 0 0 10px rgba(168, 185, 129, 0.4); }
+  .pill.pill-support.active { background: #10b981; color: #000; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
 
   .pill.pill-wells { border-color: #06b6d4; color: #a5f3fc; background: #083344; }
   .pill.pill-wells.active { background: #06b6d4; color: #000; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
@@ -126,6 +164,25 @@
 
   .pill.pill-misc { border-color: #64748b; color: #e2e8f0; background: #1e293b; }
   .pill.pill-misc.active { background: #64748b; color: #fff; }
+
+  /* External Theme Colors */
+  .pill.pill-ext-all { border-color: #475569; color: #cbd5e1; }
+  .pill.pill-ext-all.active { background: #cbd5e1; color: #0f172a; border-color: #cbd5e1; }
+
+  .pill.pill-ext-hr { border-color: #38bdf8; color: #bae6fd; background: #082f49; }
+  .pill.pill-ext-hr.active { background: #38bdf8; color: #000; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+
+  .pill.pill-ext-ben { border-color: #10b981; color: #a7f3d0; background: #042f2e; }
+  .pill.pill-ext-ben.active { background: #10b981; color: #000; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+
+  .pill.pill-ext-hset { border-color: #f59e0b; color: #fde68a; background: #381a03; }
+  .pill.pill-ext-hset.active { background: #f59e0b; color: #000; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+
+  .pill.pill-ext-ops { border-color: #a855f7; color: #e9d5ff; background: #2e1065; }
+  .pill.pill-ext-ops.active { background: #a855f7; color: #fff; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
+
+  .pill.pill-ext-inbox { border-color: #ec4899; color: #fbcfe8; background: #4a0429; }
+  .pill.pill-ext-inbox.active { background: #ec4899; color: #fff; box-shadow: 0 0 10px rgba(236, 72, 153, 0.4); }
 
   /* Location filter */
   .loc-filter { display: flex; gap: 6px; }
@@ -167,6 +224,7 @@
   .card-pos { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; line-height: 1.25; }
   .card-sec { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
   .card-name { font-size: 0.95rem; font-weight: 700; color: #fff; }
+  .card-notes { font-size: 0.73rem; color: #94a3b8; font-style: italic; line-height: 1.35; padding-top: 2px; }
 
   .comm-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
   .comm-btn {
@@ -187,6 +245,7 @@
   .comm-btn.kup { border-color: rgba(245, 158, 11, 0.4); color: #fde68a; }
   .comm-btn.alp { border-color: rgba(56, 189, 248, 0.4); color: #bae6fd; }
   .comm-btn.cell { border-color: rgba(16, 185, 129, 0.4); color: #a7f3d0; }
+  .comm-btn.phone { border-color: rgba(56, 189, 248, 0.4); color: #bae6fd; }
   .comm-btn.radio { border-color: rgba(236, 72, 153, 0.4); color: #fbcfe8; font-weight: 800; }
   .comm-btn.email { border-color: rgba(6, 182, 212, 0.4); color: #a5f3fc; }
   .comm-btn.pager { border-color: rgba(168, 85, 247, 0.4); color: #e9d5ff; }
@@ -224,9 +283,15 @@
 <body>
 
 <div class="app-container">
+  <!-- View Mode Switcher -->
+  <div class="view-switch">
+    <button id="btnViewField" class="view-btn active" onclick="switchView('FIELD')">🛠️ Field Ops (Kup / Alp)</button>
+    <button id="btnViewExt" class="view-btn" onclick="switchView('EXTERNAL')">🏢 External AES</button>
+  </div>
+
   <header>
-    <h1>AES & COPA North Slope Directory</h1>
-    <p>2026 Kuparuk & Alpine Operations & Maintenance</p>
+    <h1 id="appTitle">AES & COPA North Slope Directory</h1>
+    <p id="appSubtitle">2026 Kuparuk & Alpine Operations & Maintenance</p>
   </header>
 
   <div class="sticky-header">
@@ -235,14 +300,18 @@
       <button id="clearSearch" class="clear-search" onclick="clearSearchInput()">&times;</button>
     </div>
 
-    <div class="loc-filter">
+    <!-- Location filter (visible in FIELD mode) -->
+    <div class="loc-filter" id="locFilter">
       <button class="loc-btn active" onclick="setLoc('ALL')">All Sites</button>
       <button class="loc-btn" onclick="setLoc('KUP')">Kuparuk (659)</button>
       <button class="loc-btn" onclick="setLoc('ALP')">Alpine (670)</button>
     </div>
 
-    <!-- 3 Balanced Rows -->
-    <div class="pills-container" id="pillsContainer"></div>
+    <!-- Field Department Buttons (3x3 Grid) -->
+    <div class="pills-grid-3" id="fieldPills"></div>
+
+    <!-- External Department Buttons (2x3 Grid = 6 buttons) -->
+    <div class="pills-grid-3" id="extPills" style="display:none;"></div>
 
     <div class="stats-bar">
       <span id="resultsCount">Loading contacts...</span>
@@ -252,7 +321,8 @@
 
   <div class="contacts-list" id="contactsList"></div>
 
-  <div class="shipping-card">
+  <!-- Shipping address card (visible in Field Ops view) -->
+  <div class="shipping-card" id="shippingCard">
     <div class="shipping-title">
       <span>Personal Items Ship-To Address</span>
       <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
@@ -267,1737 +337,266 @@
 </div>
 
 <script>
-const CONTACTS = [
-  {
-    "dept": "Operations",
-    "sec": "Operations",
-    "pos": "Operations Manager",
-    "name": "Klein, Jason",
-    "kup": "659-7102",
-    "alp": "",
-    "cell": "306-8220",
-    "email": "n2095",
-    "pager": ""
-  },
-  {
-    "dept": "Operations",
-    "sec": "Operations",
-    "pos": "Project Controls Specialist",
-    "name": "Delger, James",
-    "kup": "659-7562",
-    "alp": "",
-    "cell": "",
-    "email": "n2325",
-    "pager": ""
-  },
-  {
-    "dept": "Operations",
-    "sec": "Operations Specialists",
-    "pos": "Financial Analyst",
-    "name": "Koshimizu, Charlotte",
-    "kup": "339-7644",
-    "alp": "",
-    "cell": "",
-    "email": "n2026",
-    "pager": ""
-  },
-  {
-    "dept": "Operations",
-    "sec": "Operations Specialists",
-    "pos": "Operations Support Specialist",
-    "name": "Becker, Jeannine / Paulino, Brandi",
-    "kup": "659-7932",
-    "alp": "",
-    "cell": "",
-    "email": "n1131",
-    "pager": ""
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "HSET Manager",
-    "name": "Hunt, Jeremy / Wyant, Greg",
-    "kup": "659-7410",
-    "alp": "",
-    "cell": "",
-    "email": "n1764",
-    "pager": ""
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "Alpine Safety Supervisor",
-    "name": "Hand, Coleridge / Kennedy, David",
-    "kup": "",
-    "alp": "670-4617",
-    "cell": "632-8096",
-    "email": "n1524",
-    "pager": "623"
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "Kuparuk Safety Supervisor",
-    "name": "Armstrong, Wayne / Hoenack, Karl",
-    "kup": "659-7978",
-    "alp": "",
-    "cell": "943-1703",
-    "email": "n1826",
-    "pager": ""
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "Industrial Hygienist",
-    "name": "Christenson, Erik / Wade, Cle",
-    "kup": "659-7349",
-    "alp": "",
-    "cell": "943-0148",
-    "email": "n2112",
-    "pager": ""
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "HSET Specialist Proj Maint Svs",
-    "name": "O'Brien, Steve / Kent, Hunter",
-    "kup": "659-7352",
-    "alp": "",
-    "cell": "659-0312",
-    "email": "n1672",
-    "pager": ""
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "HSET Trainer",
-    "name": "Jackson, Pete / Smith, Murphy",
-    "kup": "659-7339",
-    "alp": "",
-    "cell": "",
-    "email": "n1839",
-    "pager": ""
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "Process Coord/Night HSE",
-    "name": "Fosi, Joshua / Hamersley, Bryan",
-    "kup": "659-3939",
-    "alp": "",
-    "cell": "659-0799",
-    "email": "n2142",
-    "pager": ""
-  },
-  {
-    "dept": "HSET Department",
-    "sec": "HSET Department",
-    "pos": "HSET OH Specialist",
-    "name": "Behlke, Brandi / Franco, Jess",
-    "kup": "659-7585",
-    "alp": "",
-    "cell": "",
-    "email": "n1804",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "MAINTENANCE SERVICES -PROJECTS",
-    "pos": "Superintendent",
-    "name": "Ahlers, Don / Glanville, Dave",
-    "kup": "659-7703",
-    "alp": "",
-    "cell": "",
-    "email": "n2382",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "MAINTENANCE SERVICES -PROJECTS",
-    "pos": "General Foreman",
-    "name": "McDonald, Jerry / Vix, Michael",
-    "kup": "659-7225",
-    "alp": "",
-    "cell": "",
-    "email": "n1028",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "MAINTENANCE SERVICES -PROJECTS",
-    "pos": "WNS Field Integration Coord",
-    "name": "Hagge, Jim / Oleachea, Bobby",
-    "kup": "",
-    "alp": "670-4927",
-    "cell": "",
-    "email": "wns1191",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "MAINTENANCE SERVICES -PROJECTS",
-    "pos": "GKA Constructibility Coord",
-    "name": "Best, Big John / Cash, Tommy",
-    "kup": "659-7246",
-    "alp": "",
-    "cell": "",
-    "email": "n1038",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "MAINTENANCE SERVICES -PROJECTS",
-    "pos": "WNS Constructibility Coord",
-    "name": "Clark, Peter / Heidelberg, Kendra",
-    "kup": "",
-    "alp": "670-4545",
-    "cell": "CH2&8",
-    "email": "alp1693",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "MAINTENANCE SERVICES -PROJECTS",
-    "pos": "Shut Down Coord",
-    "name": "Gates, Danny",
-    "kup": "659-3946",
-    "alp": "",
-    "cell": "",
-    "email": "n2004",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "E&I",
-    "pos": "Electrical Foreman",
-    "name": "Bailey, Kyle / Newby, Tom",
-    "kup": "659-1786",
-    "alp": "",
-    "cell": "943-0038",
-    "email": "n2266",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "E&I",
-    "pos": "WNS Electrical Shop Lead",
-    "name": "Lockwood, Zach / Warren, Richard",
-    "kup": "",
-    "alp": "670-4719",
-    "cell": "",
-    "email": "alp1208",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "E&I",
-    "pos": "WNS Instrument Tech Lead",
-    "name": "Brum, Daniel / Gorley, Bob",
-    "kup": "",
-    "alp": "670-4161",
-    "cell": "CH2&4",
-    "email": "alp1266",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "E&I",
-    "pos": "FCO Lead",
-    "name": "Coke, Joshua / Welborn, Mark",
-    "kup": "659-7530",
-    "alp": "",
-    "cell": "943-8008",
-    "email": "n2371",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Fab Shop-Welding",
-    "pos": "Fab Shop Foreman",
-    "name": "Knight, Michael / Pennison, Scott",
-    "kup": "659-7677",
-    "alp": "",
-    "cell": "943-0037",
-    "email": "n2276",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Fab Shop-Welding",
-    "pos": "Lead",
-    "name": "Krueger, Jon / McCoy, Charles \"Duffy\"",
-    "kup": "",
-    "alp": "670-4022",
-    "cell": "CH8",
-    "email": "alp1629",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Fab Shop-Welding",
-    "pos": "Fab Fitter Lead",
-    "name": "Colding, Dana / Sage, Ryan",
-    "kup": "659-7856",
-    "alp": "",
-    "cell": "943-3007",
-    "email": "n2493",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Fab Shop-Welding",
-    "pos": "GKA Hydro Shop",
-    "name": "Dearmore, James / Stockman, Marc",
-    "kup": "659-7473",
-    "alp": "",
-    "cell": "",
-    "email": "n2318",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Fab Shop-Welding",
-    "pos": "KCS Tool Room",
-    "name": "Daniels, Edward / Gravelle, David",
-    "kup": "659-7989",
-    "alp": "",
-    "cell": "",
-    "email": "n1326",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "Fire and Gas Lead",
-    "name": "Halsted, Mark / Hartley, Vince",
-    "kup": "659-7928",
-    "alp": "",
-    "cell": "",
-    "email": "n1848",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "Valve Shop Lead",
-    "name": "Kondelik, Doug / Tomlinson, Jeff",
-    "kup": "659-7730",
-    "alp": "",
-    "cell": "943-0000",
-    "email": "n2614",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "KUP PSV Tech",
-    "name": "Kinmon, Richard / Yeager, Courtney",
-    "kup": "659-7469",
-    "alp": "",
-    "cell": "",
-    "email": "n1115",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "WNS Valve Tech",
-    "name": "Belant, Jeremy / Korpi, Luke",
-    "kup": "",
-    "alp": "670-4796",
-    "cell": "",
-    "email": "alp1458",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "Civil Lead",
-    "name": "Mills, Travis / Wheeler, Brett",
-    "kup": "659-1705",
-    "alp": "",
-    "cell": "943-1991",
-    "email": "n2240",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "HVAC",
-    "name": "Kagak, Mark / Santos, Scott",
-    "kup": "659-7596",
-    "alp": "",
-    "cell": "",
-    "email": "n2217",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "Overhead Door",
-    "name": "Renard, Sean / Wake, Daniel",
-    "kup": "659-7956",
-    "alp": "",
-    "cell": "943-1453",
-    "email": "n2099",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "KCS Pad Carpenter",
-    "name": "Mangold, Shane / Penner, Gary",
-    "kup": "",
-    "alp": "",
-    "cell": "659-0315",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Maintenance",
-    "pos": "WNS J5 Oper Tool Room",
-    "name": "Nelson, Lyndsey / Miller, Lynn",
-    "kup": "",
-    "alp": "670-4016",
-    "cell": "",
-    "email": "alp1249",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Mechanical-Projects",
-    "pos": "Mechanical Foreman",
-    "name": "Hyatt, Matt / Thome, Peter",
-    "kup": "659-7717",
-    "alp": "",
-    "cell": "943-3005",
-    "email": "n2389",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Scaffold/Insulators",
-    "pos": "Foreman",
-    "name": "Litterer, John / Parrish, Chris",
-    "kup": "659-7592",
-    "alp": "",
-    "cell": "",
-    "email": "n1896",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Scaffold/Insulators",
-    "pos": "Ins Mtl Coord",
-    "name": "Stanley, Tommy / Pitchford, Ray",
-    "kup": "659-7010",
-    "alp": "",
-    "cell": "",
-    "email": "n2613",
-    "pager": ""
-  },
-  {
-    "dept": "MAINTENANCE SERVICES -PROJECTS",
-    "sec": "Scaffold/Insulators",
-    "pos": "WNS Scaffold & Insulation Lead",
-    "name": "Darrow, Dave / Vanek, Gabe",
-    "kup": "",
-    "alp": "670-4768",
-    "cell": "748-6084",
-    "email": "alp1265",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "MATERIAL SERVICES",
-    "pos": "Superintendent",
-    "name": "Thornton, Steve / McKenzie, Dave",
-    "kup": "659-7851",
-    "alp": "",
-    "cell": "",
-    "email": "n1176",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "MATERIAL SERVICES",
-    "pos": "General Foreman",
-    "name": "Randall, Brian / Colvin, Marcus",
-    "kup": "",
-    "alp": "670-4121",
-    "cell": "",
-    "email": "n1150",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Camp Maintenance",
-    "pos": "Camp GKA Lead",
-    "name": "Nelkie, Tommy / Sullivan, Jon",
-    "kup": "659-7023",
-    "alp": "",
-    "cell": "943-1129",
-    "email": "n1252",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Camp Maintenance",
-    "pos": "Camp WNS Lead",
-    "name": "Koppy, Joshua / Svensen, Chris",
-    "kup": "",
-    "alp": "670-4508",
-    "cell": "",
-    "email": "alp1132",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Camp Maintenance",
-    "pos": "KIC Pad Operator",
-    "name": "Bentz, Brian / Martin, Pete",
-    "kup": "659-7982",
-    "alp": "",
-    "cell": "943-1349",
-    "email": "n1414",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Camp Maintenance",
-    "pos": "KIC Pad Support",
-    "name": "Naatz, Wesley / Spencer, Alvin",
-    "kup": "659-3949",
-    "alp": "",
-    "cell": "943-0006",
-    "email": "n1980",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Camp Maintenance",
-    "pos": "Utility Operators",
-    "name": "Apperson, Andrew / Atherton, Tom",
-    "kup": "659-7307",
-    "alp": "",
-    "cell": "",
-    "email": "n2499",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Camp Maintenance",
-    "pos": "Incinerator Operator",
-    "name": "Goodwill, Patrick / McAllister, Jeff",
-    "kup": "659-7274",
-    "alp": "",
-    "cell": "",
-    "email": "n1055",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Kuparuk Foreman",
-    "name": "Stewart, Russell / Sutton, Ed",
-    "kup": "659-7583",
-    "alp": "",
-    "cell": "",
-    "email": "n2148",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Willow Foreman",
-    "name": "Simons, Angela / Welton, Ernie",
-    "kup": "659-7050",
-    "alp": "",
-    "cell": "268-9228",
-    "email": "wil0014",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Anchorage Mat. Foreman",
-    "name": "Davis, Carrie / Hart, Joe",
-    "kup": "263-4409",
-    "alp": "",
-    "cell": "",
-    "email": "anc1000",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Alpine Foreman",
-    "name": "Ferro, Frank / Licata, Anthony",
-    "kup": "",
-    "alp": "670-4087",
-    "cell": "",
-    "email": "alp2217",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Kuparuk Air Freight Coordinator",
-    "name": "Foote, Amanda / Jackson, Lazette",
-    "kup": "659-7336",
-    "alp": "",
-    "cell": "",
-    "email": "n2649",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "A/B Warehouse Counter",
-    "name": "Medina-Salazar, Luvianka / Samel, Tessa",
-    "kup": "659-7282",
-    "alp": "",
-    "cell": "",
-    "email": "n1051",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Kup Shipping Coord.",
-    "name": "Heatherly, Duane / Nashookpuk, Kyle",
-    "kup": "659-7459",
-    "alp": "",
-    "cell": "",
-    "email": "n1112",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Alpine Shipping/Logistics",
-    "name": "Scott, Christopher / Shtotski, Alex",
-    "kup": "",
-    "alp": "670-4123",
-    "cell": "",
-    "email": "alp1179",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "J1 Issue Counter",
-    "name": "Killigvuk, Melody / McKenzie, Blake",
-    "kup": "",
-    "alp": "670-4132",
-    "cell": "",
-    "email": "alp1166",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "Diesel/Checmical Specialist",
-    "name": "Darr, Michael / Grass, Megan",
-    "kup": "",
-    "alp": "670-4903",
-    "cell": "",
-    "email": "alp1334",
-    "pager": ""
-  },
-  {
-    "dept": "MATERIAL SERVICES",
-    "sec": "Warehouse-Materials",
-    "pos": "O&M Materials Specialist",
-    "name": "Helton, Crystal / Ross, Darrell",
-    "kup": "",
-    "alp": "670-4120",
-    "cell": "",
-    "email": "alp1162",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "SUPPORT SERVICES -FIELD",
-    "pos": "Superintendent",
-    "name": "Rudolph, Darren / Spurgeon, JD",
-    "kup": "659-7066",
-    "alp": "",
-    "cell": "",
-    "email": "n1010",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "SUPPORT SERVICES -FIELD",
-    "pos": "Equipment Dispatcher",
-    "name": "Bidwell, Brad / Tupper, Dustin",
-    "kup": "659-7949",
-    "alp": "",
-    "cell": "",
-    "email": "n1245",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "SUPPORT SERVICES -FIELD",
-    "pos": "Equipment Dispatcher",
-    "name": "Hemsley, Vance / Johansen, Keith",
-    "kup": "",
-    "alp": "670-4416",
-    "cell": "",
-    "email": "alp2188",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "SUPPORT SERVICES -FIELD",
-    "pos": "Fleet Cost Analyst",
-    "name": "Knue, Ryan / Reynolds, Bill",
-    "kup": "659-7152",
-    "alp": "",
-    "cell": "",
-    "email": "alp2179",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "SUPPORT SERVICES -FIELD",
-    "pos": "Fleet/PM Specialist",
-    "name": "Greer, Steve / Lyons, Zack",
-    "kup": "",
-    "alp": "670-4948",
-    "cell": "",
-    "email": "n2109",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "Foreman",
-    "name": "Munn, Cody / Wojtacha, Jamie",
-    "kup": "659-7972",
-    "alp": "",
-    "cell": "",
-    "email": "n1310",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "Foreman",
-    "name": "Chapman, Charles / Haley, Jeremy",
-    "kup": "",
-    "alp": "670-4054",
-    "cell": "",
-    "email": "alp1677",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "Svc Writer Day",
-    "name": "Olmstead, Paul / Richey, Larry",
-    "kup": "659-7191",
-    "alp": "",
-    "cell": "",
-    "email": "n2467",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "Svc Writer Night",
-    "name": "Brown, Scott / Burkham, Jeremiah",
-    "kup": "659-7972",
-    "alp": "",
-    "cell": "",
-    "email": "n1375",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD/LD Svc Writer Day",
-    "name": "Hale, Joe / Truett,Dan",
-    "kup": "",
-    "alp": "670-4053",
-    "cell": "",
-    "email": "alp1622",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD/LD Svc Writer Nights",
-    "name": "Dile, Daniel / Michael, Matt",
-    "kup": "",
-    "alp": "670-4053",
-    "cell": "",
-    "email": "alp1622",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD Parts Lead",
-    "name": "Lanstra, Dan / Wagner, Ken",
-    "kup": "659-7657",
-    "alp": "",
-    "cell": "",
-    "email": "n1171",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD Parts Days",
-    "name": "Ivie, Dexter / Nuemuller, Rob",
-    "kup": "659-7192",
-    "alp": "",
-    "cell": "",
-    "email": "n1417",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD Parts Nights",
-    "name": "Jenkins, Adam / Ornelas, Andres",
-    "kup": "659-7192",
-    "alp": "",
-    "cell": "",
-    "email": "n1417",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD/LD Parts Coordinator",
-    "name": "Seyer, Chuck / Shaw, Dave",
-    "kup": "",
-    "alp": "670-4597",
-    "cell": "",
-    "email": "alp1352",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD/LD Parts Nights",
-    "name": "Smith, Mahle / Papasadora, Vito",
-    "kup": "",
-    "alp": "670-4661",
-    "cell": "",
-    "email": "alp2146",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD Lead",
-    "name": "Burgess, Billy / Gerlach, Niles",
-    "kup": "",
-    "alp": "670-4059",
-    "cell": "",
-    "email": "alp2122",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "Lube Bay",
-    "name": "Day & Night Shift Service Oilers",
-    "kup": "659-1789",
-    "alp": "",
-    "cell": "",
-    "email": "n2268",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "KIC Airport Mechanic",
-    "name": "O'Brien, Richard / Owczarczak, John",
-    "kup": "659-7464",
-    "alp": "",
-    "cell": "",
-    "email": "n2280",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Heavy Shop",
-    "pos": "HD Weld shop",
-    "name": "Heavy shop welders - B bldg",
-    "kup": "659-7289",
-    "alp": "",
-    "cell": "",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Light Shop",
-    "pos": "Svc Writer Days",
-    "name": "Jacks, Glenn / Leedy, Bill",
-    "kup": "659-7141",
-    "alp": "",
-    "cell": "",
-    "email": "n1012",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Light Shop",
-    "pos": "Svc Writer Nights",
-    "name": "Buehner, Josh / Robbins, Merritt",
-    "kup": "659-7141",
-    "alp": "",
-    "cell": "",
-    "email": "n1012",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Light Shop",
-    "pos": "LD Lead",
-    "name": "Garland, Eric / Pabst, Joshua",
-    "kup": "",
-    "alp": "670-4059",
-    "cell": "",
-    "email": "alp2149",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Light Shop",
-    "pos": "LD Parts Day/Night",
-    "name": "Crockett, Dave / Kendrick, Alan",
-    "kup": "659-7056",
-    "alp": "",
-    "cell": "",
-    "email": "n1341",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Foreman",
-    "name": "Hatfield, Teen / King, Duffy",
-    "kup": "659-7948",
-    "alp": "",
-    "cell": "943-0172",
-    "email": "n2475",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Foreman",
-    "name": "Ansel, Bo / Gibson, Jerry",
-    "kup": "",
-    "alp": "670-4684",
-    "cell": "943-1271",
-    "email": "alp1526",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Lead Days",
-    "name": "Lachinski, Andy / Menzel, Cory",
-    "kup": "659-3982",
-    "alp": "",
-    "cell": "659-0238",
-    "email": "n1244",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Lead Nights",
-    "name": "Epple, Timothy / Mack, Travis",
-    "kup": "659-7945",
-    "alp": "",
-    "cell": "659-0238",
-    "email": "n1244",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Lead Days/Nights",
-    "name": "Davidson, R / Welton, J/Tracy, D / Hahn, J",
-    "kup": "",
-    "alp": "",
-    "cell": "943-1175",
-    "email": "alp2064",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Fluids Leads",
-    "name": "Durfee, Dale / Tryon, John",
-    "kup": "",
-    "alp": "670-4008",
-    "cell": "223-9477",
-    "email": "alp1632",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Fluids Leads Days",
-    "name": "Hanna, Jeff / Thompson, Jamie",
-    "kup": "659-7077",
-    "alp": "",
-    "cell": "227-5274",
-    "email": "n2477",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Fluids Leads Nights",
-    "name": "Kiggins, Jeremiah / Tiplady, Conner",
-    "kup": "659-7077",
-    "alp": "",
-    "cell": "227-5274",
-    "email": "n2477",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Fuel Tech",
-    "name": "Bullard, Todd / Stormer, Mark",
-    "kup": "659-7244",
-    "alp": "",
-    "cell": "943-1263",
-    "email": "n2559",
-    "pager": ""
-  },
-  {
-    "dept": "SUPPORT SERVICES -FIELD",
-    "sec": "Roads & Pads",
-    "pos": "Equipment Leads",
-    "name": "David Cullifer / Shaine Gorham",
-    "kup": "659-7241",
-    "alp": "",
-    "cell": "",
-    "email": "n2007",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "WELLS SERVICES",
-    "pos": "Superintendent",
-    "name": "Brooks, John / Polis, Dennis",
-    "kup": "659-7439",
-    "alp": "",
-    "cell": "",
-    "email": "n1040",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "WELLS SERVICES",
-    "pos": "General Foreman",
-    "name": "Harding, Kevin / TBD",
-    "kup": "659-7634",
-    "alp": "",
-    "cell": "",
-    "email": "n1322",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Wells Foreman - Equipment",
-    "name": "Enlger, Matt / Larrabee, Jamie",
-    "kup": "",
-    "alp": "",
-    "cell": "943-1843",
-    "email": "n2257",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Wells Foreman - Equipment",
-    "name": "Hunter, Kristopher / Schmidt, Scott",
-    "kup": "",
-    "alp": "",
-    "cell": "943-1843",
-    "email": "n2257",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Wells Foreman - Well Service Techs",
-    "name": "Evarts, Myles / Jackson, Jon",
-    "kup": "",
-    "alp": "670-4075",
-    "cell": "943-1274",
-    "email": "alp1507",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Wells Foreman - Well Service Techs",
-    "name": "Matthews, Anthony / Turkington, Ryan",
-    "kup": "",
-    "alp": "670-4075",
-    "cell": "943-1274",
-    "email": "alp1507",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Well Service Tech Craft Leads",
-    "name": "Haines, Vance / Pierce, John",
-    "kup": "659-7060",
-    "alp": "",
-    "cell": "943-1041",
-    "email": "n1479",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Well Service Tech Craft Leads",
-    "name": "Denton, Frank / Mease, Micah",
-    "kup": "659-7060",
-    "alp": "",
-    "cell": "943-1041",
-    "email": "n1479",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Wells Dispatch (Days)",
-    "name": "Owens, Tom / Ramm, Craig",
-    "kup": "659-7532",
-    "alp": "",
-    "cell": "",
-    "email": "n1323",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Wells Dispatch (Nights)",
-    "name": "Garrels, Dale \"Rick\" / Wagers, David",
-    "kup": "659-7532",
-    "alp": "",
-    "cell": "",
-    "email": "n1323",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Wells Dispatcher",
-    "name": "Bliss, Chad / Kelly, Dan",
-    "kup": "",
-    "alp": "670-4740",
-    "cell": "943-1115",
-    "email": "alp2167",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Senior Craft (Day/Night Rotation)",
-    "name": "Martin, Thomas / Sengpaseuth, Steven",
-    "kup": "",
-    "alp": "",
-    "cell": "943-1723",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Senior Craft (Day/Night Rotation)",
-    "name": "Lott, Michael / Ocel, Kristopher",
-    "kup": "",
-    "alp": "",
-    "cell": "943-1723",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Washbay Craft Leads",
-    "name": "Brooks, Victor / Sproul, Michael",
-    "kup": "659-7938",
-    "alp": "",
-    "cell": "",
-    "email": "n1342",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Wells Support",
-    "pos": "Senior Craft (Nights)",
-    "name": "Andrews, Charles / Ilutsik, Brandon",
-    "kup": "659-7938",
-    "alp": "",
-    "cell": "",
-    "email": "n1342",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Drilling",
-    "pos": "General Foreman",
-    "name": "Conway, Justin / Vailea, Fred",
-    "kup": "659-1480",
-    "alp": "",
-    "cell": "659-0468",
-    "email": "n2425",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Drilling",
-    "pos": "DTH Foreman",
-    "name": "Brown, Andy / Eppard, Michael",
-    "kup": "",
-    "alp": "670-4041",
-    "cell": "268-8078",
-    "email": "alp2231",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Drilling",
-    "pos": "Night Foreman",
-    "name": "Killmar, Rodney / Snow, Scott",
-    "kup": "659-1479",
-    "alp": "",
-    "cell": "943-3001",
-    "email": "n2383",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Drilling",
-    "pos": "Dispatcher Days",
-    "name": "Carter, Braden / Robustellini, Steve",
-    "kup": "659-7367",
-    "alp": "",
-    "cell": "",
-    "email": "n1080",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Quality Control",
-    "pos": "Quality Control Supervisor",
-    "name": "Perry, Leonard / Tidd, Andrew",
-    "kup": "659-7267",
-    "alp": "",
-    "cell": "",
-    "email": "n1046",
-    "pager": ""
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Quality Control",
-    "pos": "Electrical QC",
-    "name": "Ford, Brent / TBD",
-    "kup": "659-7611",
-    "alp": "",
-    "cell": "",
-    "email": "n1163",
-    "pager": "969"
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Quality Control",
-    "pos": "Mechanical QC",
-    "name": "Fournier, Al / Klingbeil, Sean",
-    "kup": "659-7407",
-    "alp": "",
-    "cell": "943-7003",
-    "email": "n2391",
-    "pager": "738"
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Quality Control",
-    "pos": "Mechanical QC",
-    "name": "Hastie, Ron / TBD",
-    "kup": "659-7505",
-    "alp": "",
-    "cell": "943-0233",
-    "email": "n1042",
-    "pager": "292"
-  },
-  {
-    "dept": "WELLS SERVICES",
-    "sec": "Quality Control",
-    "pos": "Mechanical QC",
-    "name": "McNally, Terry / TBD",
-    "kup": "",
-    "alp": "670-4603",
-    "cell": "CH8",
-    "email": "n1549",
-    "pager": ""
-  },
-  {
-    "dept": "MISC.",
-    "sec": "MISC.",
-    "pos": "AES IT Service Desk",
-    "name": "Computing Support",
-    "kup": "339-6900",
-    "alp": "339-6900",
-    "cell": "",
-    "email": "servicedesk@asrc.com",
-    "pager": ""
-  },
-  {
-    "dept": "MISC.",
-    "sec": "MISC.",
-    "pos": "Conoco My Service Center",
-    "name": "Computing Support",
-    "kup": "659-7555",
-    "alp": "659-7555",
-    "cell": "",
-    "email": "help@conocophillips.com",
-    "pager": ""
-  },
-  {
-    "dept": "MISC.",
-    "sec": "MISC.",
-    "pos": "Conoco Local IT Support",
-    "name": "Computing Support",
-    "kup": "659-7500",
-    "alp": "670-4513",
-    "cell": "",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "MISC.",
-    "sec": "MISC.",
-    "pos": "Flights & Billeting",
-    "name": "Flights",
-    "kup": "659-7453",
-    "alp": "659-7453",
-    "cell": "",
-    "email": "n1110",
-    "pager": ""
-  },
-  {
-    "dept": "MISC.",
-    "sec": "MISC.",
-    "pos": "Flights & Billeting",
-    "name": "Billeting",
-    "kup": "659-7960",
-    "alp": "659-7960",
-    "cell": "",
-    "email": "n1110",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "GKA OIM",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7727",
-    "alp": "",
-    "cell": "",
-    "email": "n2664",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "WNS OIM",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "670-4949",
-    "cell": "",
-    "email": "wns1192",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF1 Facility Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7061",
-    "alp": "",
-    "cell": "",
-    "email": "n2067",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF2 Facility Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7778",
-    "alp": "",
-    "cell": "",
-    "email": "n2064",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF3 Facility Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7008",
-    "alp": "",
-    "cell": "",
-    "email": "n2070",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Roving Facility Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-1732",
-    "alp": "",
-    "cell": "",
-    "email": "n2672",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "Alpine Faciltiy Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "670-4220",
-    "cell": "",
-    "email": "alp2190",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF1 Senior Op",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7513",
-    "alp": "",
-    "cell": "",
-    "email": "n2673",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF2 Senior Op",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7721",
-    "alp": "",
-    "cell": "",
-    "email": "n2674",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF3 Senior Op",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7442",
-    "alp": "",
-    "cell": "",
-    "email": "n2675",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "ACF Senior Op",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "670-4017",
-    "cell": "",
-    "email": "alp2242",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "STP Board",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7935",
-    "alp": "",
-    "cell": "",
-    "email": "n1239",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Inst Maint Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7750",
-    "alp": "",
-    "cell": "",
-    "email": "n2665",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Elec Maint Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "MS Teams",
-    "email": "n2666",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Mechanical Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7787",
-    "alp": "",
-    "cell": "",
-    "email": "n1199",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF1/3 Elect Senior Tech",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7763 / 659-7280",
-    "alp": "",
-    "cell": "",
-    "email": "n2670",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF1/3 Inst Senior Tech",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7637 / 659-7764",
-    "alp": "",
-    "cell": "",
-    "email": "n2671",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "ACF/CPF2 Elect Senior Tech",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "670-4127",
-    "cell": "",
-    "email": "n2668",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "ACF/CPF2 Inst Senior Tech",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7986",
-    "alp": "670-4124",
-    "cell": "",
-    "email": "n2669",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Facility Mech Senior Tech",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7889",
-    "alp": "",
-    "cell": "",
-    "email": "n1281",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Central Shop Senior Tech",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7527",
-    "alp": "",
-    "cell": "",
-    "email": "n1137",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "Specialty Shops Senior Tech",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7467",
-    "alp": "",
-    "cell": "",
-    "email": "n2604",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "Fieldwide Execution Supt",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "",
-    "email": "ray.chumley@cop.com",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF1/3 Exec Coordinator",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7321",
-    "alp": "",
-    "cell": "",
-    "email": "n1849",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF2/ACF Exec Coordinator",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "670-4025",
-    "cell": "",
-    "email": "wns1193",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "GKA Fieldwide Coordinator",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7931",
-    "alp": "",
-    "cell": "",
-    "email": "n1805",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "WNS Fieldwide Coordinator",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "670-4526",
-    "cell": "",
-    "email": "wns1190",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "Ops Excellence Superintendent",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "290-4380",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "Ops Excellence Gov & Admin",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "Regulatory Compliance Supv",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "265-6937",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "CPF1/3 Ops Integrity Specialist",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-7424",
-    "alp": "",
-    "cell": "",
-    "email": "n2677",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "ACF/CPF2 Ops Integrity Specialist",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Ops Support Specialist",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "",
-    "email": "",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "NS Training OI Coordinator",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "659-4350",
-    "alp": "",
-    "cell": "",
-    "email": "n2645",
-    "pager": ""
-  },
-  {
-    "dept": "COPA",
-    "sec": "ConocoPhillips Operations",
-    "pos": "Willow O&M Startup Supt",
-    "name": "COPA Leadership / Facility Lead",
-    "kup": "",
-    "alp": "",
-    "cell": "",
-    "email": "wil0079",
-    "pager": ""
-  }
+// ==========================================
+// 1. FIELD ROSTER DATA (Kuparuk, Alpine, COPA)
+// ==========================================
+const FIELD_CONTACTS = [
+  {"dept": "Operations", "sec": "Operations", "pos": "Operations Manager", "name": "Klein, Jason", "kup": "659-7102", "alp": "", "cell": "306-8220", "email": "n2095", "pager": ""},
+  {"dept": "Operations", "sec": "Operations", "pos": "Project Controls Specialist", "name": "Delger, James", "kup": "659-7562", "alp": "", "cell": "", "email": "n2325", "pager": ""},
+  {"dept": "Operations", "sec": "Operations Specialists", "pos": "Financial Analyst", "name": "Koshimizu, Charlotte", "kup": "339-7644", "alp": "", "cell": "", "email": "n2026", "pager": ""},
+  {"dept": "Operations", "sec": "Operations Specialists", "pos": "Operations Support Specialist", "name": "Becker, Jeannine / Paulino, Brandi", "kup": "659-7932", "alp": "", "cell": "", "email": "n1131", "pager": ""},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "HSET Manager", "name": "Hunt, Jeremy / Wyant, Greg", "kup": "659-7410", "alp": "", "cell": "", "email": "n1764", "pager": ""},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "Alpine Safety Supervisor", "name": "Hand, Coleridge / Kennedy, David", "kup": "", "alp": "670-4617", "cell": "632-8096", "email": "n1524", "pager": "623"},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "Kuparuk Safety Supervisor", "name": "Armstrong, Wayne / Hoenack, Karl", "kup": "659-7978", "alp": "", "cell": "943-1703", "email": "n1826", "pager": ""},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "Industrial Hygienist", "name": "Christenson, Erik / Wade, Cle", "kup": "659-7349", "alp": "", "cell": "943-0148", "email": "n2112", "pager": ""},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "HSET Specialist Proj Maint Svs", "name": "O'Brien, Steve / Kent, Hunter", "kup": "659-7352", "alp": "", "cell": "659-0312", "email": "n1672", "pager": ""},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "HSET Trainer", "name": "Jackson, Pete / Smith, Murphy", "kup": "659-7339", "alp": "", "cell": "", "email": "n1839", "pager": ""},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "Process Coord/Night HSE", "name": "Fosi, Joshua / Hamersley, Bryan", "kup": "659-3939", "alp": "", "cell": "659-0799", "email": "n2142", "pager": ""},
+  {"dept": "HSET Department", "sec": "HSET Department", "pos": "HSET OH Specialist", "name": "Behlke, Brandi / Franco, Jess", "kup": "659-7585", "alp": "", "cell": "", "email": "n1804", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "MAINTENANCE SERVICES -PROJECTS", "pos": "Superintendent", "name": "Ahlers, Don / Glanville, Dave", "kup": "659-7703", "alp": "", "cell": "", "email": "n2382", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "MAINTENANCE SERVICES -PROJECTS", "pos": "General Foreman", "name": "McDonald, Jerry / Vix, Michael", "kup": "659-7225", "alp": "", "cell": "", "email": "n1028", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "MAINTENANCE SERVICES -PROJECTS", "pos": "WNS Field Integration Coord", "name": "Hagge, Jim / Oleachea, Bobby", "kup": "", "alp": "670-4927", "cell": "", "email": "wns1191", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "MAINTENANCE SERVICES -PROJECTS", "pos": "GKA Constructibility Coord", "name": "Best, Big John / Cash, Tommy", "kup": "659-7246", "alp": "", "cell": "", "email": "n1038", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "MAINTENANCE SERVICES -PROJECTS", "pos": "WNS Constructibility Coord", "name": "Clark, Peter / Heidelberg, Kendra", "kup": "", "alp": "670-4545", "cell": "CH2&8", "email": "alp1693", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "MAINTENANCE SERVICES -PROJECTS", "pos": "Shut Down Coord", "name": "Gates, Danny", "kup": "659-3946", "alp": "", "cell": "", "email": "n2004", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "E&I", "pos": "Electrical Foreman", "name": "Bailey, Kyle / Newby, Tom", "kup": "659-1786", "alp": "", "cell": "943-0038", "email": "n2266", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "E&I", "pos": "WNS Electrical Shop Lead", "name": "Lockwood, Zach / Warren, Richard", "kup": "", "alp": "670-4719", "cell": "", "email": "alp1208", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "E&I", "pos": "WNS Instrument Tech Lead", "name": "Brum, Daniel / Gorley, Bob", "kup": "", "alp": "670-4161", "cell": "CH2&4", "email": "alp1266", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "E&I", "pos": "FCO Lead", "name": "Coke, Joshua / Welborn, Mark", "kup": "659-7530", "alp": "", "cell": "943-8008", "email": "n2371", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Fab Shop-Welding", "pos": "Fab Shop Foreman", "name": "Knight, Michael / Pennison, Scott", "kup": "659-7677", "alp": "", "cell": "943-0037", "email": "n2276", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Fab Shop-Welding", "pos": "Lead", "name": "Krueger, Jon / McCoy, Charles \"Duffy\"", "kup": "", "alp": "670-4022", "cell": "CH8", "email": "alp1629", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Fab Shop-Welding", "pos": "Fab Fitter Lead", "name": "Colding, Dana / Sage, Ryan", "kup": "659-7856", "alp": "", "cell": "943-3007", "email": "n2493", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Fab Shop-Welding", "pos": "GKA Hydro Shop", "name": "Dearmore, James / Stockman, Marc", "kup": "659-7473", "alp": "", "cell": "", "email": "n2318", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Fab Shop-Welding", "pos": "KCS Tool Room", "name": "Daniels, Edward / Gravelle, David", "kup": "659-7989", "alp": "", "cell": "", "email": "n1326", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "Fire and Gas Lead", "name": "Halsted, Mark / Hartley, Vince", "kup": "659-7928", "alp": "", "cell": "", "email": "n1848", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "Valve Shop Lead", "name": "Kondelik, Doug / Tomlinson, Jeff", "kup": "659-7730", "alp": "", "cell": "943-0000", "email": "n2614", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "KUP PSV Tech", "name": "Kinmon, Richard /Lisonbee, Matt", "kup": "659-7469", "alp": "", "cell": "", "email": "n1115", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "WNS Valve Tech", "name": "Yeager, CJ / TBD", "kup": "", "alp": "670-4796", "cell": "", "email": "alp1458", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "Civil Lead", "name": "Mills, Travis / Wheeler, Brett", "kup": "659-1705", "alp": "", "cell": "943-1991", "email": "n2240", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "HVAC", "name": "Kagak, Mark / Santos, Scott", "kup": "659-7596", "alp": "", "cell": "", "email": "n2217", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "Overhead Door", "name": "Renard, Sean / Wake, Daniel", "kup": "659-7956", "alp": "", "cell": "943-1453", "email": "n2099", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "KCS Pad Carpenter", "name": "Mangold, Shane / Penner, Gary", "kup": "", "alp": "", "cell": "659-0315", "email": "", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Maintenance", "pos": "WNS J5 Oper Tool Room", "name": "Miller, Lynn / Nelson, Lyndsey", "kup": "", "alp": "670-4016", "cell": "", "email": "alp1249", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Mechanical-Projects", "pos": "Mechanical Foreman", "name": "Hyatt, Matt / Thome, Peter", "kup": "659-7717", "alp": "", "cell": "943-3005", "email": "n2389", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Scaffold/Insulators", "pos": "Foreman", "name": "Litterer, John / Parrish, Chris", "kup": "659-7592", "alp": "", "cell": "", "email": "n1896", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Scaffold/Insulators", "pos": "Ins Mtl Coord", "name": "Pitchford, Ray / Stanley, Tommy", "kup": "659-7010", "alp": "", "cell": "", "email": "n2613", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Scaffold/Insulators", "pos": "WNS Scaffold & Insulation Lead", "name": "Darrow, Dave / Vanek, Gabe", "kup": "", "alp": "670-4768", "cell": "748-6084", "email": "alp1265", "pager": ""},
+  {"dept": "MAINTENANCE SERVICES -PROJECTS", "sec": "Scaffold/Insulators", "pos": "WNS Insulation Shop Lead", "name": "Guevara, Angel / Owens, Mike", "kup": "", "alp": "670-4595", "cell": "", "email": "alp1674", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "MATERIAL SERVICES", "pos": "Superintendent", "name": "Thornton, Steve / McKenzie, Dave", "kup": "659-7851", "alp": "", "cell": "", "email": "n1176", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "MATERIAL SERVICES", "pos": "General Foreman", "name": "Randall, Brian / Colvin, Marcus", "kup": "", "alp": "670-4121", "cell": "", "email": "n1150", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Camp Maintenance", "pos": "Camp GKA Lead", "name": "Nelkie, Tommy / Sullivan, Jon", "kup": "659-7023", "alp": "", "cell": "943-1129", "email": "n1252", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Camp Maintenance", "pos": "Camp WNS Lead", "name": "Koppy, Joshua / Svensen, Chris", "kup": "", "alp": "670-4508", "cell": "", "email": "alp1132", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Camp Maintenance", "pos": "KIC Pad Operator", "name": "Bentz, Brian / Martin, Pete", "kup": "659-7982", "alp": "", "cell": "943-1349", "email": "n1414", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Camp Maintenance", "pos": "KIC Pad Support", "name": "Naatz, Wesley / Spencer, Alvin", "kup": "659-3949", "alp": "", "cell": "943-0006", "email": "n1980", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Camp Maintenance", "pos": "Utility Operators", "name": "Apperson, Andrew / Atherton, Tom", "kup": "659-7307", "alp": "", "cell": "", "email": "n2499", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Camp Maintenance", "pos": "Incinerator Operator", "name": "Goodwill, Patrick / McAllister, Jeff", "kup": "659-7274", "alp": "", "cell": "", "email": "n1055", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Kuparuk Foreman", "name": "Stewart, Russell / Sutton, Ed", "kup": "659-7583", "alp": "", "cell": "", "email": "n2148", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Willow Foreman", "name": "Simons, Angela / Welton, Ernie", "kup": "659-7050", "alp": "", "cell": "268-9228", "email": "wil0014", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Anchorage Mat. Foreman", "name": "Davis, Carrie / Hart, Joe", "kup": "263-4409", "alp": "", "cell": "", "email": "anc1000", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Alpine Foreman", "name": "Ferro, Frank / Licata, Anthony", "kup": "", "alp": "670-4087", "cell": "", "email": "alp2217", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Kuparuk Air Freight Coordinator", "name": "Foote, Amanda / Jackson, Lazette", "kup": "659-7336", "alp": "", "cell": "", "email": "n2649", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "A/B Warehouse Counter", "name": "Medina-Salazar, Luvianka / Samel, Tessa", "kup": "659-7282", "alp": "", "cell": "", "email": "n1051", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Kup Shipping Coord.", "name": "Heatherly, Duane / Nashookpuk, Kyle", "kup": "659-7459", "alp": "", "cell": "", "email": "n1112", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Alpine Shipping/Logistics", "name": "Scott, Christopher / Shtotski, Alex", "kup": "", "alp": "670-4123", "cell": "", "email": "alp1179", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "J1 Issue Counter", "name": "Killigvuk, Melody  / McKenzie, Blake", "kup": "", "alp": "670-4132", "cell": "", "email": "alp1166", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "Diesel/Checmical Specialist", "name": "Darr, Michael / Grass, Megan", "kup": "", "alp": "670-4903", "cell": "", "email": "alp1334", "pager": ""},
+  {"dept": "MATERIAL SERVICES", "sec": "Warehouse-Materials", "pos": "O&M Materials Specialist", "name": "Helton, Crystal / Ross, Darrell", "kup": "", "alp": "670-4120", "cell": "", "email": "alp1162", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "SUPPORT SERVICES -FIELD", "pos": "Superintendent", "name": "Rudolph, Darren / Spurgeon, JD", "kup": "659-7066", "alp": "", "cell": "", "email": "n1010", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "SUPPORT SERVICES -FIELD", "pos": "Equipment Dispatcher", "name": "Bidwell, Brad / Tupper, Dustin", "kup": "659-7949", "alp": "", "cell": "", "email": "n1245", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "SUPPORT SERVICES -FIELD", "pos": "Equipment Dispatcher", "name": "Hemsley, Vance / Johansen, Keith", "kup": "", "alp": "670-4416", "cell": "", "email": "alp2188", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "SUPPORT SERVICES -FIELD", "pos": "Fleet Cost Analyst", "name": "Knue, Ryan / Reynolds, Bill", "kup": "659-7152", "alp": "", "cell": "", "email": "alp2179", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "SUPPORT SERVICES -FIELD", "pos": "Fleet/PM Specialist", "name": "Greer, Steve / Lyons, Zack", "kup": "", "alp": "670-4948", "cell": "", "email": "n2109", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "Foreman", "name": "Munn, Cody / Wojtacha, Jamie", "kup": "659-7972", "alp": "", "cell": "", "email": "n1310", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "Foreman", "name": "Chapman, Charles / Haley, Jeremy", "kup": "", "alp": "670-4054", "cell": "", "email": "alp1677", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "Svc Writer Day", "name": "Olmstead, Paul / Richey, Larry", "kup": "659-7191", "alp": "", "cell": "", "email": "n2467", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "Svc Writer Night", "name": "Brown, Scott / Burkham, Jeremiah", "kup": "659-7972", "alp": "", "cell": "", "email": "n1375", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD/LD Svc Writer Day / Nights", "name": "Hale, J / Truett,D - Dile, D / Michael, M", "kup": "", "alp": "670-4053", "cell": "", "email": "alp1622", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD Parts Lead", "name": "Lanstra, Dan / Wagner, Ken", "kup": "659-7657", "alp": "", "cell": "", "email": "n1171", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD Parts Days / Nights", "name": "Ivie, D/Nuemuller, R - Jenkins, A/Ornelas, A", "kup": "659-7192", "alp": "", "cell": "", "email": "n1417", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD Parts Nights", "name": "Jenkins, Adam / Ornelas, Andres", "kup": "659-7192", "alp": "", "cell": "", "email": "n1417", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD/LD Parts Coordinator", "name": "Seyer, Chuck / Shaw, Dave", "kup": "", "alp": "670-4597", "cell": "", "email": "alp1352", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD/LD Parts Nights", "name": "Smith, Mahle / Papasadora, Vito", "kup": "", "alp": "670-4661", "cell": "", "email": "alp2146", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD Lead", "name": "Burgess, Billy / Gerlach, Niles", "kup": "", "alp": "670-4059", "cell": "", "email": "alp2122", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "Lube Bay", "name": "Day & Night Shift Service Oilers", "kup": "659-1789", "alp": "", "cell": "", "email": "n2268", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "KIC Airport Mechanic", "name": "O'Brien, Richard / Owczarczak, John", "kup": "659-7464", "alp": "", "cell": "", "email": "n2280", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Heavy Shop", "pos": "HD Weld shop", "name": "Heavy shop welders - B bldg", "kup": "659-7289", "alp": "", "cell": "", "email": "", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Light Shop", "pos": "Svc Writer Days", "name": "Jacks, Glenn / Leedy, Bill", "kup": "659-7141", "alp": "", "cell": "", "email": "n1012", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Light Shop", "pos": "Svc Writer Nights", "name": "Buehner, Josh / Robbins, Merritt", "kup": "659-7141", "alp": "", "cell": "", "email": "n1012", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Light Shop", "pos": "WNS LD Lead", "name": "Garland, Eric /  Pabst, Joshua", "kup": "", "alp": "670-4059", "cell": "", "email": "alp2149", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Light Shop", "pos": "GKA LD Parts Day/Night", "name": "Crockett, Dave / Kendrick, Alan", "kup": "659-7056", "alp": "", "cell": "", "email": "n1341", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Foreman", "name": "Hatfield, Teen / King, Duffy", "kup": "659-7948", "alp": "", "cell": "943-0172", "email": "n2475", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Foreman", "name": "Ansel, Bo / Gibson, Jerry", "kup": "", "alp": "670-4684", "cell": "943-1271", "email": "alp1526", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Lead Days", "name": "Lachinski, Andy / Menzel, Cory", "kup": "659-3982", "alp": "", "cell": "659-0238", "email": "n1244", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Lead Nights", "name": "Epple, Timothy / Mack, Travis", "kup": "659-7945", "alp": "", "cell": "659-0238", "email": "n1244", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Lead Days/Nights", "name": "Davidson, R / Welton, J - Tracy, D / Hahn, J", "kup": "", "alp": "", "cell": "943-1175", "email": "alp2064", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Fluids Leads", "name": "Durfee, Dale / Tryon, John", "kup": "", "alp": "670-4008", "cell": "223-9477", "email": "alp1632", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Fluids Leads Days", "name": "Hanna, Jeff  / Thompson, Jamie", "kup": "659-7077", "alp": "", "cell": "227-5274", "email": "n2477", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Fluids Leads Nights", "name": "Kiggins, Jeremiah / Tiplady, Conner", "kup": "659-7077", "alp": "", "cell": "227-5274", "email": "n2477", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Fuel Tech", "name": "Bullard, Todd / Stormer, Mark", "kup": "659-7244", "alp": "", "cell": "943-1263", "email": "n2559", "pager": ""},
+  {"dept": "SUPPORT SERVICES -FIELD", "sec": "Roads & Pads", "pos": "Equipment Leads", "name": "Cullifer, Dave\"Catfish\" / Gorham, Shaine", "kup": "659-7241", "alp": "", "cell": "", "email": "n2007", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "WELLS SERVICES", "pos": "Superintendent", "name": "Brooks, John / Polis, Dennis", "kup": "659-7439", "alp": "", "cell": "", "email": "n1040", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "WELLS SERVICES", "pos": "General Foreman", "name": "Harding, Kevin / TBD", "kup": "659-7634", "alp": "", "cell": "", "email": "n1322", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Wells Foreman - Equipment", "name": "Enlger, Matt / Larrabee, Jamie", "kup": "", "alp": "", "cell": "943-1843", "email": "n2257", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Wells Foreman - Equipment", "name": "Hunter, Kristopher / Schmidt, Scott", "kup": "", "alp": "", "cell": "943-1843", "email": "n2257", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Wells Foreman - Well Service Techs", "name": "Evarts, Myles  / Jackson, Jon", "kup": "", "alp": "670-4075", "cell": "943-1274", "email": "alp1507", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Wells Foreman - Well Service Techs", "name": "Matthews, Anthony / Turkington, Ryan", "kup": "", "alp": "670-4075", "cell": "943-1274", "email": "alp1507", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Well Service Tech Craft Leads", "name": "Haines, Vance / Pierce, John", "kup": "659-7060", "alp": "", "cell": "943-1041", "email": "n1479", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Well Service Tech Craft Leads", "name": "Denton, Frank / Mease, Micah", "kup": "659-7060", "alp": "", "cell": "943-1041", "email": "n1479", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Wells Dispatch (Days)", "name": "Owens, Tom / Ramm, Craig", "kup": "659-7532", "alp": "", "cell": "", "email": "n1323", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Wells Dispatch (Nights)", "name": "Garrels, Dale \"Rick\" / Wagers, David", "kup": "659-7532", "alp": "", "cell": "", "email": "n1323", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Wells Dispatcher", "name": "Bliss, Chad / Kelly, Dan", "kup": "", "alp": "670-4740", "cell": "943-1115", "email": "alp2167", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Senior Craft (Day/Night Rotation)", "name": "Martin, Thomas / Zawko, Sean", "kup": "", "alp": "", "cell": "943-1723", "email": "", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Senior Craft (Day/Night Rotation)", "name": "Lott, Michael / Ocel, Kristopher", "kup": "", "alp": "", "cell": "943-1723", "email": "", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Washbay Craft Leads", "name": "Brooks, Victor  / Sproul, Michael", "kup": "659-7938", "alp": "", "cell": "", "email": "n1342", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Wells Support", "pos": "Senior Craft (Nights)", "name": "Andrews, Charles / Solomon, Brian", "kup": "659-7938", "alp": "", "cell": "", "email": "n1342", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Drilling", "pos": "General Foreman", "name": "Conway, Justin / Vailea, Fred", "kup": "659-1480", "alp": "", "cell": "659-0468", "email": "n2425", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Drilling", "pos": "DTH Foreman", "name": "Brown,Andy / Eppard, Michael", "kup": "", "alp": "670-4041", "cell": "268-8078", "email": "alp2231", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Drilling", "pos": "Night Foreman", "name": "Killmar, Rodney / Snow, Scott", "kup": "659-1479", "alp": "", "cell": "943-3001", "email": "n2383", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Drilling", "pos": "Dispatcher Days", "name": "Carter, Braden / Tutko, Paul", "kup": "659-7367", "alp": "", "cell": "", "email": "n1080", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Quality Control", "pos": "Quality Control Supervisor", "name": "Perry, Leonard / Tidd, Andrew", "kup": "659-7267", "alp": "", "cell": "", "email": "n1046", "pager": ""},
+  {"dept": "WELLS SERVICES", "sec": "Quality Control", "pos": "Electrical QC", "name": "Ford, Brent / TBD", "kup": "659-7611", "alp": "", "cell": "", "email": "n1163", "pager": "969"},
+  {"dept": "WELLS SERVICES", "sec": "Quality Control", "pos": "Mechanical QC", "name": "Fournier, Al / Klingbeil, Sean", "kup": "659-7407", "alp": "", "cell": "943-7003", "email": "n2391", "pager": "738"},
+  {"dept": "WELLS SERVICES", "sec": "Quality Control", "pos": "Mechanical QC", "name": "Hastie, Ron / McNally, Terry", "kup": "", "alp": "670-4603", "cell": "", "email": "n1549", "pager": ""},
+  {"dept": "MISC.", "sec": "MISC.", "pos": "AES IT Service Desk", "name": "Computing Support", "kup": "339-6900", "alp": "339-6900", "cell": "", "email": "servicedesk@asrc.com", "pager": ""},
+  {"dept": "MISC.", "sec": "MISC.", "pos": "Conoco My Service Center", "name": "Computing Support", "kup": "659-7555", "alp": "659-7555", "cell": "", "email": "help@conocophillips.com", "pager": ""},
+  {"dept": "MISC.", "sec": "MISC.", "pos": "Conoco Local IT Support", "name": "Computing Support", "kup": "659-7500", "alp": "670-4513", "cell": "", "email": "", "pager": ""},
+  {"dept": "MISC.", "sec": "MISC.", "pos": "Flights & Billeting", "name": "Flights", "kup": "659-7453", "alp": "659-7453", "cell": "", "email": "n1110", "pager": ""},
+  {"dept": "MISC.", "sec": "MISC.", "pos": "Flights & Billeting", "name": "Billeting", "kup": "659-7960", "alp": "659-7960", "cell": "", "email": "n1110", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "GKA OIM", "name": "COPA Leadership / Facility Lead", "kup": "659-7727", "alp": "", "cell": "", "email": "n2664", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "WNS OIM", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "670-4949", "cell": "", "email": "wns1192", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF1 Facility Supv", "name": "COPA Leadership / Facility Lead", "kup": "659-7061", "alp": "", "cell": "", "email": "n2067", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF2 Facility Supv", "name": "COPA Leadership / Facility Lead", "kup": "659-7778", "alp": "", "cell": "", "email": "n2064", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF3 Facility Supv", "name": "COPA Leadership / Facility Lead", "kup": "659-7008", "alp": "", "cell": "", "email": "n2070", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Roving Facility Supv", "name": "COPA Leadership / Facility Lead", "kup": "659-1732", "alp": "", "cell": "", "email": "n2672", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "Alpine Faciltiy Supv", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "670-4220", "cell": "", "email": "alp2190", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF1 Senior Op", "name": "COPA Leadership / Facility Lead", "kup": "659-7513", "alp": "", "cell": "", "email": "n2673", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF2 Senior Op", "name": "COPA Leadership / Facility Lead", "kup": "659-7721", "alp": "", "cell": "", "email": "n2674", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF3 Senior Op", "name": "COPA Leadership / Facility Lead", "kup": "659-7442", "alp": "", "cell": "", "email": "n2675", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "ACF Senior Op", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "670-4017", "cell": "", "email": "alp2242", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "STP Board", "name": "COPA Leadership / Facility Lead", "kup": "659-7935", "alp": "", "cell": "", "email": "n1239", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Inst Maint Supv", "name": "COPA Leadership / Facility Lead", "kup": "659-7750", "alp": "", "cell": "", "email": "n2665", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Elec Maint Supv", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "MS Teams", "email": "n2666", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Mechanical Supv", "name": "COPA Leadership / Facility Lead", "kup": "659-7787", "alp": "", "cell": "", "email": "n1199", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF1/3 Elect Senior Tech", "name": "COPA Leadership / Facility Lead", "kup": "659-7763 / 659-7280", "alp": "", "cell": "", "email": "n2670", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF1/3 Inst Senior Tech", "name": "COPA Leadership / Facility Lead", "kup": "659-7637 / 659-7764", "alp": "", "cell": "", "email": "n2671", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "ACF/CPF2 Elect Senior Tech", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "670-4127", "cell": "", "email": "n2668", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "ACF/CPF2 Inst Senior Tech", "name": "COPA Leadership / Facility Lead", "kup": "659-7986", "alp": "670-4124", "cell": "", "email": "n2669", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Facility Mech Senior Tech", "name": "COPA Leadership / Facility Lead", "kup": "659-7889", "alp": "", "cell": "", "email": "n1281", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Central Shop Senior Tech", "name": "COPA Leadership / Facility Lead", "kup": "659-7527", "alp": "", "cell": "", "email": "n1137", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "Specialty Shops Senior Tech", "name": "COPA Leadership / Facility Lead", "kup": "659-7467", "alp": "", "cell": "", "email": "n2604", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "Fieldwide Execution Supt", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "", "email": "ray.chumley@cop.com", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF1/3 Exec Coordinator", "name": "COPA Leadership / Facility Lead", "kup": "659-7321", "alp": "", "cell": "", "email": "n1849", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF2/ACF Exec Coordinator", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "670-4025", "cell": "", "email": "wns1193", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "GKA Fieldwide Coordinator", "name": "COPA Leadership / Facility Lead", "kup": "659-7931", "alp": "", "cell": "", "email": "n1805", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "WNS Fieldwide Coordinator", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "670-4526", "cell": "", "email": "wns1190", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "Ops Excellence Superintendent", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "290-4380", "email": "", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "Ops Excellence Gov & Admin", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "", "email": "", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "Regulatory Compliance Supv", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "265-6937", "email": "", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "CPF1/3 Ops Integrity Specialist", "name": "COPA Leadership / Facility Lead", "kup": "659-7424", "alp": "", "cell": "", "email": "n2677", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "ACF/CPF2 Ops Integrity Specialist", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "", "email": "", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Ops Support Specialist", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "", "email": "", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "NS Training OI Coordinator", "name": "COPA Leadership / Facility Lead", "kup": "659-4350", "alp": "", "cell": "", "email": "n2645", "pager": ""},
+  {"dept": "COPA", "sec": "ConocoPhillips Operations", "pos": "Willow O&M Startup Supt", "name": "COPA Leadership / Facility Lead", "kup": "", "alp": "", "cell": "", "email": "wil0079", "pager": ""}
+];// ==========================================
+// 2. EXTERNAL AES DATA (HR, Benefits, Corporate, Other Sites, Inboxes)
+// ==========================================
+const EXT_CONTACTS = [
+  {"group": "HR & Recruiting", "sec": "Human Resources Leadership", "pos": "Senior Director, HR", "name": "Robin Harrington", "phone": "907-339-6439", "cell": "907-306-5606", "email": "roharrington@asrcenergy.com", "notes": ""},
+  {"group": "HR & Recruiting", "sec": "HR Training & Development", "pos": "Manager of Learning & Development", "name": "Gabe Woodmansee", "phone": "907-339-6046", "cell": "907-217-3369", "email": "gwoodmansee@asrcenergy.com", "notes": ""},
+  {"group": "HR & Recruiting", "sec": "Human Resources Leadership", "pos": "Senior HR Manager", "name": "George Murray", "phone": "907-339-6271", "cell": "907-444-3056", "email": "gmurray@asrcenergy.com", "notes": ""},
+  {"group": "HR & Recruiting", "sec": "Shareholder Programs", "pos": "Operations Manager - Shareholder Hiring & Career Dev", "name": "Sam Rexford-Brown", "phone": "907-334-1557", "cell": "", "email": "srexford-brown@asrcenergy.com", "notes": ""},
+  {"group": "HR & Recruiting", "sec": "Human Resources Support", "pos": "Sr. Administrative Assistant", "name": "Angela Miguel", "phone": "907-339-6229", "cell": "", "email": "amiguel@asrcenergy.com", "notes": ""},
+  {"group": "HR & Recruiting", "sec": "Recruiting - EPT, HCC, ACES", "pos": "Talent Manager", "name": "Patrick Hards", "phone": "907-339-6331", "cell": "907-223-2018", "email": "phards@asrcenergy.com", "notes": "aestalent@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "Recruiting - AEQ, O&M NS & Alpine", "pos": "Talent Acquisition Consultant", "name": "Charlyn Mcintyre", "phone": "907-339-6641", "cell": "907-230-9911", "email": "cmcintyre@asrcenergy.com", "notes": "aestalent@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "Recruiting - LRS & O&M Independents", "pos": "Talent Acquisition Consultant", "name": "Hunter Doan", "phone": "907-334-1550", "cell": "907-382-0788", "email": "hdoan@asrcenergy.com", "notes": "aestalent@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "Recruiting", "pos": "Remote Senior Recruiter", "name": "Mitchell Holifield", "phone": "", "cell": "907-793-7247", "email": "mholifield@asrcenergy.com", "notes": ""},
+  {"group": "HR & Recruiting", "sec": "HR Administration & HRIS", "pos": "HRIS Manager", "name": "Christina Rexford-Brown", "phone": "907-339-6926", "cell": "", "email": "crexford-brown@asrcenergy.com", "notes": ""},
+  {"group": "HR & Recruiting", "sec": "HR Administration & Onboarding", "pos": "HR Coordinator", "name": "Leslie Cabinboy", "phone": "907-339-6312", "cell": "907-570-7904", "email": "lcabinboy@asrcenergy.com", "notes": "Fax 339-6357 • DLHRTechnicians@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "HR Administration & Onboarding", "pos": "HR Coordinator", "name": "Salomi Via", "phone": "907-339-6273", "cell": "907-570-7904", "email": "svia@asrcenergy.com", "notes": "Fax 339-6357 • DLHRTechnicians@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "Employee Relations - Kuparuk, Alpine, Materials, ACES", "pos": "HR Manager", "name": "Patrice Chandler", "phone": "907-334-1538", "cell": "907-317-2950", "email": "pchandler@asrcenergy.com", "notes": "AESEmployeeRelations@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "Employee Relations - LRS, EPT, NS Constr, Indep", "pos": "HR Business Partner", "name": "Brad Sudz", "phone": "", "cell": "907-231-1729", "email": "bsudz@asrcenergy.com", "notes": "AESEmployeeRelations@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "Employee Relations - Leave & RTW / Clearances", "pos": "HR Business Partner", "name": "William Wallner", "phone": "907-334-1516", "cell": "907-306-9089", "email": "wwallner@asrcenergy.com", "notes": "AESEmployeeRelations@asrcenergy.com"},
+  {"group": "HR & Recruiting", "sec": "Employee Relations Direct Line", "pos": "HR Employee Relations Desk", "name": "Direct Line (Option 7)", "phone": "907-334-1688", "cell": "", "email": "AESEmployeeRelations@asrcenergy.com", "notes": "Fax 907-334-1867"},
+  {"group": "HR & Recruiting", "sec": "Human Resources Main Line", "pos": "HR Main Phone Tree", "name": "HR Main Automated Line", "phone": "907-334-1688", "cell": "", "email": "DLHRTechnicians@asrcenergy.com", "notes": "Opt 1: Oracle | Opt 2: Recruiting | Opt 3: Payroll | Opt 4: Benefits | Opt 5: HCC HR | Opt 6: VOE/Data | Opt 7: ER/Leave"},
+  {"group": "Benefits & Support", "sec": "ASRC Compliance Department", "pos": "Compliance Main Line", "name": "Compliance Department", "phone": "907-339-6475", "cell": "", "email": "Compliance@asrc.com", "notes": "Fax 907-339-6940"},
+  {"group": "Benefits & Support", "sec": "ASRC Benefits Department", "pos": "Benefits Main Line (Alaska)", "name": "ASRC Benefits Helpdesk", "phone": "907-339-6850", "cell": "877-339-6850", "email": "aesbenefits@asrc.com", "notes": "Opt 1: FMLA/Leave | Opt 2: Health/FEHB | Opt 4: 401k Schwab | Opt 6: Insurance"},
+  {"group": "Benefits & Support", "sec": "ASRC Benefits Department", "pos": "Benefits Online Portal Support", "name": "Benefitfocus Customer Service", "phone": "844-267-2363", "cell": "", "email": "", "notes": "https://asrc.hrintouch.com/"},
+  {"group": "Benefits & Support", "sec": "Employee Assistance Program", "pos": "EAP Confidential Counseling", "name": "Aetna Resource for Living", "phone": "866-865-2202", "cell": "", "email": "", "notes": "www.mylifevalues.com (Login: ASRC / Pass: EAP)"},
+  {"group": "Benefits & Support", "sec": "Houston Contracting (HCC)", "pos": "HCC HR & Payroll Main Line", "name": "Houston Contracting HR", "phone": "907-339-6400", "cell": "", "email": "", "notes": "Onboarding, Payroll, Dispatch"},
+  {"group": "Corporate QHSET", "sec": "QHSET Leadership", "pos": "HSET VP", "name": "Jared Brake", "phone": "907-317-9999", "cell": "832-330-4359", "email": "jbrake@asrcenergy.com", "notes": ""},
+  {"group": "Corporate QHSET", "sec": "QHSET Leadership", "pos": "HSET Senior Director", "name": "Lucas Voshell", "phone": "907-339-7601", "cell": "907-538-4474", "email": "lvoshell@asrcenergy.com", "notes": "Fax 907-334-1811"},
+  {"group": "Corporate QHSET", "sec": "QHSET Field Leadership", "pos": "HSET Managers", "name": "Stephen Lovelace / Peter Hauser", "phone": "907-953-1787", "cell": "907-267-9366", "email": "aeshsetmanager@asrcenergy.com", "notes": "slovelace@asrcenergy.com • phauser@asrcenergy.com"},
+  {"group": "Corporate QHSET", "sec": "Compliance & Regulatory", "pos": "HSET Compliance Manager", "name": "Rachel Davis", "phone": "907-339-7642", "cell": "907-351-5591", "email": "rdavis@asrcenergy.com", "notes": ""},
+  {"group": "Corporate QHSET", "sec": "HSET Integration & Incidents", "pos": "HSET Integration Manager", "name": "Dawn Brower", "phone": "907-339-6459", "cell": "907-441-6560", "email": "dbrower@asrcenergy.com", "notes": "incidents@asrcenergy.com"},
+  {"group": "Corporate QHSET", "sec": "HSET Analytics", "pos": "HSET Process & Data Analyst", "name": "Spencer Summerlin", "phone": "", "cell": "907-720-9093", "email": "ssummerlin@asrcenergy.com", "notes": ""},
+  {"group": "Corporate QHSET", "sec": "Environmental Services", "pos": "Environmental Lead", "name": "Robert Watkins", "phone": "907-339-6476", "cell": "", "email": "rwatkins@asrcenergy.com", "notes": ""},
+  {"group": "Corporate QHSET", "sec": "DOT & Driver Qualifications", "pos": "HSET Coordinator - Driver Qualifications", "name": "Cadence Wood", "phone": "907-339-4505", "cell": "", "email": "cwood@asrcenergy.com", "notes": "aeshse@asrcenergy.com"},
+  {"group": "Corporate QHSET", "sec": "DOT & Driver Qualifications", "pos": "HSET Admin Assistant - DQ / Training Support", "name": "Chelsey Chandler", "phone": "907-339-7615", "cell": "", "email": "cchandler@asrcenergy.com", "notes": "aeshse@asrcenergy.com"},
+  {"group": "Corporate QHSET", "sec": "Training & Onboarding", "pos": "HSET Training Manager", "name": "Annie Broberg", "phone": "907-334-1506", "cell": "", "email": "abroberg@asrcenergy.com", "notes": "Fax 907-334-1837 • aeshse@asrcenergy.com"},
+  {"group": "Corporate QHSET", "sec": "Training & Onboarding", "pos": "HSET Coordinator - Onboarding & Training", "name": "Donna Buchholz", "phone": "907-339-6277", "cell": "907-205-9196", "email": "dbuchholz@asrcenergy.com", "notes": "aeshse@asrcenergy.com"},
+  {"group": "Corporate QHSET", "sec": "Quality Department", "pos": "Quality Manager", "name": "Donald Gilhousen", "phone": "907-339-6356", "cell": "907-351-8932", "email": "dgilhousen@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "AES Operations Leadership", "pos": "O&M VP / General Manager", "name": "Travis Clark", "phone": "907-339-6310", "cell": "", "email": "trclark@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Prudhoe Bay - Hilcorp", "pos": "North Slope Operations Manager", "name": "Chad Barrett", "phone": "907-659-3800", "cell": "907-205-1204", "email": "NSOperationsManager@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Prudhoe Bay - Hilcorp", "pos": "C-Pad Chemical Storage & Transport Lead", "name": "Tim Rickards / John Howard", "phone": "907-659-8725", "cell": "", "email": "PBChemicalForeman@hilcorp.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Prudhoe Bay - Hilcorp", "pos": "Corrosion / Chemical Maint Lead", "name": "Joe Hamlett / Dezi Walker", "phone": "907-659-5575", "cell": "907-830-3323", "email": "PBChemicalMonitoringForeman@hilcorp.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "O&M Independents", "pos": "Field Services Superintendent", "name": "Justin Gerkin / Cameron Galvin", "phone": "907-659-3815", "cell": "907-570-7767", "email": "indfieldsuper@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "O&M Independents", "pos": "Equipment Services - Drilling Ops Supervisor", "name": "Greg Lee / Clinton Draper", "phone": "907-659-3840", "cell": "907-202-3252", "email": "indforeman@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Director, Field Operations", "name": "Ward Wilhelm", "phone": "907-334-1581", "cell": "907-952-1084", "email": "wwilhelm@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Superintendent - COPA All", "name": "Keith Burress / Brandon Work", "phone": "", "cell": "870-613-4111", "email": "kburress@asrcenergy.com", "notes": "bwork@asrcenergy.com"},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Superintendent - Electrical (Santos/Hilcorp/PB)", "name": "Trevor Mathew-Seay / Jordan Holly", "phone": "", "cell": "907-953-9684", "email": "tmathewseay@asrcenergy.com", "notes": "jholly@asrcenergy.com"},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Superintendent - Mechanical (Prudhoe)", "name": "Jonathan Graham / Mieckal Delaney", "phone": "", "cell": "251-581-4470 / 907-232-7488", "email": "JGraham@asrcenergy.com", "notes": "mdelaney@asrcenergy.com"},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Operations Support Lead - Project Controls", "name": "Shannon Benham", "phone": "907-339-6207", "cell": "", "email": "sbenham@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Project Controls Specialist", "name": "Bernard Browning", "phone": "907-339-7623", "cell": "", "email": "bbrowning@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Admin Specialist", "name": "Enid Omnik / Orawanda Foust", "phone": "907-231-7326", "cell": "", "email": "WOCAdmin@asrcenergy.com", "notes": "eomnik@asrcenergy.com • ofoust@asrcenergy.com"},
+  {"group": "Other Sites & Ops", "sec": "O&M North Slope Construction", "pos": "Admin Specialist", "name": "Ragan Anderson", "phone": "907-334-1518", "cell": "", "email": "raanderson@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "AES Equipment (AEQ)", "pos": "Director, Equipment Operations", "name": "Craig Worrell", "phone": "907-339-6306", "cell": "907-615-7920", "email": "crworrell@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "AES Equipment (AEQ)", "pos": "Fleet Superintendents", "name": "Derek Cottle / Flagan Petska", "phone": "907-659-3820", "cell": "907-947-0834", "email": "AEQFS@asrcenergy.com", "notes": "dcottle@asrcenergy.com • fpetska@asrcenergy.com"},
+  {"group": "Other Sites & Ops", "sec": "AES Equipment (AEQ)", "pos": "Equipment Administrator", "name": "Crystal Hansen", "phone": "907-659-3822", "cell": "", "email": "aeqadmin@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Energy Petroleum Technology (EPT)", "pos": "General Manager", "name": "Jeremy Parker", "phone": "907-334-1529", "cell": "", "email": "jparker@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Energy Petroleum Technology (EPT)", "pos": "Operations Supervisor", "name": "Dillon Overturf", "phone": "907-339-6302", "cell": "", "email": "doverturf@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Energy Petroleum Technology (EPT)", "pos": "Contingent Labor Coordinator", "name": "Angela Finneseth", "phone": "907-317-4703", "cell": "", "email": "afinneseth@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "LRS North Slope Manager", "name": "Scott Swett / Eloy Muniz", "phone": "907-670-8401", "cell": "907-943-1101", "email": "lrsnslopemgr@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Western Field Day Supervisor", "name": "David Helms / Allen Hingst", "phone": "907-659-7173", "cell": "907-943-1122", "email": "lrskupmgr@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Western Field Night Supervisor", "name": "David Werner / Hunter Blackett", "phone": "", "cell": "907-301-9818", "email": "lrskupnights@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Western Field Well Testing Supervisor", "name": "Jake Hoosline / Corey Clark", "phone": "", "cell": "907-529-9989", "email": "lrsalpine@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Alpine Satellite Field Supervisor", "name": "Dave Stephens / Justin Hunt", "phone": "", "cell": "907-529-9989", "email": "lrsalpine@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Eastern Field Day Supervisor", "name": "Jake Zimmerman / Lorren Britain", "phone": "907-670-8402", "cell": "907-943-1110", "email": "lrspbmgr@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Eastern Field Night Supervisor", "name": "James Gibson / Chris Ward", "phone": "907-670-8402", "cell": "", "email": "lrspbnights@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Eastern Field Well Testing Supervisor", "name": "Ryan VonLolHoffel / Jeremiah Shaw", "phone": "907-670-8408", "cell": "907-632-8325", "email": "jershaw@lrs.net", "notes": "ryvonlolhoffel@lrs.net"},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Milne Point Field Supervisor", "name": "Eric Fragnoli / Les Worley", "phone": "", "cell": "907-346-7909", "email": "lrsmpops@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Mechanical Shop Supervisor", "name": "John Hatfield / Charlie Brenny", "phone": "907-670-8425", "cell": "907-943-1179", "email": "johatfield@lrs.net", "notes": "chbrenny@lrs.net"},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Technical Shop Supervisor", "name": "James Ashton / Ryan Stoll", "phone": "907-659-2390", "cell": "907-346-7601", "email": "jashton@lrs.net", "notes": "ryastoll@lrs.net"},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Coil Shop Supervisor", "name": "John Trotter / Jordan Wolf", "phone": "", "cell": "", "email": "jtrotter@lrs.net", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Coil Tubing Managers / Engineers", "name": "Hussein Mazen / Jacob Raney", "phone": "", "cell": "907-602-8659", "email": "hmazen@lrs.net", "notes": "jraney@lrs.net"},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "Camp Maintenance Lead", "name": "Shane Laboucane / David Teague", "phone": "", "cell": "907-943-1777", "email": "slaboucane@lrs.net", "notes": "dteague@lrs.net"},
+  {"group": "Other Sites & Ops", "sec": "Little Red Services (LRS)", "pos": "LRS Administrative Assistant", "name": "Treva Esparza / Kunayaq Hank", "phone": "907-670-8400", "cell": "", "email": "LRStechaide@lrs.net", "notes": "tesparza@lrs.net • khank@asrcenergy.com"},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "HSET Director", "name": "Jack Potter", "phone": "907-339-6406", "cell": "907-632-2236", "email": "japotter@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "HSET Senior Administrator", "name": "Lee Moua", "phone": "907-339-6415", "cell": "", "email": "lmoua@asrcenergy.com", "notes": "hcchset@asrcenergy.com"},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "TAPS 24-hr Emergency Incident Line", "name": "Incident Response Line", "phone": "", "cell": "907-322-4000", "email": "", "notes": "24-hr Emergency Notification"},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "HSEQT Manager", "name": "Kaylen Baxter", "phone": "907-450-4857", "cell": "757-374-4979", "email": "kaylen.baxter@alyeska-pipeline.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "Environmental Specialist / Ind Hyg", "name": "Jack Kellam", "phone": "907-450-5375", "cell": "814-598-3187", "email": "jack.kellam@alyeska-pipeline.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "Industrial Hygienist / Env Spec", "name": "Dewey Youngerman", "phone": "907-450-5374", "cell": "907-435-4157", "email": "dewey.youngerman@alyeska-pipeline.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "HSE Specialist - Baseline", "name": "Dean Neumman / Nate Collin", "phone": "907-450-4862 / 907-450-4847", "cell": "907-227-2939 / 907-978-7005", "email": "dean.neumann@alyeska-pipeline.com", "notes": "nathan.collin@alyeska-pipeline.com"},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "HSE Specialist - Line Wide", "name": "Cameron Conley / Harold Bowen / Michael Bittorf", "phone": "", "cell": "907-712-7732 / 907-750-6403 / 937-474-7264", "email": "cameron.conley@alyeska-pipeline.com", "notes": "harold.bowen@alyeska-pipeline.com • michael.bittorf@alyeska-pipeline.com"},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "VMT HSE Specialist", "name": "Dennis Anderson / Brian Veale", "phone": "907-787-7130 / 907-787-7120", "cell": "907-885-4013 / 619-840-3862", "email": "dennis.anderson@alyeska-pipeline.com", "notes": "brian.veale@alyeska-pipeline.com"},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "Quality Control Specialist", "name": "Justin Brower", "phone": "907-374-8220", "cell": "907-590-1561", "email": "justin.brower@alyeska-pipeline.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "Lead Safety Trainer", "name": "Jon Watts, CHST & CIT", "phone": "907-374-8227", "cell": "907-687-4884", "email": "jon.watts@alyeska-pipeline.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "Training Coordinator", "name": "Rachel Perkins", "phone": "907-374-8252", "cell": "907-251-6552", "email": "reperkins@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC Alyeska Pipeline (TAPS)", "pos": "HSET / QC Document Control", "name": "Alberta John", "phone": "907-374-8217", "cell": "", "email": "ajohn@asrcenergy.com", "notes": ""},
+  {"group": "Other Sites & Ops", "sec": "HCC North Slope Projects", "pos": "NS HSET Manager", "name": "Greg Conley", "phone": "", "cell": "907-888-0318", "email": "gconley@asrcenergy.com", "notes": ""},
+  {"group": "Shared Inboxes", "sec": "Human Resources Inboxes", "pos": "Onboarding & Pre-Employment", "name": "AES Onboarding Inbox", "phone": "", "cell": "", "email": "AESOnboarding@asrcenergy.com", "notes": "EIRs, MSRs, POHQ Review Results, FFD Results"},
+  {"group": "Shared Inboxes", "sec": "Human Resources Inboxes", "pos": "Employee Relations & RTW", "name": "AES Employee Relations Inbox", "phone": "", "cell": "", "email": "AESEmployeeRelations@asrcenergy.com", "notes": "RTW EIRs, Disciplinary ESRs, FMLA/LOA, Exit Interviews, Service Awards, PTO/Payroll Donations"},
+  {"group": "Shared Inboxes", "sec": "Human Resources Inboxes", "pos": "HR Techs & Verifications", "name": "HR Technicians Inbox", "phone": "", "cell": "", "email": "DLHRTechnicians@asrcenergy.com", "notes": "EIRs, ESRs, Employment Verifications (VOE), Address & Contact Updates"},
+  {"group": "Shared Inboxes", "sec": "Human Resources Inboxes", "pos": "Reprimand & Rehire History", "name": "HR Reprimand History", "phone": "", "cell": "", "email": "HRReprimandhistory@asrcenergy.com", "notes": "Rehire, Work Over, Disciplinary HR/HSET Reprimand History Requests"},
+  {"group": "Shared Inboxes", "sec": "Human Resources Inboxes", "pos": "Talent & Recruiting", "name": "AES Talent Acquisition", "phone": "", "cell": "", "email": "AEStalent@asrcenergy.com", "notes": "Recruiting Needs, IRC Concerns, Applicant Communications"},
+  {"group": "Shared Inboxes", "sec": "Human Resources Inboxes", "pos": "Tuition Assistance", "name": "AES Tuition Reimbursement", "phone": "", "cell": "", "email": "AESTuition@asrcenergy.com", "notes": "Tuition Reimbursement Requests and Inquiries"},
+  {"group": "Shared Inboxes", "sec": "Human Resources Inboxes", "pos": "Concern Resolution Program", "name": "CRP Complaints & Inquiries", "phone": "", "cell": "", "email": "CRP@asrcenergy.com", "notes": "Confidential Concern Resolution Program Concerns and Inquiries"},
+  {"group": "Shared Inboxes", "sec": "QHSET Inboxes", "pos": "HSE Training, VTA & Driver DQ", "name": "AES HSE Department Inbox", "phone": "", "cell": "", "email": "aeshse@asrcenergy.com", "notes": "DOT Packets, Medical Certs, VTA Learner Password Resets, Online Training Inquiries"},
+  {"group": "Shared Inboxes", "sec": "QHSET Inboxes", "pos": "Incident & Fly-Off Reporting", "name": "AES Incident Reporting", "phone": "", "cell": "", "email": "Incidents@asrcenergy.com", "notes": "Incident Notifications, Fly-off Notifications, Work Releases & FFD Docs"}
 ];
 
-const DEPT_CONFIG = {
+// Department Config for Field Ops
+const FIELD_DEPT_CONFIG = {
   "ALL": { label: "All Depts", color: "#cbd5e1", cls: "pill-all" },
   "COPA": { label: "★ COPA", color: "#ef4444", cls: "pill-copa" },
   "MAINTENANCE SERVICES -PROJECTS": { label: "Maint & Projects", color: "#f59e0b", cls: "pill-maint" },
@@ -2009,30 +608,98 @@ const DEPT_CONFIG = {
   "MISC.": { label: "IT & Flights", color: "#94a3b8", cls: "pill-misc" }
 };
 
-let activeDept = "ALL";
+// Department Config for External AES (6 balanced buttons)
+const EXT_DEPT_CONFIG = {
+  "ALL": { label: "All External", color: "#cbd5e1", cls: "pill-ext-all" },
+  "HR & Recruiting": { label: "HR & Recruiting", color: "#38bdf8", cls: "pill-ext-hr" },
+  "Benefits & Support": { label: "Benefits & Support", color: "#10b981", cls: "pill-ext-ben" },
+  "Corporate QHSET": { label: "Corp QHSET", color: "#f59e0b", cls: "pill-ext-hset" },
+  "Other Sites & Ops": { label: "Other Sites & Ops", color: "#a855f7", cls: "pill-ext-ops" },
+  "Shared Inboxes": { label: "Shared Inboxes", color: "#ec4899", cls: "pill-ext-inbox" }
+};
+
+let currentView = "FIELD"; // "FIELD" or "EXTERNAL"
+let activeFieldDept = "ALL";
+let activeExtDept = "ALL";
 let activeLoc = "ALL";
 let searchQuery = "";
 
+const appTitle = document.getElementById('appTitle');
+const appSubtitle = document.getElementById('appSubtitle');
 const searchInput = document.getElementById('searchInput');
 const clearSearchBtn = document.getElementById('clearSearch');
 const contactsList = document.getElementById('contactsList');
 const resultsCount = document.getElementById('resultsCount');
-const pillsContainer = document.getElementById('pillsContainer');
+const locFilter = document.getElementById('locFilter');
+const fieldPills = document.getElementById('fieldPills');
+const extPills = document.getElementById('extPills');
+const shippingCard = document.getElementById('shippingCard');
+const btnViewField = document.getElementById('btnViewField');
+const btnViewExt = document.getElementById('btnViewExt');
 
-Object.keys(DEPT_CONFIG).forEach(key => {
-  const cfg = DEPT_CONFIG[key];
+// Build Field Pills
+Object.keys(FIELD_DEPT_CONFIG).forEach(key => {
+  const cfg = FIELD_DEPT_CONFIG[key];
   const btn = document.createElement('button');
-  btn.className = `pill ${cfg.cls}` + (key === activeDept ? ' active' : '');
+  btn.className = `pill ${cfg.cls}` + (key === activeFieldDept ? ' active' : '');
   btn.textContent = cfg.label;
-  btn.onclick = () => setDept(key);
-  btn.id = 'pill-' + key.replace(/[^a-zA-Z0-9]/g, '');
-  pillsContainer.appendChild(btn);
+  btn.onclick = () => setFieldDept(key);
+  btn.id = 'fpill-' + key.replace(/[^a-zA-Z0-9]/g, '');
+  fieldPills.appendChild(btn);
 });
 
-function setDept(dept) {
-  activeDept = dept;
-  document.querySelectorAll('.pill').forEach(p => {
-    const targetId = 'pill-' + dept.replace(/[^a-zA-Z0-9]/g, '');
+// Build External Pills
+Object.keys(EXT_DEPT_CONFIG).forEach(key => {
+  const cfg = EXT_DEPT_CONFIG[key];
+  const btn = document.createElement('button');
+  btn.className = `pill ${cfg.cls}` + (key === activeExtDept ? ' active' : '');
+  btn.textContent = cfg.label;
+  btn.onclick = () => setExtDept(key);
+  btn.id = 'epill-' + key.replace(/[^a-zA-Z0-9]/g, '');
+  extPills.appendChild(btn);
+});
+
+function switchView(view) {
+  currentView = view;
+  clearSearchInput();
+
+  if (view === 'FIELD') {
+    btnViewField.classList.add('active');
+    btnViewExt.classList.remove('active');
+    appTitle.textContent = "AES & COPA North Slope Directory";
+    appSubtitle.textContent = "2026 Kuparuk & Alpine Operations & Maintenance";
+    searchInput.placeholder = "Search name, position, extension, COP ID...";
+    locFilter.style.display = "flex";
+    fieldPills.style.display = "grid";
+    extPills.style.display = "none";
+    shippingCard.style.display = "flex";
+  } else {
+    btnViewExt.classList.add('active');
+    btnViewField.classList.remove('active');
+    appTitle.textContent = "AES External & Corporate Directory";
+    appSubtitle.textContent = "HR, Benefits, Corporate QHSET, Other Sites & Shared Inboxes";
+    searchInput.placeholder = "Search HR, recruiter, benefits, site, email, inbox...";
+    locFilter.style.display = "none";
+    fieldPills.style.display = "none";
+    extPills.style.display = "grid";
+    shippingCard.style.display = "none";
+  }
+  render();
+}
+
+function setFieldDept(dept) {
+  activeFieldDept = dept;
+  document.querySelectorAll('#fieldPills .pill').forEach(p => {
+    const targetId = 'fpill-' + dept.replace(/[^a-zA-Z0-9]/g, '');
+    p.classList.toggle('active', p.id === targetId);
+  });
+  render();
+}
+
+function setExtDept(dept) {
+  activeExtDept = dept;
+  document.querySelectorAll('#extPills .pill').forEach(p => {
+    const targetId = 'epill-' + dept.replace(/[^a-zA-Z0-9]/g, '');
     p.classList.toggle('active', p.id === targetId);
   });
   render();
@@ -2065,6 +732,7 @@ function formatPhoneLink(num) {
   const digits = num.replace(/\D/g, '');
   if (digits.length === 7) return `tel:+1907${digits}`;
   if (digits.length === 10) return `tel:+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `tel:+${digits}`;
   return `tel:${num}`;
 }
 
@@ -2077,8 +745,16 @@ function formatEmailLink(email) {
 function render() {
   contactsList.innerHTML = '';
 
-  const filtered = CONTACTS.filter(c => {
-    if (activeDept !== 'ALL' && c.dept !== activeDept) return false;
+  if (currentView === 'FIELD') {
+    renderFieldContacts();
+  } else {
+    renderExternalContacts();
+  }
+}
+
+function renderFieldContacts() {
+  const filtered = FIELD_CONTACTS.filter(c => {
+    if (activeFieldDept !== 'ALL' && c.dept !== activeFieldDept) return false;
     if (activeLoc === 'KUP' && !c.kup) return false;
     if (activeLoc === 'ALP' && !c.alp) return false;
 
@@ -2089,15 +765,15 @@ function render() {
     return true;
   });
 
-  resultsCount.textContent = `Showing ${filtered.length} contact${filtered.length === 1 ? '' : 's'}`;
+  resultsCount.textContent = `Showing ${filtered.length} field contact${filtered.length === 1 ? '' : 's'}`;
 
   if (filtered.length === 0) {
-    contactsList.innerHTML = `<div class="no-results">No contacts found matching "${searchQuery}".</div>`;
+    contactsList.innerHTML = `<div class="no-results">No field contacts found matching "${searchQuery}".</div>`;
     return;
   }
 
   filtered.forEach(c => {
-    const deptCfg = DEPT_CONFIG[c.dept] || { color: '#ff9800' };
+    const deptCfg = FIELD_DEPT_CONFIG[c.dept] || { color: '#ff9800' };
     const card = document.createElement('div');
     card.className = 'contact-card';
     card.style.borderLeft = `4px solid ${deptCfg.color}`;
@@ -2171,6 +847,93 @@ function render() {
         </div>
       </div>
       <div class="card-name">${c.name}</div>
+      <div class="comm-grid">${commHtml}</div>
+    `;
+
+    contactsList.appendChild(card);
+  });
+}
+
+function renderExternalContacts() {
+  const filtered = EXT_CONTACTS.filter(c => {
+    if (activeExtDept !== 'ALL' && c.group !== activeExtDept) return false;
+
+    if (searchQuery) {
+      const matchStr = `${c.name} ${c.pos} ${c.sec} ${c.group} ${c.phone} ${c.cell} ${c.email} ${c.notes}`.toLowerCase();
+      if (!matchStr.includes(searchQuery)) return false;
+    }
+    return true;
+  });
+
+  resultsCount.textContent = `Showing ${filtered.length} external contact${filtered.length === 1 ? '' : 's'}`;
+
+  if (filtered.length === 0) {
+    contactsList.innerHTML = `<div class="no-results">No external contacts found matching "${searchQuery}".</div>`;
+    return;
+  }
+
+  filtered.forEach(c => {
+    const deptCfg = EXT_DEPT_CONFIG[c.group] || { color: '#38bdf8' };
+    const card = document.createElement('div');
+    card.className = 'contact-card';
+    card.style.borderLeft = `4px solid ${deptCfg.color}`;
+
+    let commHtml = '';
+
+    if (c.phone) {
+      if (c.phone.includes('\n') || c.phone.includes(' / ')) {
+        const parts = c.phone.split(/[\n/]/).map(s => s.trim()).filter(Boolean);
+        parts.forEach(p => {
+          commHtml += `<a href="${formatPhoneLink(p)}" class="comm-btn phone">
+            <span class="tag-label">PHONE:</span> ${p}
+          </a>`;
+        });
+      } else {
+        commHtml += `<a href="${formatPhoneLink(c.phone)}" class="comm-btn phone">
+          <span class="tag-label">PHONE:</span> ${c.phone}
+        </a>`;
+      }
+    }
+
+    if (c.cell) {
+      if (c.cell.includes('\n') || c.cell.includes(' / ')) {
+        const parts = c.cell.split(/[\n/]/).map(s => s.trim()).filter(Boolean);
+        parts.forEach(p => {
+          commHtml += `<a href="${formatPhoneLink(p)}" class="comm-btn cell">
+            <span class="tag-label">CELL:</span> ${p}
+          </a>`;
+        });
+      } else {
+        commHtml += `<a href="${formatPhoneLink(c.cell)}" class="comm-btn cell">
+          <span class="tag-label">CELL:</span> ${c.cell}
+        </a>`;
+      }
+    }
+
+    if (c.email) {
+      if (c.email.includes('\n')) {
+        const emails = c.email.split('\n').map(s => s.trim()).filter(Boolean);
+        emails.forEach(em => {
+          commHtml += `<a href="${formatEmailLink(em)}" class="comm-btn email">
+            <span class="tag-label">✉:</span> ${em}
+          </a>`;
+        });
+      } else {
+        commHtml += `<a href="${formatEmailLink(c.email)}" class="comm-btn email">
+          <span class="tag-label">✉:</span> ${c.email}
+        </a>`;
+      }
+    }
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <div class="card-pos" style="color: ${deptCfg.color};">${c.pos}</div>
+          <div class="card-sec">${c.sec} • <span style="color:${deptCfg.color}; font-weight:700;">${c.group}</span></div>
+        </div>
+      </div>
+      <div class="card-name">${c.name}</div>
+      ${c.notes ? `<div class="card-notes">${c.notes}</div>` : ''}
       <div class="comm-grid">${commHtml}</div>
     `;
 
