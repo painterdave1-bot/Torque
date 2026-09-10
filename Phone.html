@@ -74,23 +74,28 @@
     padding: 4px;
   }
 
-  /* Wrapped Department Pills */
+  /* 3 Balanced Rows (3x3 Grid) */
   .pills-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
   }
   .pill {
+    width: 100%;
     background: #181d24;
     border: 1px solid var(--border);
     color: var(--text-muted);
-    padding: 6px 11px;
+    padding: 7px 4px;
     border-radius: 8px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.15s;
     user-select: none;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .pill:active { filter: brightness(1.2); }
 
@@ -236,7 +241,7 @@
       <button class="loc-btn" onclick="setLoc('ALP')">Alpine (670)</button>
     </div>
 
-    <!-- Wrapped Pills -->
+    <!-- 3 Balanced Rows -->
     <div class="pills-container" id="pillsContainer"></div>
 
     <div class="stats-bar">
