@@ -78,19 +78,22 @@
   .pills-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 5px;
   }
   .pill {
     background: #181d24;
     border: 1px solid var(--border);
     color: var(--text-muted);
-    padding: 6px 11px;
-    border-radius: 8px;
-    font-size: 0.75rem;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.15s;
     user-select: none;
+    flex: 1 1 auto;
+    text-align: center;
+    white-space: nowrap;
   }
   .pill:active { filter: brightness(1.2); }
 
@@ -421,15 +424,15 @@ const CONTACTS = [
 ];
 
 const DEPT_CONFIG = {
-  "ALL": { label: "All Depts", color: "#cbd5e1", cls: "pill-all" },
+  "ALL": { label: "All", color: "#cbd5e1", cls: "pill-all" },
   "COPA": { label: "★ COPA", color: "#ef4444", cls: "pill-copa" },
-  "MAINTENANCE SERVICES -PROJECTS": { label: "Maint & Projects", color: "#f59e0b", cls: "pill-maint" },
-  "SUPPORT SERVICES -FIELD": { label: "Support Services", color: "#10b981", cls: "pill-support" },
-  "WELLS SERVICES": { label: "Wells Services", color: "#06b6d4", cls: "pill-wells" },
-  "MATERIAL SERVICES": { label: "Materials & Logistics", color: "#a855f7", cls: "pill-materials" },
+  "MAINTENANCE SERVICES -PROJECTS": { label: "Maintenance", color: "#f59e0b", cls: "pill-maint" },
+  "SUPPORT SERVICES -FIELD": { label: "Support", color: "#10b981", cls: "pill-support" },
+  "WELLS SERVICES": { label: "Wells", color: "#06b6d4", cls: "pill-wells" },
+  "MATERIAL SERVICES": { label: "Materials", color: "#a855f7", cls: "pill-materials" },
   "HSET Department": { label: "HSET", color: "#ec4899", cls: "pill-hset" },
   "Operations": { label: "Operations", color: "#38bdf8", cls: "pill-ops" },
-  "MISC.": { label: "IT & Flights", color: "#94a3b8", cls: "pill-misc" }
+  "MISC.": { label: "IT / Flights", color: "#94a3b8", cls: "pill-misc" }
 };
 
 let activeDept = "ALL";
