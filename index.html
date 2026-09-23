@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dave's Bolt-Up Tool | ASRC Energy O&M Spec</title>
+  <title>Dave's Bolt-Up Tool | ConocoPhillips Spec</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -11,338 +11,6 @@
       --border: #30363d;
       --accent: #ff4757;
       --conoco: #e74c3c;
-      --std: #3498db;
-      --text: #f0f6fc;
-      --text-muted: #8b949e;
-      --highlight: #2ed573;
-      --asrc-blue: #00a8ff;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 14px; display: flex; justify-content: center; }
-    .container { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 14px; }
-
-    /* ASRC Header Branding */
-    .brand-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 8px 12px;
-      background: rgba(0, 168, 255, 0.08);
-      border: 1px solid rgba(0, 168, 255, 0.25);
-      border-radius: 10px;
-      margin-bottom: 4px;
-    }
-    .brand-header svg { width: 32px; height: 32px; }
-    .brand-title { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.05em; color: var(--asrc-blue); }
-    .brand-subtitle { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
-
-    header { text-align: center; }
-    header h1 { font-size: 1.3rem; color: #fff; margin-bottom: 2px; }
-    header p { font-size: 0.8rem; color: var(--text-muted); }
-
-    .selector-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; }
-    select {
-      width: 100%;
-      background: #0d1117;
-      color: #fff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 8px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-    select:focus { border-color: var(--accent); }
-
-    .view-toggle {
-      display: flex;
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 2px;
-    }
-    .view-toggle button {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 8px 4px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .view-toggle button.active {
-      background: var(--card-bg);
-      color: #fff;
-      border: 1px solid var(--border);
-    }
-
-    .spec-grid { display: flex; flex-direction: column; gap: 12px; }
-    .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 14px; }
-    .card.conoco { border-left: 4px solid var(--conoco); }
-    .card.standard { border-left: 4px solid var(--std); }
-
-    .badge {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 4px;
-      margin-bottom: 6px;
-    }
-    .badge.conoco { background: rgba(231, 76, 60, 0.2); color: #ff6b6b; }
-    .badge.standard { background: rgba(52, 152, 219, 0.2); color: #54a0ff; }
-
-    /* Jet Lube Banner */
-    .lube-banner {
-      background: #21262d;
-      color: #f1c40f;
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-align: center;
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      border: 1px solid rgba(241, 196, 15, 0.3);
-    }
-
-    .torque-display {
-      text-align: center;
-      margin: 8px 0 10px 0;
-      padding: 10px;
-      background: #0d1117;
-      border-radius: 8px;
-      border: 1px dashed var(--border);
-    }
-    .torque-display .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
-    .torque-display .value { font-size: 1.7rem; font-weight: 800; color: var(--highlight); margin: 2px 0; }
-    .torque-display .unit { font-size: 0.75rem; color: var(--text-muted); }
-
-    .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .data-table td { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .data-table td:last-child { text-align: right; font-weight: 600; color: #fff; }
-    .data-table tr.highlight-row td { color: var(--highlight); font-weight: 700; }
-    .data-table tr:last-child td { border-bottom: none; }
-
-    .pattern-container {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      text-align: center;
-    }
-    .pattern-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
-    svg { max-width: 240px; width: 100%; height: auto; }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <!-- ASRC Energy O&M Logo -->
-  <div class="brand-header">
-    <svg viewBox="0 0 100 100">
-      <path d="M 20 75 A 40 40 0 0 1 80 75" fill="none" stroke="#00a8ff" stroke-width="12" stroke-linecap="round"/>
-      <path d="M 35 60 A 25 25 0 0 1 65 60" fill="none" stroke="#2ed573" stroke-width="8" stroke-linecap="round"/>
-    </svg>
-    <div>
-      <div class="brand-title">ASRC ENERGY</div>
-      <div class="brand-subtitle">O&M Field Operations</div>
-    </div>
-  </div>
-
-  <header>
-    <h1>Dave's Bolt-Up Spec Sheet</h1>
-    <p>ConocoPhillips Flex / RTJ vs ASME Standard</p>
-  </header>
-
-  <div class="selector-card">
-    <div>
-      <label for="sizeSelect">Nominal Pipe Size</label>
-      <select id="sizeSelect"></select>
-    </div>
-    <div>
-      <label for="classSelect">Pressure Class</label>
-      <select id="classSelect">
-        <option value="150">#150 Flex</option>
-        <option value="300">#300 Flex</option>
-        <option value="600">#600 Flex</option>
-        <option value="900">#900 RTJ</option>
-        <option value="1500">#1500 RTJ</option>
-        <option value="2500">#2500 RTJ</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="view-toggle">
-    <button id="btnBoth" class="active">Side-by-Side</button>
-    <button id="btnConoco">ASRC / Conoco Only</button>
-    <button id="btnStd">ASME Standard Only</button>
-  </div>
-
-  <div class="spec-grid">
-    <!-- Conoco Card -->
-    <div class="card conoco" id="conocoCard">
-      <span class="badge conoco">ASRC / Conoco Spec</span>
-      <div class="lube-banner">ALL TORQUE VALUES FOR SS-30 JET LUBE</div>
-      <div class="torque-display">
-        <div class="label">Target Torque / RTJ Spec</div>
-        <div class="value" id="conocoTorque">--</div>
-        <div class="unit">ft-lbs (Lubricated SS-30)</div>
-      </div>
-      <table class="data-table">
-        <tr><td>Number of Studs</td><td id="conocoBolts">--</td></tr>
-        <tr><td>Stud Diameter</td><td id="conocoDia">--</td></tr>
-        <tr class="highlight-row"><td>Heavy Hex Wrench Size</td><td id="conocoWrench">--</td></tr>
-        <tr><td>Stud Length</td><td id="conocoLen">--</td></tr>
-      </table>
-    </div>
-
-    <!-- ASME Standard Card -->
-    <div class="card standard" id="stdCard">
-      <span class="badge standard">ASME B16.5 Standard (B7 / 50ksi)</span>
-      <div class="torque-display">
-        <div class="label">Target Torque (50% Yield)</div>
-        <div class="value" id="stdTorque">--</div>
-        <div class="unit">ft-lbs (Nominal Target)</div>
-      </div>
-      <table class="data-table">
-        <tr><td>Number of Studs</td><td id="stdBolts">--</td></tr>
-        <tr><td>Stud Diameter</td><td id="stdDia">--</td></tr>
-        <tr class="highlight-row"><td>Heavy Hex Wrench Size</td><td id="stdWrench">--</td></tr>
-        <tr><td>Standard Stud Length</td><td id="stdLen">--</td></tr>
-      </table>
-    </div>
-  </div>
-
-  <!-- SVG Visualizer -->
-  <div class="pattern-container">
-    <div class="pattern-title">Tightening Pattern Sequence (<span id="patternBoltCount">--</span> Bolts)</div>
-    <svg id="flangeSvg" viewBox="-120 -120 240 240"></svg>
-  </div>
-</div>
-
-<script>
-// Heavy Hex Nut Wrench Size Map
-const wrenchMap = {
-  '1/2"': '7/8"',
-  '5/8"': '1-1/16"',
-  '3/4"': '1-1/4"',
-  '7/8"': '1-7/16"',
-  '1"': '1-5/8"',
-  '1-1/8"': '1-13/16"',
-  '1-1/4"': '2"',
-  '1-3/8"': '2-3/16"',
-  '1-1/2"': '2-3/8"',
-  '1-5/8"': '2-9/16"',
-  '1-3/4"': '2-3/4"',
-  '1-7/8"': '2-15/16"',
-  '2"': '3-1/8"',
-  '2-1/4"': '3-1/2"',
-  '2-1/2"': '3-7/8"',
-  '2-3/4"': '4-1/4"',
-  '3"': '4-5/8"',
-  '3-1/2"': '5-3/8"'
-};
-
-const pipeSizes = [
-  "1/2", "3/4", "1", "1-1/4", "1-1/2", "2", "2-1/2", "3", "3-1/2", "4",
-  "6", "8", "10", "12", "14", "16", "18", "20", "24"
-];
-
-// Conoco / ASRC Sheet Data
-const conocoData = {
-  "150": {
-    "1/2":   { bolts: 4,  dia: '1/2"',   len: '2-1/4"', tq: '30-50' },
-    "3/4":   { bolts: 4,  dia: '1/2"',   len: '2-1/2"', tq: '30-50' },
-    "1":     { bolts: 4,  dia: '1/2"',   len: '2-1/2"', tq: '30-60' },
-    "1-1/4": { bolts: 4,  dia: '1/2"',   len: '2-3/4"', tq: '30-60' },
-    "1-1/2": { bolts: 4,  dia: '1/2"',   len: '2-3/4"', tq: '30-60' },
-    "2":     { bolts: 4,  dia: '5/8"',   len: '3-1/4"', tq: '60-120' },
-    "2-1/2": { bolts: 4,  dia: '5/8"',   len: '3-1/2"', tq: '60-120' },
-    "3":     { bolts: 4,  dia: '5/8"',   len: '3-1/2"', tq: '90-120' },
-    "3-1/2": { bolts: 8,  dia: '5/8"',   len: '3-1/2"', tq: '60-120' },
-    "4":     { bolts: 8,  dia: '5/8"',   len: '3-1/2"', tq: '70-120' },
-    "6":     { bolts: 8,  dia: '3/4"',   len: '4"',     tq: '130-200' },
-    "8":     { bolts: 8,  dia: '3/4"',   len: '4-1/2"', tq: '180-200' },
-    "10":    { bolts: 12, dia: '7/8"',   len: '4-1/2"', tq: '170-320' },
-    "12":    { bolts: 12, dia: '7/8"',   len: '4-3/4"', tq: '240-320' },
-    "14":    { bolts: 12, dia: '1"',     len: '5-1/4"', tq: '300-490' },
-    "16":    { bolts: 16, dia: '1"',     len: '5-1/4"', tq: '310-490' },
-    "18":    { bolts: 16, dia: '1-1/8"', len: '5-3/4"', tq: '490-710' },
-    "20":    { bolts: 20, dia: '1-1/8"', len: '6-3/4"', tq: '430-710' },
-    "24":    { bolts: 20, dia: '1-1/4"', len: '6-3/4"', tq: '620-1000' }
-  },
-  "300": {
-    "1/2":   { bolts: 4,  dia: '1/2"',   len: '2-1/2"', tq: '30-40' },
-    "3/4":   { bolts: 4,  dia: '5/8"',   len: '3"',     tq: '60-80' },
-    "1":     { bolts: 4,  dia: '5/8"',   len: '3"',     tq: '60-80' },
-    "1-1/4": { bolts: 4,  dia: '5/8"',   len: '3-1/4"', tq: '60-80' },
-    "1-1/2": { bolts: 4,  dia: '3/4"',   len: '3-1/2"', tq: '100-140' },
-    "2":     { bolts: 8,  dia: '5/8"',   len: '3-1/2"', tq: '60-80' },
-    "2-1/2": { bolts: 8,  dia: '3/4"',   len: '4"',     tq: '100-140' },
-    "3":     { bolts: 8,  dia: '3/4"',   len: '4-1/4"', tq: '100-150' },
-    "3-1/2": { bolts: 8,  dia: '3/4"',   len: '4-1/4"', tq: '100-170' },
-    "4":     { bolts: 8,  dia: '3/4"',   len: '4-1/2"', tq: '100-200' },
-    "6":     { bolts: 12, dia: '3/4"',   len: '4-3/4"', tq: '110-200' },
-    "8":     { bolts: 12, dia: '7/8"',   len: '5-1/2"', tq: '180-320' },
-    "10":    { bolts: 16, dia: '1"',     len: '6-1/4"', tq: '250-460' },
-    "12":    { bolts: 16, dia: '1-1/8"', len: '6-3/4"', tq: '360-700' },
-    "14":    { bolts: 20, dia: '1-1/8"', len: '7"',     tq: '360-610' },
-    "16":    { bolts: 20, dia: '1-1/4"', len: '7-1/2"', tq: '500-920' },
-    "18":    { bolts: 24, dia: '1-1/4"', len: '7-3/4"', tq: '500-1000' },
-    "20":    { bolts: 24, dia: '1-1/4"', len: '8"',     tq: '500-1000' },
-    "24":    { bolts: 24, dia: '1-1/2"', len: '9"',     tq: '800-1600' }
-  },
-  "600": {
-    "1/2":   { bolts: 4,  dia: '1/2"',   len: '3"',      tq: '30-40' },
-    "3/4":   { bolts: 4,  dia: '5/8"',   len: '3-1/2"',  tq: '60-80' },
-    "1":     { bolts: 4,  dia: '5/8"',   len: '3-1/2"',  tq: '60-80' },
-    "1-1/4": { bolts: 4,  dia: '5/8"',   len: '3-3/4"',  tq: '60-80' },
-    "1-1/2": { bolts: 4,  dia: '3/4"',   len: '4-1/4"',  tq: '100-140' },
-    "2":     { bolts: 8,  dia: '5/8"',   len: '4-1/4"',  tq: '60-80' },
-    "2-1/2": { bolts: 8,  dia: '3/4"',   len: '4-3/4"',  tq: '100-140' },
-    "3":     { bolts: 8,  dia: '3/4"',   len: '5"',      tq: '100-150' },
-    "3-1/2": { bolts: 8,  dia: '7/8"',   len: '5-1/2"',  tq: '170-290' },
-    "4":     { bolts: 8,  dia: '7/8"',   len: '5-3/4"',  tq: '190-320' },
-    "6":     { bolts: 12, dia: '1"',     len: '6-3/4"',  tq: '260-460' },
-    "8":     { bolts: 12, dia: '1-1/8"', len: '7-Here is the updated HTML code for **Dave's Bolt-Up Tool**, updated with the specs and layout from the field spreadsheet (`20260923_123028.jpg`) [1].
-
-### Key Updates Included:
-- **ASRC Energy O&M Branding**: Includes the ASRC Energy O&M header logo and field tool badge [1].
-- **Heavy Hex Wrench Size Calculator**: Displays the calculated heavy hex socket/wrench size based on the stud diameter (e.g., \\(1\frac{1}{4}''\\) wrench for \\(\frac{3}{4}''\\) stud, \\(1\frac{5}{8}''\\) wrench for \\(1''\\) stud) [1].
-- **Jet Lube SS-30 Standard Banner**: Highlights the required field lubricant note (*"ALL TORQUE VALUES FOR SS-30 JET LUBE"*) across the target card [1].
-- **RTJ Pressure Classes**: Added High-Pressure **#900 RTJ, #1500 RTJ, and #2500 RTJ** torque values and Ring Numbers (e.g., `143-R12`, `506-R34`, `3152-R55`) [1].
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dave's Bolt-Up Tool | ASRC Energy O&M Spec</title>
-  <style>
-    :root {
-      --bg: #0d1117;
-      --card-bg: #161b22;
-      --border: #30363d;
-      --accent: #ff4757;
-      --conoco: #e74c3c;
-      --std: #3498db;
       --text: #f0f6fc;
       --text-muted: #8b949e;
       --highlight: #2ed573;
@@ -353,18 +21,21 @@ const conocoData = {
     body { background-color: var(--bg); color: var(--text); padding: 14px; display: flex; justify-content: center; }
     .container { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* ASRC Header Logo */
+    /* ASRC Header Branding */
     .brand-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 10px 14px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
     }
-    .brand-logo-text { font-size: 1.15rem; font-weight: 900; letter-spacing: 0.05em; color: var(--asrc-blue); }
-    .brand-sub { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .brand-text-container { display: flex; flex-direction: column; gap: 2px; }
+    .brand-logo-text { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.06em; color: var(--asrc-blue); }
+    .brand-sub { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .brand-logo-svg { width: 48px; height: 48px; flex-shrink: 0; display: block; }
 
     .selector-card {
       background: var(--card-bg);
@@ -386,78 +57,53 @@ const conocoData = {
       padding: 10px 8px;
       font-size: 0.95rem;
       outline: none;
+      cursor: pointer;
     }
     select:focus { border-color: var(--accent); }
 
-    .view-toggle {
-      display: flex;
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 2px;
-    }
-    .view-toggle button {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 8px 4px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .view-toggle button.active {
-      background: var(--card-bg);
-      color: #fff;
-      border: 1px solid var(--border);
-    }
-
     .spec-grid { display: flex; flex-direction: column; gap: 12px; }
     .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 14px; }
-    .card.conoco { border-left: 4px solid var(--conoco); }
-    .card.standard { border-left: 4px solid var(--std); }
+    .card.conoco { border-left: 5px solid var(--conoco); }
 
     .badge {
       display: inline-block;
-      font-size: 0.65rem;
+      font-size: 0.68rem;
       font-weight: 800;
       text-transform: uppercase;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 4px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      background: rgba(231, 76, 60, 0.2);
+      color: #ff6b6b;
     }
-    .badge.conoco { background: rgba(231, 76, 60, 0.2); color: #ff6b6b; }
-    .badge.standard { background: rgba(52, 152, 219, 0.2); color: #54a0ff; }
 
     .lube-banner {
       background: rgba(241, 196, 15, 0.15);
       color: #f1c40f;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 800;
       letter-spacing: 0.05em;
       text-align: center;
-      padding: 5px;
+      padding: 6px;
       border-radius: 6px;
-      margin-bottom: 8px;
-      border: 1px solid rgba(241, 196, 15, 0.3);
+      margin-bottom: 10px;
+      border: 1px solid rgba(241, 196, 15, 0.35);
     }
 
     .torque-display {
       text-align: center;
-      margin: 8px 0 10px 0;
-      padding: 10px;
+      margin: 8px 0 12px 0;
+      padding: 12px;
       background: #0d1117;
       border-radius: 8px;
       border: 1px dashed var(--border);
     }
-    .torque-display .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
-    .torque-display .value { font-size: 1.7rem; font-weight: 800; color: var(--highlight); margin: 2px 0; }
+    .torque-display .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .torque-display .value { font-size: 1.8rem; font-weight: 800; color: var(--highlight); margin: 2px 0; }
     .torque-display .unit { font-size: 0.75rem; color: var(--text-muted); }
 
-    .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .data-table td { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .data-table td { padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .data-table td:last-child { text-align: right; font-weight: 600; color: #fff; }
     .data-table tr.highlight-row td { color: var(--highlight); font-weight: 700; }
     .data-table tr:last-child td { border-bottom: none; }
@@ -469,25 +115,28 @@ const conocoData = {
       padding: 14px;
       text-align: center;
     }
-    .pattern-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
-    svg { max-width: 240px; width: 100%; height: auto; }
+    .pattern-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
+    #flangeSvg { max-width: 240px; width: 100%; height: auto; display: inline-block; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- ASRC Energy O&M Logo & Header -->
+  <!-- ASRC Energy Branding -->
   <div class="brand-card">
-    <div>
+    <div class="brand-text-container">
       <div class="brand-logo-text">ASRC ENERGY</div>
       <div class="brand-sub">O&amp;M Field Operations</div>
     </div>
-    <svg width="40" height="30" viewBox="0 0 60 45">
-      <path d="M 5 38 A 25 25 0 0 1 55 38" fill="none" stroke="#00a8ff" stroke-width="8" stroke-linecap="round"/>
-      <path d="M 15 38 A 15 15 0 0 1 45 38" fill="none" stroke="#2ed573" stroke-width="5" stroke-linecap="round"/>
+    <svg class="brand-logo-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#30363d" stroke-width="3"/>
+      <path d="M 15 70 A 38 38 0 0 1 85 70" fill="none" stroke="#00a8ff" stroke-width="10" stroke-linecap="round"/>
+      <path d="M 30 70 A 22 22 0 0 1 70 70" fill="none" stroke="#2ed573" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="50" cy="32" r="6" fill="#00a8ff"/>
     </svg>
   </div>
 
+  <!-- Selectors -->
   <div class="selector-card">
     <div>
       <label for="sizeSelect">Nominal Pipe Size</label>
@@ -506,19 +155,13 @@ const conocoData = {
     </div>
   </div>
 
-  <div class="view-toggle">
-    <button id="btnBoth" class="active">Side-by-Side</button>
-    <button id="btnConoco">ASRC / Conoco Only</button>
-    <button id="btnStd">ASME Standard Only</button>
-  </div>
-
+  <!-- Spec Card -->
   <div class="spec-grid">
-    <!-- Conoco / ASRC Spec -->
-    <div class="card conoco" id="conocoCard">
-      <span class="badge conoco">ASRC / Conoco Spec</span>
+    <div class="card conoco">
+      <span class="badge">ConocoPhillips Spec (Flex / RTJ)</span>
       <div class="lube-banner">ALL TORQUE VALUES FOR SS-30 JET LUBE</div>
       <div class="torque-display">
-        <div class="label">Target Torque / RTJ Spec</div>
+        <div class="label">Target Torque Range / Spec</div>
         <div class="value" id="conocoTorque">--</div>
         <div class="unit">ft-lbs (Lubricated SS-30)</div>
       </div>
@@ -529,24 +172,9 @@ const conocoData = {
         <tr><td>Stud Length</td><td id="conocoLen">--</td></tr>
       </table>
     </div>
-
-    <!-- ASME Standard Spec -->
-    <div class="card standard" id="stdCard">
-      <span class="badge standard">ASME B16.5 Standard (B7 / 50ksi)</span>
-      <div class="torque-display">
-        <div class="label">Target Torque (50% Yield)</div>
-        <div class="value" id="stdTorque">--</div>
-        <div class="unit">ft-lbs (Nominal Target)</div>
-      </div>
-      <table class="data-table">
-        <tr><td>Number of Studs</td><td id="stdBolts">--</td></tr>
-        <tr><td>Stud Diameter</td><td id="stdDia">--</td></tr>
-        <tr class="highlight-row"><td>Heavy Hex Wrench Size</td><td id="stdWrench">--</td></tr>
-        <tr><td>Standard Stud Length</td><td id="stdLen">--</td></tr>
-      </table>
-    </div>
   </div>
 
+  <!-- Tightening Pattern Diagram -->
   <div class="pattern-container">
     <div class="pattern-title">Tightening Pattern Sequence (<span id="patternBoltCount">--</span> Bolts)</div>
     <svg id="flangeSvg" viewBox="-120 -120 240 240"></svg>
@@ -554,121 +182,128 @@ const conocoData = {
 </div>
 
 <script>
-// Heavy Hex Wrench Size Mapper (Nut Width Across Flats)
 function getHeavyHexWrench(diaStr) {
+  if (!diaStr || diaStr === '--') return '--';
+  const cleanDia = diaStr.replace('"', '').trim();
   const map = {
-    '1/2"': '7/8"',
-    '5/8"': '1-1/16"',
-    '3/4"': '1-1/4"',
-    '7/8"': '1-7/16"',
-    '1"': '1-5/8"',
-    '1-1/8"': '1-13/16"',
-    '1-1/4"': '2"',
-    '1-3/8"': '2-3/16"',
-    '1-1/2"': '2-3/8"',
-    '1-5/8"': '2-9/16"',
-    '1-3/4"': '2-3/4"',
-    '1-7/8"': '2-15/16"',
-    '2"': '3-1/8"',
-    '2-1/4"': '3-1/2"',
-    '2-1/2"': '3-7/8"',
-    '2-3/4"': '4-1/4"',
-    '3"': '4-5/8"',
-    '3-1/2"': '5-3/8"'
+    '1/2': '7/8"', '5/8': '1-1/16"', '3/4': '1-1/4"', '7/8': '1-7/16"',
+    '1': '1-5/8"', '1-1/8': '1-13/16"', '1-1/4': '2"', '1-3/8': '2-3/16"',
+    '1-1/2': '2-3/8"', '1-5/8': '2-9/16"', '1-3/4': '2-3/4"', '1-7/8': '2-15/16"',
+    '2': '3-1/8"', '2-1/4': '3-1/2"', '2-1/2': '3-7/8"', '2-3/4': '4-1/4"',
+    '3': '4-5/8"', '3-1/2': '5-3/8"'
   };
-  return map[diaStr] || '--';
+  return map[cleanDia] || '--';
 }
 
-const pipeSizes = [
+const allPipeSizes = [
   "1/2", "3/4", "1", "1-1/4", "1-1/2", "2", "2-1/2", "3", "3-1/2", "4",
   "6", "8", "10", "12", "14", "16", "18", "20", "24"
 ];
 
-// Compact Data Map [bolts, dia, len, torque/RTJ]
 const conocoDB = {
   "150": {
-    "1/2": [4, '1/2"', '2-1/4"', '30-50'],
-    "3/4": [4, '1/2"', '2-1/2"', '30-50'],
-    "1":   [4, '1/2"', '2-1/2"', '30-60'],
-    "2":   [4, '5/8"', '3-1/4"', '60-120'],
-    "3":   [4, '5/8"', '3-1/2"', '90-120'],
-    "4":   [8, '5/8"', '3-1/2"', '70-120'],
-    "6":   [8, '3/4"', '4"',     '130-200'],
-    "8":   [8, '3/4"', '4-1/2"', '180-200'],
-    "10":  [12, '7/8"', '4-1/2"', '170-320'],
-    "12":  [12, '7/8"', '4-3/4"', '240-320'],
-    "14":  [12, '1"',   '5-1/4"', '300-490'],
-    "16":  [16, '1"',   '5-1/4"', '310-490'],
-    "18":  [16, '1-1/8"', '5-3/4"', '490-710'],
-    "20":  [20, '1-1/8"', '6-3/4"', '430-710'],
-    "24":  [20, '1-1/4"', '6-3/4"', '620-1000']
+    "1/2": [4, '1/2"', '2-1/4"', '30-50'], "3/4": [4, '1/2"', '2-1/2"', '30-50'],
+    "1": [4, '1/2"', '2-1/2"', '30-60'], "1-1/4": [4, '1/2"', '2-3/4"', '30-60'],
+    "1-1/2": [4, '1/2"', '2-3/4"', '30-60'], "2": [4, '5/8"', '3-1/4"', '60-120'],
+    "2-1/2": [4, '5/8"', '3-1/2"', '60-120'], "3": [4, '5/8"', '3-1/2"', '90-120'],
+    "3-1/2": [8, '5/8"', '3-1/2"', '60-120'], "4": [8, '5/8"', '3-1/2"', '70-120'],
+    "6": [8, '3/4"', '4"', '130-200'], "8": [8, '3/4"', '4-1/2"', '180-200'],
+    "10": [12, '7/8"', '4-1/2"', '170-320'], "12": [12, '7/8"', '4-3/4"', '240-320'],
+    "14": [12, '1"', '5-1/4"', '300-490'], "16": [16, '1"', '5-1/4"', '310-490'],
+    "18": [16, '1-1/8"', '5-3/4"', '490-710'], "20": [20, '1-1/8"', '6-3/4"', '430-710'],
+    "24": [20, '1-1/4"', '6-3/4"', '620-1000']
   },
   "300": {
-    "2":   [8, '5/8"', '3-1/2"', '60-80'],
-    "3":   [8, '3/4"', '4-1/4"', '100-150'],
-    "4":   [8, '3/4"', '4-1/2"', '100-200'],
-    "6":   [12, '3/4"', '4-3/4"', '110-200'],
-    "8":   [12, '7/8"', '5-1/2"', '180-320'],
-    "10":  [16, '1"',   '6-1/4"', '250-460'],
-    "12":  [16, '1-1/8"', '6-3/4"', '360-700']
+    "1/2": [4, '1/2"', '2-1/2"', '30-40'], "3/4": [4, '5/8"', '3"', '60-80'],
+    "1": [4, '5/8"', '3"', '60-80'], "1-1/4": [4, '5/8"', '3-1/4"', '60-80'],
+    "1-1/2": [4, '3/4"', '3-1/2"', '100-140'], "2": [8, '5/8"', '3-1/2"', '60-80'],
+    "2-1/2": [8, '3/4"', '4"', '100-140'], "3": [8, '3/4"', '4-1/4"', '100-150'],
+    "3-1/2": [8, '3/4"', '4-1/4"', '100-170'], "4": [8, '3/4"', '4-1/2"', '100-200'],
+    "6": [12, '3/4"', '4-3/4"', '110-200'], "8": [12, '7/8"', '5-1/2"', '180-320'],
+    "10": [16, '1"', '6-1/4"', '250-460'], "12": [16, '1-1/8"', '6-3/4"', '360-700'],
+    "14": [20, '1-1/8"', '7"', '360-610'], "16": [20, '1-1/4"', '7-1/2"', '500-920'],
+    "18": [24, '1-1/4"', '7-3/4"', '500-1000'], "20": [24, '1-1/4"', '8"', '500-1000'],
+    "24": [24, '1-1/2"', '9"', '800-1600']
   },
   "600": {
-    "2":   [8, '5/8"', '4-1/4"', '60-80'],
-    "3":   [8, '3/4"', '5"',     '100-150'],
-    "4":   [8, '7/8"', '5-3/4"', '190-320'],
-    "6":   [12, '1"',  '6-3/4"', '260-460'],
-    "8":   [12, '1-1/8"', '7-1/2"', '400-700'],
-    "10":  [16, '1-1/4"', '8-1/2"', '500-800'],
-    "12":  [20, '1-1/4"', '8-3/4"', '500-850']
+    "1/2": [4, '1/2"', '3"', '30-40'], "3/4": [4, '5/8"', '3-1/2"', '60-80'],
+    "1": [4, '5/8"', '3-1/2"', '60-80'], "1-1/4": [4, '5/8"', '3-3/4"', '60-80'],
+    "1-1/2": [4, '3/4"', '4-1/4"', '100-140'], "2": [8, '5/8"', '4-1/4"', '60-80'],
+    "2-1/2": [8, '3/4"', '4-3/4"', '100-140'], "3": [8, '3/4"', '5"', '100-150'],
+    "3-1/2": [8, '7/8"', '5-1/2"', '170-290'], "4": [8, '7/8"', '5-3/4"', '190-320'],
+    "6": [12, '1"', '6-3/4"', '260-460'], "8": [12, '1-1/8"', '7-1/2"', '400-700'],
+    "10": [16, '1-1/4"', '8-1/2"', '500-800'], "12": [20, '1-1/4"', '8-3/4"', '500-850'],
+    "14": [20, '1-3/8"', '9-1/4"', '680-950'], "16": [20, '1-1/2"', '10"', '800-1210'],
+    "18": [20, '1-5/8"', '10-3/4"', '1100-1790'], "20": [24, '1-5/8"', '11-1/4"', '1100-1640'],
+    "24": [24, '1-7/8"', '13"', '2000-2670']
   },
   "900": {
-    "2":   [8, '7/8"', '5-3/4"', '230-R24'],
-    "3":   [8, '7/8"', '6"',     '230-R31'],
-    "4":   [8, '1-1/8"', '7"',   '506-R34'],
-    "6":   [12, '1-1/8"', '7-3/4"', '506-R45'],
-    "8":   [12, '1-3/8"', '9"',  '965-R49'],
-    "10":  [16, '1-3/8"', '9-1/2"', '965-R53'],
-    "12":  [20, '1-3/8"', '10-1/4"', '965-R57']
+    "1/2": [4, '3/4"', '4-1/2"', '143-R12'], "3/4": [4, '3/4"', '4-1/2"', '143-R14'],
+    "1": [4, '7/8"', '5"', '230-R16'], "1-1/4": [4, '7/8"', '5"', '230-R18'],
+    "1-1/2": [4, '1"', '5-1/2"', '345-R20'], "2": [8, '7/8"', '5-3/4"', '230-R24'],
+    "2-1/2": [8, '1"', '6-1/2"', '345-R27'], "3": [8, '7/8"', '6"', '230-R31'],
+    "4": [8, '1-1/8"', '7"', '506-R34'], "6": [12, '1-1/8"', '7-3/4"', '506-R45'],
+    "8": [12, '1-3/8"', '9"', '965-R49'], "10": [12, '1-3/8"', '9-1/2"', '965-R53'],
+    "12": [16, '1-3/8"', '10-1/4"', '965-R57'], "14": [16, '1-1/2"', '11-1/4"', '1273-R62'],
+    "16": [16, '1-5/8"', '11-3/4"', '1640-R66'], "18": [20, '1-7/8"', '13-1/2"', '2574-R70'],
+    "20": [20, '2"', '14-1/4"', '3152-R74'], "24": [20, '2-1/2"', '17-3/4"', '6316-R78']
   },
   "1500": {
-    "2":   [8, '7/8"', '5-3/4"', '230-R24'],
-    "3":   [8, '1-1/8"', '7"',   '506-R35'],
-    "4":   [12, '1-1/8"', '7-3/4"', '711-R39'],
-    "6":   [12, '1-3/8"', '10-3/4"', '965-R46'],
-    "8":   [12, '1-5/8"', '11-1/2"', '1640-R50'],
-    "10":  [12, '1-7/8"', '13-1/4"', '2574-R54'],
-    "12":  [16, '2"', '14-3/4"', '3152-R58']
+    "1/2": [4, '3/4"', '4-1/4"', '143-R12'], "3/4": [4, '3/4"', '4-1/2"', '143-R14'],
+    "1": [4, '7/8"', '5"', '230-R16'], "1-1/4": [4, '7/8"', '5"', '230-R18'],
+    "1-1/2": [4, '1"', '5-1/2"', '345-R20'], "2": [8, '7/8"', '5-3/4"', '230-R24'],
+    "2-1/2": [8, '1"', '6-1/4"', '345-R27'], "3": [8, '1-1/8"', '7"', '506-R35'],
+    "4": [12, '1-1/8"', '7-3/4"', '711-R39'], "6": [12, '1-3/8"', '10-3/4"', '965-R46'],
+    "8": [12, '1-5/8"', '11-1/2"', '1640-R50'], "10": [12, '1-7/8"', '13-1/4"', '2574-R54'],
+    "12": [16, '2"', '14-3/4"', '3152-R58'], "14": [16, '2-1/4"', '16"', '4552-R93'],
+    "16": [16, '2-1/2"', '17-1/2"', '6316-R67'], "18": [16, '2-3/4"', '19-1/4"', 'R95'],
+    "20": [16, '3"', '21-1/4"', 'R96'], "24": [16, '3-1/2"', '24-1/4"', 'R100']
   },
   "2500": {
-    "2":   [8, '1"', '7"', '345-R26'],
-    "3":   [8, '1-1/4"', '8-3/4"', '711-R32'],
-    "4":   [8, '1-1/2"', '10"', '1273-R38'],
-    "6":   [8, '2"', '13-1/2"', '3152-R47'],
-    "8":   [12, '2"', '15"', '3152-R51'],
-    "10":  [12, '2-1/2"', '19-1/4"', '3152-R55'],
-    "12":  [12, '2-3/4"', '21-1/4"', 'R60']
+    "1/2": [4, '3/4"', '4-3/4"', '143-R13'], "3/4": [4, '3/4"', '5"', '143-R16'],
+    "1": [4, '7/8"', '5-1/2"', '230-R18'], "1-1/4": [4, '1"', '6"', '345-R21'],
+    "1-1/2": [4, '1-1/8"', '6-3/4"', '506-R23'], "2": [8, '1"', '7"', '345-R26'],
+    "2-1/2": [8, '1-1/4"', '7-3/4"', '506-R28'], "3": [8, '1-1/4"', '8-3/4"', '711-R32'],
+    "4": [8, '1-1/2"', '10"', '1273-R38'], "6": [8, '2"', '13-1/2"', '3152-R47'],
+    "8": [12, '2"', '15"', '3152-R51'], "10": [12, '2-1/2"', '19-1/4"', '3152-R55'],
+    "12": [12, '2-3/4"', '21-1/4"', 'R60']
   }
 };
 
 const sequenceOrders = {
-  4: [1-4],
-  8: [1-8],
-  12: [1-12],
-  16: [1-12],
-  20: [1-12]
+  4: [1, 3, 2, 4],
+  8: [1, 5, 3, 7, 2, 6, 4, 8],
+  12: [1, 7, 4, 10, 2, 8, 5, 11, 3, 9, 6, 12],
+  16: [1, 9, 5, 13, 3, 11, 7, 15, 2, 10, 6, 14, 4, 12, 8, 16],
+  20: [1, 11, 6, 16, 3, 13, 8, 18, 5, 15, 10, 20, 2, 12, 7, 17, 4, 14, 9, 19],
+  24: [1, 13, 7, 19, 4, 16, 10, 22, 2, 14, 8, 20, 5, 17, 11, 23, 3, 15, 9, 21, 6, 18, 12, 24]
 };
 
 const sizeSelect = document.getElementById("sizeSelect");
 const classSelect = document.getElementById("classSelect");
 
-function populateSizes() {
+function updateAvailableSizes() {
+  const currentClass = classSelect.value;
+  const availInConoco = conocoDB[currentClass] ? Object.keys(conocoDB[currentClass]) : [];
+  
+  const orderedSizes = allPipeSizes.filter(s => availInConoco.includes(s));
+  const prevVal = sizeSelect.value;
+  
   sizeSelect.innerHTML = "";
-  pipeSizes.forEach(size => {
+  orderedSizes.forEach(size => {
     const opt = document.createElement("option");
     opt.value = size;
     opt.textContent = size + '"';
     sizeSelect.appendChild(opt);
   });
+
+  if (orderedSizes.includes(prevVal)) {
+    sizeSelect.value = prevVal;
+  } else if (orderedSizes.length > 0) {
+    sizeSelect.value = orderedSizes.includes("2") ? "2" : orderedSizes[0];
+  }
+
+  updateData();
 }
 
 function renderPattern(boltCount) {
@@ -705,8 +340,8 @@ function renderPattern(boltCount) {
 
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("x", x);
-    text.setAttribute("y", y + 3);
-    text.setAttribute("font-size", "9");
+    text.setAttribute("y", y + (boltCount > 16 ? 3 : 4));
+    text.setAttribute("font-size", boltCount > 16 ? "8" : "10");
     text.setAttribute("font-weight", "bold");
     text.setAttribute("fill", "#ffffff");
     text.setAttribute("text-anchor", "middle");
@@ -719,23 +354,15 @@ function updateData() {
   const size = sizeSelect.value;
   const pClass = classSelect.value;
 
-  const raw = conocoDB[pClass] ? conocoDB[pClass][size] : null;
+  const conoco = conocoDB[pClass] ? conocoDB[pClass][size] : null;
 
-  if (raw) {
-    const [bolts, dia, len, tq] = raw;
+  if (conoco) {
+    const [bolts, dia, len, tq] = conoco;
     document.getElementById("conocoTorque").textContent = tq;
     document.getElementById("conocoBolts").textContent = bolts;
     document.getElementById("conocoDia").textContent = dia;
     document.getElementById("conocoWrench").textContent = getHeavyHexWrench(dia);
     document.getElementById("conocoLen").textContent = len;
-
-    // Standard baseline fallback
-    document.getElementById("stdTorque").textContent = tq.split('-');
-    document.getElementById("stdBolts").textContent = bolts;
-    document.getElementById("stdDia").textContent = dia;
-    document.getElementById("stdWrench").textContent = getHeavyHexWrench(dia);
-    document.getElementById("stdLen").textContent = len;
-
     renderPattern(bolts);
   } else {
     document.getElementById("conocoTorque").textContent = "N/A";
@@ -743,50 +370,14 @@ function updateData() {
     document.getElementById("conocoDia").textContent = "--";
     document.getElementById("conocoWrench").textContent = "--";
     document.getElementById("conocoLen").textContent = "--";
-
-    document.getElementById("stdTorque").textContent = "N/A";
-    document.getElementById("stdBolts").textContent = "--";
-    document.getElementById("stdDia").textContent = "--";
-    document.getElementById("stdWrench").textContent = "--";
-    document.getElementById("stdLen").textContent = "--";
-
     renderPattern(0);
   }
 }
 
-function setView(mode) {
-  const conocoCard = document.getElementById("conocoCard");
-  const stdCard = document.getElementById("stdCard");
-
-  document.getElementById("btnBoth").classList.remove("active");
-  document.getElementById("btnConoco").classList.remove("active");
-  document.getElementById("btnStd").classList.remove("active");
-
-  if (mode === "both") {
-    conocoCard.style.display = "block";
-    stdCard.style.display = "block";
-    document.getElementById("btnBoth").classList.add("active");
-  } else if (mode === "conoco") {
-    conocoCard.style.display = "block";
-    stdCard.style.display = "none";
-    document.getElementById("btnConoco").classList.add("active");
-  } else {
-    conocoCard.style.display = "none";
-    stdCard.style.display = "block";
-    document.getElementById("btnStd").classList.add("active");
-  }
-}
-
-document.getElementById("btnBoth").addEventListener("click", () => setView("both"));
-document.getElementById("btnConoco").addEventListener("click", () => setView("conoco"));
-document.getElementById("btnStd").addEventListener("click", () => setView("std"));
-
 sizeSelect.addEventListener("change", updateData);
-classSelect.addEventListener("change", updateData);
+classSelect.addEventListener("change", updateAvailableSizes);
 
-populateSizes();
-sizeSelect.value = "2";
-updateData();
+updateAvailableSizes();
 </script>
 </body>
 </html>
