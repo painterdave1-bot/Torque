@@ -21,7 +21,7 @@
     body { background-color: var(--bg); color: var(--text); padding: 14px; display: flex; justify-content: center; }
     .container { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* ASRC Header Branding - Clean Text without Logo */
+    /* ASRC Header Branding */
     .brand-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -192,6 +192,7 @@ const allPipeSizes = [
   "6", "8", "10", "12", "14", "16", "18", "20", "24"
 ];
 
+// ConocoDB Structure: [Bolts, Diameter, Length, Torque/RTJ, B7_Stud_MM#, Gasket_MM#]
 const conocoDB = {
   "150": {
     "1/2": [4, '1/2"', '2-1/4"', '30-50', '10903248', '10526608'],
@@ -314,12 +315,12 @@ const conocoDB = {
 };
 
 const sequenceOrders = {
-  4: [1-4],
-  8: [1-8],
-  12: [1-12],
-  16: [1-16],
-  20: [1-20],
-  24: [1-24]
+  4: [1, 3, 2, 4],
+  8: [1, 5, 3, 7, 2, 6, 4, 8],
+  12: [1, 7, 4, 10, 2, 8, 5, 11, 3, 9, 6, 12],
+  16: [1, 9, 5, 13, 3, 11, 7, 15, 2, 10, 6, 14, 4, 12, 8, 16],
+  20: [1, 11, 6, 16, 3, 13, 8, 18, 5, 15, 10, 20, 2, 12, 7, 17, 4, 14, 9, 19],
+  24: [1, 13, 7, 19, 4, 16, 10, 22, 2, 14, 8, 20, 5, 17, 11, 23, 3, 15, 9, 21, 6, 18, 12, 24]
 };
 
 const sizeSelect = document.getElementById("sizeSelect");
@@ -343,7 +344,7 @@ function updateAvailableSizes() {
   if (orderedSizes.includes(prevVal)) {
     sizeSelect.value = prevVal;
   } else if (orderedSizes.length > 0) {
-    sizeSelect.value = orderedSizes.includes("2") ? "2" : orderedSizes;
+    sizeSelect.value = orderedSizes.includes("2") ? "2" : orderedSizes[0];
   }
 
   updateData();
@@ -363,14 +364,14 @@ function renderPattern(boltCount) {
     <circle cx="0" cy="0" r="75" fill="none" stroke="#21262d" stroke-dasharray="3,3" stroke-width="1.5"/>
   `;
 
-  const order = sequenceOrders[boltCount] || Array.from({length: boltCount}, (_, i) => i + 1);
+  const seqArray = sequenceOrders[boltCount];
   const boltRadius = 75;
 
   for (let i = 0; i < boltCount; i++) {
     const angle = (i * (360 / boltCount) - 90) * (Math.PI / 180);
     const x = boltRadius * Math.cos(angle);
     const y = boltRadius * Math.sin(angle);
-    const seqNum = order.indexOf(i + 1) + 1;
+    const seqNum = (seqArray && i < seqArray.length) ? seqArray[i] : (i + 1);
 
     const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.setAttribute("cx", x);
