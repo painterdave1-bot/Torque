@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Woody's Winter Wonderland</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: none;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #050b14;
+      font-family: 'Press Start 2P', monospace, sans-serif;
+    }
+    #game-canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .arcade-font {
+      font-family: 'Press Start 2P', monospace, sans-serif;
+    }
+    .crt-overlay {
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.28) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.02),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.02)
+      );
+      background-size: 100% 4px, 6px 100%;
+      pointer-events: none;
+    }
+    .touch-btn:active, .touch-btn-pressed {
+      transform: scale(0.92) !important;
+      filter: brightness(1.25) !important;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center bg-slate-950 text-white select-none">
+  <!-- Outer Mobile Shell -->
+  <div id="game-container" class="relative w-full h-full max-w-md mx-auto flex flex-col justify-between overflow-hidden shadow-2xl border-x border-slate-800 bg-[#060e1d]">
+    
+    <!-- Top HUD Header -->
+    <header class="w-full flex items-center justify-between px-3 py-2 bg-slate-900/95 z-20 border-b border-amber-600/40 text-[10px] sm:text-xs">
+      <div class="flex items-center space-x-2">
+        <span class="text-amber-400 font-bold">SCORE:</span>
+        <span id="score-display" class="text-white tracking-wider">00000</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-cyan-300">HI:</span>
+        <span id="hi-display" class="text-white tracking-wider">05000</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="sound-btn" class="px-2 py-1 bg-amber-950/70 hover:bg-amber-900 active:scale-95 border border-amber-500/50 rounded text-amber-200 text-[9px]">
+          SND: ON
+        </button>
+      </div>
+    </header>
+
+    <!-- Sub HUD (Pad Sector & Loaders) -->
+    <div class="w-full flex items-center justify-between px-3 py-1 bg-slate-950/80 z-20 text-[9px] border-b border-slate-800">
+      <div class="flex items-center space-x-1">
+        <span class="text-slate-400">PAD SECTOR:</span>
+        <span id="wave-display" class="text-amber-400 font-bold">1</span>
+      </div>
+      <div class="flex items-center space-x-2" id="lives-container">
+        <span class="text-slate-400">LOADERS:</span>
+        <div id="lives-icons" class="flex space-x-1"></div>
+      </div>
+    </div>
+
+    <!-- Main Canvas Arena -->
+    <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
+      <canvas id="game-canvas" class="w-full h-full"></canvas>
+      <div class="crt-overlay absolute inset-0 z-10 pointer-events-none"></div>
+
+      <!-- Start / Game Over / Message Overlay -->
+      <div id="overlay-screen" class="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-950/90 backdrop-blur-sm transition-opacity duration-300">
+        <div class="text-center max-w-xs space-y-4">
+          <div class="space-y-1">
+            <h1 class="text-amber-400 text-base sm:text-lg font-bold leading-relaxed tracking-wider drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]">
+              WOODY'S<br><span class="text-cyan-300">WINTER WONDERLAND</span>
+            </h1>
+            <p id="overlay-subtitle" class="text-[9px] sm:text-[10px] text-slate-300 leading-normal pt-2">
+              North Slope oilfield under attack! Help Woody keep the gravel pad clear!
+            </p>
+          </div>
+
+          <div id="overlay-stats" class="hidden text-xs space-y-2 py-2 border-y border-amber-700/60 text-amber-200">
+            <div>FINAL SCORE: <span id="final-score" class="text-yellow-300">0</span></div>
+            <div>HIGH SCORE: <span id="final-hi" class="text-white">0</span></div>
+          </div>
+
+          <div class="pt-2">
+            <button id="start-btn" class="w-full py-3.5 px-6 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-600 active:from-amber-600 active:to-yellow-700 text-slate-950 font-bold text-xs sm:text-sm tracking-wider shadow-lg shadow-amber-500/30 border-2 border-yellow-300">
+              TAP TO PLAY
+            </button>
+          </div>
+          
+          <div class="text-[8px] sm:text-[9px] text-slate-400 leading-relaxed pt-2">
+            TOUCH ARROWS OR DRAG TO STEER<br>
+            TAP [FIRE] TO BLAST ICE GRAVEL
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Controls Footer (Elevated an additional 80px off the bottom) -->
+    <footer style="padding-bottom: 185px;" class="w-full px-4 pt-3 bg-slate-900/95 border-t-2 border-amber-600/70 z-20 flex items-center justify-between gap-3 shadow-[0_-14px_28px_rgba(0,0,0,0.8)]">
+      <!-- Steering Control Pad -->
+      <div class="flex items-center space-x-3">
+        <button id="btn-left" class="touch-btn w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-b from-slate-700 to-slate-800 border-2 border-amber-500/70 shadow-lg flex items-center justify-center text-amber-300 active:border-yellow-300">
+          <svg class="w-8 h-8 pointer-events-none fill-current" viewBox="0 0 24 24">
+            <polygon points="16,4 6,12 16,20" />
+          </svg>
+        </button>
+        <button id="btn-right" class="touch-btn w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-b from-slate-700 to-slate-800 border-2 border-amber-500/70 shadow-lg flex items-center justify-center text-amber-300 active:border-yellow-300">
+          <svg class="w-8 h-8 pointer-events-none fill-current" viewBox="0 0 24 24">
+            <polygon points="8,4 18,12 8,20" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Action Fire Button -->
+      <div class="flex-1 flex justify-end">
+        <button id="btn-fire" class="touch-btn w-32 h-16 sm:w-40 sm:h-20 rounded-xl bg-gradient-to-b from-red-600 to-rose-700 border-2 border-rose-300 shadow-xl shadow-red-900/60 flex items-center justify-center text-white font-bold text-sm sm:text-base tracking-wider active:border-yellow-300 active:from-red-500 active:to-rose-600">
+          FIRE!
+        </button>
+      </div>
+    </footer>
+
+  </div>
+  <script>
+    /**
+     * Retro 8-bit Audio Synthesizer utilizing Web Audio API
+     */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContextClass();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggle() {
+        this.enabled = !this.enabled;
+        return this.enabled;
+      }
+
+      playShoot() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.13);
+        } catch(e) {}
+      }
+
+      playSnowflakePop() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(580, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.15);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        } catch(e) {}
+      }
+
+      playBarrierCrunch() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const node = this.ctx.createBufferSource();
+          const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.08, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < buffer.length; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          node.buffer = buffer;
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 600;
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+          node.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          node.start();
+        } catch(e) {}
+      }
+
+      playIcicleDrop() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.linearRampToValueAtTime(260, now + 0.12);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.13);
+        } catch(e) {}
+      }
+
+      playPlayerHit() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(170, now);
+          osc.frequency.linearRampToValueAtTime(35, now + 0.45);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.46);
+        } catch(e) {}
+      }
+
+      playBonusVehicle() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(100, now);
+          osc.frequency.linearRampToValueAtTime(155, now + 0.16);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.16);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.17);
+        } catch(e) {}
+      }
+
+      playWaveClear() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const notes = [330, 440, 550, 660, 880];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            const start = this.ctx.currentTime + idx * 0.08;
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.2, start);
+            gain.gain.linearRampToValueAtTime(0.01, start + 0.12);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(start);
+            osc.stop(start + 0.13);
+          });
+        } catch(e) {}
+      }
+    }
+
+    const sound = new SoundEngine();
+  </script>
+  <script>
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI Elements
+    const scoreDisplay = document.getElementById('score-display');
+    const hiDisplay = document.getElementById('hi-display');
+    const waveDisplay = document.getElementById('wave-display');
+    const livesIcons = document.getElementById('lives-icons');
+    const soundBtn = document.getElementById('sound-btn');
+    const overlayScreen = document.getElementById('overlay-screen');
+    const startBtn = document.getElementById('start-btn');
+    const overlaySubtitle = document.getElementById('overlay-subtitle');
+    const overlayStats = document.getElementById('overlay-stats');
+    const finalScoreEl = document.getElementById('final-score');
+    const finalHiEl = document.getElementById('final-hi');
+
+    // Touch controls
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnFire = document.getElementById('btn-fire');
+
+    // Virtual Internal Resolution (Maintains pixel fidelity across phone ratios)
+    const V_WIDTH = 480;
+    const V_HEIGHT = 720;
+
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      const rect = container.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+
+    // Game Core State
+    let gameState = 'START';
+    let score = 0;
+    let highScore = parseInt(localStorage.getItem('woody_wonderland_hi') || '5000', 10);
+    let wave = 1;
+    let lives = 3;
+    let lastTime = 0;
+
+    const keys = {
+      left: false,
+      right: false,
+      fire: false
+    };
+
+    // Ambient Snowflakes in Arctic Air
+    const bgSnowflakes = [];
+    for (let i = 0; i < 70; i++) {
+      bgSnowflakes.push({
+        x: Math.random() * V_WIDTH,
+        y: Math.random() * V_HEIGHT,
+        radius: Math.random() * 2 + 0.8,
+        speedY: Math.random() * 0.9 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.5
+      });
+    }
+
+    // Particle explosions
+    let particles = [];
+    function spawnParticles(x, y, color = '#e0f2fe', count = 12, speed = 2.5) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const vel = Math.random() * speed + 0.5;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * vel,
+          vy: Math.sin(angle) * vel,
+          color: color,
+          size: Math.random() * 3.5 + 1.5,
+          life: 1.0,
+          decay: Math.random() * 0.03 + 0.02
+        });
+      }
+    }
+  </script>
+  <script>
+    /**
+     * Woody's Industrial Front-End Loader
+     * White hair, clean shaven face, blue trucker cap & industrial insulated jacket.
+     */
+    const loader = {
+      w: 64,
+      h: 46,
+      x: V_WIDTH / 2 - 32,
+      y: V_HEIGHT - 92,
+      speed: 245,
+      recoil: 0,
+      invulnerableTimer: 0,
+      fireCooldown: 0,
+
+      reset() {
+        this.x = V_WIDTH / 2 - this.w / 2;
+        this.recoil = 0;
+        this.invulnerableTimer = 2.0;
+        this.fireCooldown = 0;
+      },
+
+      update(dt) {
+        if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
+        if (this.fireCooldown > 0) this.fireCooldown -= dt;
+        if (this.recoil > 0) this.recoil = Math.max(0, this.recoil - dt * 18);
+
+        let moveDir = 0;
+        if (keys.left) moveDir -= 1;
+        if (keys.right) moveDir += 1;
+
+        this.x += moveDir * this.speed * dt;
+        if (this.x < 12) this.x = 12;
+        if (this.x + this.w > V_WIDTH - 12) this.x = V_WIDTH - 12 - this.w;
+
+        if (keys.fire && this.fireCooldown <= 0) {
+          this.shoot();
+        }
+      },
+
+      shoot() {
+        this.fireCooldown = 0.28;
+        this.recoil = 4;
+        sound.playShoot();
+
+        const bucketTipX = this.x + this.w - 8;
+        const bucketTipY = this.y + 4;
+
+        playerProjectiles.push({
+          x: bucketTipX - 4,
+          y: bucketTipY,
+          vx: (Math.random() - 0.5) * 16,
+          vy: -480,
+          w: 8,
+          h: 10
+        });
+
+        spawnParticles(bucketTipX, bucketTipY, '#bae6fd', 6, 2.0);
+      },
+
+      draw(ctx) {
+        if (this.invulnerableTimer > 0 && Math.floor(Date.now() / 90) % 2 === 0) {
+          return;
+        }
+
+        ctx.save();
+        ctx.translate(this.x, this.y + this.recoil);
+
+        // 1. Loader Chassis Main Body (Heavy Industrial Yellow)
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(8, 22, 38, 16);
+
+        // Rear engine hood
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(4, 24, 8, 14);
+
+        // Exhaust stack
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(6, 12, 3, 12);
+        ctx.fillRect(5, 11, 5, 2);
+
+        // 2. Cab Roll Cage & Glass
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(16, 6, 20, 18);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(19, 8, 14, 14);
+
+        // 3. WOODY: White Hair, Clean Shaven, Blue Cap, Arctic Work Jacket
+        ctx.fillStyle = '#1e40af'; // Blue heavy jacket
+        ctx.fillRect(21, 16, 10, 6);
+
+        ctx.fillStyle = '#fed7aa'; // Clean shaven skin tone
+        ctx.fillRect(22, 11, 8, 6);
+
+        // Clean face features (no beard)
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(26, 12, 2, 2); // eye
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(27, 15, 2, 1); // mouth
+
+        // WHITE HAIR (Sideburns & back head)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(20, 11, 3, 5); // back hair
+        ctx.fillRect(22, 13, 2, 3); // sideburn
+
+        // Blue Trucker / Work Cap
+        ctx.fillStyle = '#1d4ed8';
+        ctx.fillRect(21, 8, 9, 3);
+        ctx.fillRect(26, 10, 5, 2); // cap brim
+
+        // 4. Hydraulic Boom Arm & Front Scoop Bucket
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(36, 18, 12, 5);
+        ctx.fillRect(44, 12, 8, 6);
+
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(32, 23, 10, 3); // cylinder
+
+        // Front Steel Shovel Bucket
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.moveTo(50, 10);
+        ctx.lineTo(62, 10);
+        ctx.lineTo(64, 26);
+        ctx.lineTo(54, 32);
+        ctx.lineTo(48, 22);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bucket teeth
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(61, 10, 3, 15);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(63, 11, 2, 3);
+        ctx.fillRect(63, 16, 2, 3);
+        ctx.fillRect(63, 21, 2, 3);
+
+        // 5. Heavy Arctic Traction Tires
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(4, 28, 16, 16);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(8, 32, 8, 8);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(32, 28, 18, 18);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(37, 33, 8, 8);
+
+        ctx.restore();
+      }
+    };
+
+    let playerProjectiles = [];
+    let enemyProjectiles = [];
+
+    // Destructible Gravel/Snow Pad Barriers
+    const BERM_COLS = 14;
+    const BERM_ROWS = 8;
+    const BERM_BLOCK_SIZE = 4;
+    let barriers = [];
+
+    function initBarriers() {
+      barriers = [];
+      const numBarriers = 3;
+      const barrierWidth = BERM_COLS * BERM_BLOCK_SIZE;
+      const totalSpan = V_WIDTH - 60;
+      const spacing = (totalSpan - (numBarriers * barrierWidth)) / (numBarriers - 1);
+
+      for (let b = 0; b < numBarriers; b++) {
+        const startX = 30 + b * (barrierWidth + spacing);
+        const startY = V_HEIGHT - 175;
+        const grid = [];
+
+        for (let r = 0; r < BERM_ROWS; r++) {
+          const row = [];
+          for (let c = 0; c < BERM_COLS; c++) {
+            let active = true;
+            if (r === 0 && (c < 3 || c > 10)) active = false;
+            if (r === 1 && (c < 1 || c > 12)) active = false;
+            if (r >= 5 && (c >= 4 && c <= 9)) active = false;
+            row.push(active ? 1 : 0);
+          }
+          grid.push(row);
+        }
+
+        barriers.push({
+          x: startX,
+          y: startY,
+          grid: grid,
+          cols: BERM_COLS,
+          rows: BERM_ROWS,
+          blockSize: BERM_BLOCK_SIZE
+        });
+      }
+    }
+
+    function erodeBarrier(barrier, gridC, gridR, radius = 1) {
+      for (let dr = -radius; dr <= radius; dr++) {
+        for (let dc = -radius; dc <= radius; dc++) {
+          const targetR = gridR + dr;
+          const targetC = gridC + dc;
+          if (targetR >= 0 && targetR < barrier.rows && targetC >= 0 && targetC < barrier.cols) {
+            barrier.grid[targetR][targetC] = 0;
+          }
+        }
+      }
+    }
+  </script>
+  <script>
+    /**
+     * Snowflake Invaders Swarm Logic
+     */
+    let snowflakes = [];
+    let swarmDirection = 1;
+    let swarmSpeed = 24;
+    let dropShotTimer = 0;
+
+    const SNOWFLAKE_ROWS = 4;
+    const SNOWFLAKE_COLS = 7;
+
+    function initSwarm() {
+      snowflakes = [];
+      const startX = 40;
+      const startY = 88;
+      const spacingX = 54;
+      const spacingY = 44;
+
+      for (let r = 0; r < SNOWFLAKE_ROWS; r++) {
+        let type = 0;
+        let points = 30;
+        if (r === 0) { type = 0; points = 40; }
+        else if (r <= 2) { type = 1; points = 20; }
+        else { type = 2; points = 10; }
+
+        for (let c = 0; c < SNOWFLAKE_COLS; c++) {
+          snowflakes.push({
+            x: startX + c * spacingX,
+            y: startY + r * spacingY,
+            w: 32,
+            h: 30,
+            type: type,
+            points: points,
+            alive: true,
+            animTimer: Math.random() * Math.PI,
+            eyeColor: r === 0 ? '#ff0055' : (r <= 2 ? '#38bdf8' : '#e11d48')
+          });
+        }
+      }
+
+      swarmDirection = 1;
+      swarmSpeed = 26 + (wave * 6);
+      dropShotTimer = 1.1;
+    }
+
+    /**
+     * Bonus North Slope Service Truck (Classic UFO equivalent)
+     */
+    const bonusPlow = {
+      active: false,
+      x: -80,
+      y: 50,
+      w: 64,
+      h: 26,
+      speed: 135,
+      dir: 1,
+      spawnTimer: 12 + Math.random() * 8,
+
+      update(dt) {
+        if (!this.active) {
+          this.spawnTimer -= dt;
+          if (this.spawnTimer <= 0) {
+            this.active = true;
+            this.dir = Math.random() > 0.5 ? 1 : -1;
+            this.x = this.dir === 1 ? -this.w : V_WIDTH + 10;
+            this.spawnTimer = 18 + Math.random() * 12;
+            sound.playBonusVehicle();
+          }
+        } else {
+          this.x += this.dir * this.speed * dt;
+          if ((this.dir === 1 && this.x > V_WIDTH + 20) || (this.dir === -1 && this.x < -this.w - 20)) {
+            this.active = false;
+          }
+        }
+      },
+
+      draw(ctx) {
+        if (!this.active) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        if (this.dir === -1) {
+          ctx.scale(-1, 1);
+          ctx.translate(-this.w, 0);
+        }
+
+        // Heavy Arctic Service Truck with utility box
+        ctx.fillStyle = '#ea580c'; // Arctic safety orange
+        ctx.fillRect(8, 6, 40, 14);
+        ctx.fillStyle = '#c2410c';
+        ctx.fillRect(28, 0, 18, 10); // Cab
+
+        // Windshield
+        ctx.fillStyle = '#7dd3fc';
+        ctx.fillRect(36, 2, 8, 7);
+
+        // Flashing amber beacon
+        ctx.fillStyle = Math.floor(Date.now() / 140) % 2 === 0 ? '#fde047' : '#ea580c';
+        ctx.fillRect(32, -4, 6, 4);
+
+        // Front heavy snowplow blade
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.moveTo(48, 20);
+        ctx.lineTo(62, 20);
+        ctx.lineTo(58, 4);
+        ctx.lineTo(48, 10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Wheels
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(10, 17, 10, 9);
+        ctx.fillRect(36, 17, 10, 9);
+
+        ctx.restore();
+      }
+    };
+  </script>
+  <script>
+    /**
+     * Draw individual procedural Snowflake Invader
+     */
+    function drawSnowflake(ctx, sf, time) {
+      ctx.save();
+      ctx.translate(sf.x + sf.w / 2, sf.y + sf.h / 2);
+
+      const pulse = Math.sin(time * 6 + sf.animTimer) * 0.12 + 1;
+      ctx.scale(pulse, pulse);
+
+      const color = sf.type === 0 ? '#e0f2fe' : (sf.type === 1 ? '#bae6fd' : '#7dd3fc');
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+
+      for (let i = 0; i < 6; i++) {
+        ctx.save();
+        ctx.rotate((Math.PI / 3) * i);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -13);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, -7);
+        ctx.lineTo(-4, -10);
+        ctx.moveTo(0, -7);
+        ctx.lineTo(4, -10);
+        ctx.stroke();
+
+        ctx.fillRect(-1.5, -14, 3, 3);
+        ctx.restore();
+      }
+
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath();
+      ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Glowing alien eyes
+      ctx.fillStyle = sf.eyeColor;
+      ctx.fillRect(-3, -2, 2.2, 2.2);
+      ctx.fillRect(1, -2, 2.2, 2.2);
+
+      ctx.restore();
+    }
+
+    /**
+     * Render North Slope / Arctic Oilfield Environment
+     * Features: Drilling rigs/derricks with warning beacons, elevated insulated pipeline racks,
+     * high-mast floodlights, and a flickering gas flare stack.
+     */
+    function drawOilfieldEnvironment(ctx, time) {
+      // 1. Dark Arctic Winter Sky
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
+      skyGrad.addColorStop(0, '#040814');
+      skyGrad.addColorStop(0.45, '#071228');
+      skyGrad.addColorStop(0.75, '#0e203f');
+      skyGrad.addColorStop(1, '#050c18');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+
+      // 2. Distant Flickering Flare Stack on the horizon
+      const flareX = 50;
+      const flareBaseY = V_HEIGHT - 170;
+      const flareTopY = flareBaseY - 95;
+
+      // Vertical flare pipe & guy-wires
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(flareX, flareBaseY);
+      ctx.lineTo(flareX, flareTopY);
+      ctx.stroke();
+
+      // Guy wires
+      ctx.strokeStyle = 'rgba(100, 116, 139, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(flareX, flareTopY + 20);
+      ctx.lineTo(flareX - 25, flareBaseY);
+      ctx.moveTo(flareX, flareTopY + 20);
+      ctx.lineTo(flareX + 25, flareBaseY);
+      ctx.stroke();
+
+      // Flare flame with dynamic flicker
+      const flicker = Math.sin(time * 18) * 4 + Math.cos(time * 26) * 3;
+      const flameHeight = 22 + flicker;
+
+      ctx.save();
+      ctx.shadowColor = '#ea580c';
+      ctx.shadowBlur = 18;
+      const flameGrad = ctx.createRadialGradient(flareX, flareTopY, 2, flareX, flareTopY - flameHeight / 2, flameHeight);
+      flameGrad.addColorStop(0, '#fef08a');
+      flameGrad.addColorStop(0.3, '#f97316');
+      flameGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+      ctx.fillStyle = flameGrad;
+      ctx.beginPath();
+      ctx.arc(flareX, flareTopY - 6, flameHeight * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 3. Oilfield Drilling Rig / Derrick Tower (Right side)
+      const rigX = 390;
+      const rigBaseY = V_HEIGHT - 170;
+      const rigH = 135;
+
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      // Derrick frame legs
+      ctx.beginPath();
+      ctx.moveTo(rigX - 28, rigBaseY);
+      ctx.lineTo(rigX - 10, rigBaseY - rigH);
+      ctx.lineTo(rigX + 10, rigBaseY - rigH);
+      ctx.lineTo(rigX + 28, rigBaseY);
+      ctx.stroke();
+
+      // Derrick cross braces
+      for (let step = 0; step < 4; step++) {
+        const y1 = rigBaseY - step * (rigH / 4);
+        const y2 = rigBaseY - (step + 1) * (rigH / 4);
+        const w1 = 28 - step * 4.5;
+        const w2 = 28 - (step + 1) * 4.5;
+
+        ctx.beginPath();
+        ctx.moveTo(rigX - w1, y1);
+        ctx.lineTo(rigX + w2, y2);
+        ctx.moveTo(rigX + w1, y1);
+        ctx.lineTo(rigX - w2, y2);
+        ctx.moveTo(rigX - w2, y2);
+        ctx.lineTo(rigX + w2, y2);
+        ctx.stroke();
+      }
+
+      // Red aircraft obstruction warning beacon atop derrick
+      ctx.fillStyle = Math.floor(Date.now() / 500) % 2 === 0 ? '#ef4444' : '#7f1d1d';
+      ctx.fillRect(rigX - 3, rigBaseY - rigH - 6, 6, 6);
+
+      // 4. Elevated Insulated Pipeline Rack (VSMs - Vertical Support Members)
+      const pipeY = V_HEIGHT - 145;
+
+      // Pipe horizontal insulated casing (Silver / Yellow band)
+      ctx.fillStyle = '#64748b'; // Lower shadow
+      ctx.fillRect(0, pipeY, V_WIDTH, 12);
+      ctx.fillStyle = '#94a3b8'; // Silver insulated pipe
+      ctx.fillRect(0, pipeY + 2, V_WIDTH, 7);
+      ctx.fillStyle = '#facc15'; // Yellow pipeline identification stripe
+      ctx.fillRect(0, pipeY + 4, V_WIDTH, 3);
+
+      // Elevated VSM stanchions
+      for (let vx = 30; vx < V_WIDTH; vx += 70) {
+        // Steel H-beam uprights
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(vx - 3, pipeY + 12, 6, 35);
+        ctx.fillRect(vx - 9, pipeY + 10, 18, 3); // Cross-arm saddle
+      }
+
+      // 5. High-Mast Floodlight Tower casting dramatic cone
+      const floodX = 220;
+      const floodY = V_HEIGHT - 210;
+
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(floodX - 2, floodY, 4, 75);
+
+      // Floodlight head
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(floodX - 10, floodY - 4, 20, 5);
+
+      // Ambient light cone
+      ctx.save();
+      const lightGrad = ctx.createRadialGradient(floodX, floodY, 10, floodX, floodY + 140, 140);
+      lightGrad.addColorStop(0, 'rgba(254, 240, 138, 0.22)');
+      lightGrad.addColorStop(0.8, 'rgba(254, 240, 138, 0.04)');
+      lightGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+      ctx.fillStyle = lightGrad;
+      ctx.beginPath();
+      ctx.moveTo(floodX - 8, floodY);
+      ctx.lineTo(floodX - 80, V_HEIGHT - 60);
+      ctx.lineTo(floodX + 80, V_HEIGHT - 60);
+      ctx.lineTo(floodX + 8, floodY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // 6. Engineered Arctic Gravel Pad
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(0, V_HEIGHT - 58, V_WIDTH, 58);
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(0, V_HEIGHT - 54, V_WIDTH, 5);
+
+      // Packed snow & gravel texture
+      ctx.fillStyle = '#94a3b8';
+      for (let gx = 10; gx < V_WIDTH; gx += 32) {
+        ctx.fillRect(gx, V_HEIGHT - 48, 12, 2);
+        ctx.fillRect(gx + 14, V_HEIGHT - 38, 16, 2);
+      }
+
+      // 7. Ambient Falling Arctic Snow
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      for (let flake of bgSnowflakes) {
+        flake.y += flake.speedY;
+        flake.x += flake.speedX;
+        if (flake.y > V_HEIGHT) flake.y = 0;
+        if (flake.x > V_WIDTH) flake.x = 0;
+        if (flake.x < 0) flake.x = V_WIDTH;
+
+        ctx.beginPath();
+        ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawBarriers(ctx) {
+      for (let b of barriers) {
+        for (let r = 0; r < b.rows; r++) {
+          for (let c = 0; c < b.cols; c++) {
+            if (b.grid[r][c] === 1) {
+              const bx = b.x + c * b.blockSize;
+              const by = b.y + r * b.blockSize;
+
+              if (r < 3) {
+                ctx.fillStyle = '#f8fafc'; // Packed snow cap
+              } else if (r < 5) {
+                ctx.fillStyle = '#cbd5e1'; // Frozen crust
+              } else {
+                ctx.fillStyle = '#64748b'; // Pad gravel & salt
+              }
+              ctx.fillRect(bx, by, b.blockSize, b.blockSize);
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script>
+    function checkAABB(r1, r2) {
+      return (
+        r1.x < r2.x + r2.w &&
+        r1.x + r1.w > r2.x &&
+        r1.y < r2.y + r2.h &&
+        r1.y + r1.h > r2.y
+      );
+    }
+
+    function updateGameLogic(dt) {
+      if (gameState !== 'PLAYING') return;
+
+      loader.update(dt);
+      bonusPlow.update(dt);
+
+      // Loader projectile vs bonus service truck
+      if (bonusPlow.active) {
+        for (let i = playerProjectiles.length - 1; i >= 0; i--) {
+          const p = playerProjectiles[i];
+          if (checkAABB(p, bonusPlow)) {
+            playerProjectiles.splice(i, 1);
+            bonusPlow.active = false;
+            const bonusPts = (Math.floor(Math.random() * 3) + 1) * 100;
+            addScore(bonusPts);
+            spawnParticles(bonusPlow.x + bonusPlow.w / 2, bonusPlow.y + bonusPlow.h / 2, '#f97316', 25, 4.0);
+            sound.playWaveClear();
+            break;
+          }
+        }
+      }
+
+      // Move Loader Shots
+      for (let i = playerProjectiles.length - 1; i >= 0; i--) {
+        const p = playerProjectiles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        if (p.y < 0) {
+          playerProjectiles.splice(i, 1);
+          continue;
+        }
+
+        // Hit Barriers
+        let hitBarrier = false;
+        for (let b of barriers) {
+          if (
+            p.x + p.w >= b.x && p.x <= b.x + b.cols * b.blockSize &&
+            p.y + p.h >= b.y && p.y <= b.y + b.rows * b.blockSize
+          ) {
+            const gridC = Math.floor((p.x - b.x) / b.blockSize);
+            const gridR = Math.floor((p.y - b.y) / b.blockSize);
+            if (gridR >= 0 && gridR < b.rows && gridC >= 0 && gridC < b.cols && b.grid[gridR][gridC] === 1) {
+              erodeBarrier(b, gridC, gridR, 1);
+              spawnParticles(p.x, p.y, '#e2e8f0', 5, 1.5);
+              sound.playBarrierCrunch();
+              playerProjectiles.splice(i, 1);
+              hitBarrier = true;
+              break;
+            }
+          }
+        }
+        if (hitBarrier) continue;
+
+        // Hit Snowflakes
+        for (let sf of snowflakes) {
+          if (sf.alive && checkAABB(p, sf)) {
+            sf.alive = false;
+            playerProjectiles.splice(i, 1);
+            addScore(sf.points);
+            spawnParticles(sf.x + sf.w / 2, sf.y + sf.h / 2, '#38bdf8', 16, 3.2);
+            sound.playSnowflakePop();
+
+            const remaining = snowflakes.filter(s => s.alive).length;
+            swarmSpeed = Math.min(210, (26 + (wave * 6)) + (28 - remaining) * 4.8);
+
+            if (remaining === 0) {
+              waveCleared();
+            }
+            break;
+          }
+        }
+      }
+
+      // Move Snowflake Swarm
+      const livingSnowflakes = snowflakes.filter(s => s.alive);
+      if (livingSnowflakes.length > 0) {
+        let hitEdge = false;
+        const stepX = swarmDirection * swarmSpeed * dt;
+
+        for (let sf of livingSnowflakes) {
+          sf.x += stepX;
+          if (swarmDirection === 1 && sf.x + sf.w >= V_WIDTH - 14) {
+            hitEdge = true;
+          } else if (swarmDirection === -1 && sf.x <= 14) {
+            hitEdge = true;
+          }
+        }
+
+        if (hitEdge) {
+          swarmDirection *= -1;
+          const dropAmount = 16;
+          for (let sf of livingSnowflakes) {
+            sf.y += dropAmount;
+            if (sf.y + sf.h >= loader.y) {
+              triggerGameOver();
+              return;
+            }
+          }
+        }
+
+        // Enemy Icicle Drop
+        dropShotTimer -= dt;
+        if (dropShotTimer <= 0) {
+          dropShotTimer = Math.max(0.42, 1.35 - (wave * 0.14) - (Math.random() * 0.4));
+          const shooter = livingSnowflakes[Math.floor(Math.random() * livingSnowflakes.length)];
+          if (shooter) {
+            enemyProjectiles.push({
+              x: shooter.x + shooter.w / 2 - 3,
+              y: shooter.y + shooter.h,
+              w: 6,
+              h: 15,
+              vy: 245 + wave * 18,
+              trailTimer: 0
+            });
+            sound.playIcicleDrop();
+          }
+        }
+      }
+
+      // Move Enemy Shots
+      for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+        const icicle = enemyProjectiles[i];
+        icicle.y += icicle.vy * dt;
+
+        icicle.trailTimer = (icicle.trailTimer || 0) + dt;
+        if (icicle.trailTimer > 0.04) {
+          icicle.trailTimer = 0;
+          particles.push({
+            x: icicle.x + icicle.w / 2 + (Math.random() - 0.5) * 3,
+            y: icicle.y - 2,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: -0.6,
+            color: Math.random() > 0.5 ? '#ff0033' : '#fde047',
+            size: Math.random() * 2.5 + 1.2,
+            life: 0.6,
+            decay: 0.05
+          });
+        }
+
+        if (icicle.y > V_HEIGHT - 58) {
+          spawnParticles(icicle.x, icicle.y, '#ef4444', 5, 1.4);
+          enemyProjectiles.splice(i, 1);
+          continue;
+        }
+
+        // Berm collision
+        let hitBarrier = false;
+        for (let b of barriers) {
+          if (
+            icicle.x + icicle.w >= b.x && icicle.x <= b.x + b.cols * b.blockSize &&
+            icicle.y + icicle.h >= b.y && icicle.y <= b.y + b.rows * b.blockSize
+          ) {
+            const gridC = Math.floor((icicle.x - b.x) / b.blockSize);
+            const gridR = Math.floor((icicle.y - b.y) / b.blockSize);
+            if (gridR >= 0 && gridR < b.rows && gridC >= 0 && gridC < b.cols && b.grid[gridR][gridC] === 1) {
+              erodeBarrier(b, gridC, gridR, 1);
+              spawnParticles(icicle.x, icicle.y, '#f59e0b', 7, 1.6);
+              sound.playBarrierCrunch();
+              enemyProjectiles.splice(i, 1);
+              hitBarrier = true;
+              break;
+            }
+          }
+        }
+        if (hitBarrier) continue;
+
+        // Player collision
+        if (loader.invulnerableTimer <= 0 && checkAABB(icicle, loader)) {
+          enemyProjectiles.splice(i, 1);
+          playerHit();
+          break;
+        }
+      }
+
+      // Update Particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+    }
+  </script>
+  <script>
+    function addScore(pts) {
+      score += pts;
+      scoreDisplay.textContent = score.toString().padStart(5, '0');
+      if (score > highScore) {
+        highScore = score;
+        hiDisplay.textContent = highScore.toString().padStart(5, '0');
+        localStorage.setItem('woody_wonderland_hi', highScore.toString());
+      }
+    }
+
+    function updateLivesUI() {
+      livesIcons.innerHTML = '';
+      for (let i = 0; i < lives; i++) {
+        const icon = document.createElement('div');
+        icon.className = 'w-4 h-3 bg-amber-400 rounded-sm border border-slate-900 inline-block';
+        icon.title = 'Spare Loader';
+        livesIcons.appendChild(icon);
+      }
+    }
+
+    function playerHit() {
+      lives--;
+      sound.playPlayerHit();
+      spawnParticles(loader.x + loader.w / 2, loader.y + loader.h / 2, '#f59e0b', 30, 4.0);
+      spawnParticles(loader.x + loader.w / 2, loader.y + loader.h / 2, '#38bdf8', 20, 3.5);
+      updateLivesUI();
+
+      if (lives <= 0) {
+        triggerGameOver();
+      } else {
+        loader.reset();
+      }
+    }
+
+    function waveCleared() {
+      sound.playWaveClear();
+      gameState = 'WAVECLEAR';
+      wave++;
+      waveDisplay.textContent = wave;
+
+      setTimeout(() => {
+        initSwarm();
+        playerProjectiles = [];
+        enemyProjectiles = [];
+        loader.reset();
+        gameState = 'PLAYING';
+      }, 1400);
+    }
+
+    function triggerGameOver() {
+      sound.playPlayerHit();
+      gameState = 'GAMEOVER';
+
+      finalScoreEl.textContent = score;
+      finalHiEl.textContent = highScore;
+      overlayStats.classList.remove('hidden');
+
+      // The requested custom Game Over Message
+      overlaySubtitle.innerHTML = `
+        <div class="space-y-2 py-1">
+          <p class="text-rose-400 font-bold text-xs sm:text-sm tracking-wide leading-relaxed">
+            Woody failed (as usual)
+          </p>
+          <p class="text-emerald-400 font-bold text-xs sm:text-sm tracking-wide leading-relaxed drop-shadow-[0_2px_6px_rgba(52,211,153,0.5)]">
+            but Phil will save the day!
+          </p>
+        </div>
+      `;
+
+      startBtn.textContent = 'PUT WOODY BACK TO WORK';
+      overlayScreen.classList.remove('hidden');
+    }
+
+    function startNewGame() {
+      sound.init();
+      score = 0;
+      wave = 1;
+      lives = 3;
+      scoreDisplay.textContent = '00000';
+      hiDisplay.textContent = highScore.toString().padStart(5, '0');
+      waveDisplay.textContent = '1';
+      updateLivesUI();
+
+      playerProjectiles = [];
+      enemyProjectiles = [];
+      particles = [];
+
+      initBarriers();
+      initSwarm();
+      loader.reset();
+      bonusPlow.active = false;
+      bonusPlow.spawnTimer = 14;
+
+      overlayScreen.classList.add('hidden');
+      overlayStats.classList.add('hidden');
+      gameState = 'PLAYING';
+    }
+  </script>
+  <script>
+    // Sound Button
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.init();
+      const on = sound.toggle();
+      soundBtn.textContent = on ? 'SND: ON' : 'SND: OFF';
+      soundBtn.className = on 
+        ? 'px-2 py-1 bg-amber-950/70 hover:bg-amber-900 active:scale-95 border border-amber-500/50 rounded text-amber-200 text-[9px]'
+        : 'px-2 py-1 bg-rose-950/70 hover:bg-rose-900 active:scale-95 border border-rose-500/50 rounded text-rose-300 text-[9px]';
+    });
+
+    // Start Button
+    startBtn.addEventListener('click', () => {
+      startNewGame();
+    });
+
+    // Touch Buttons
+    function bindTouchBtn(btn, keyProp) {
+      btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        sound.init();
+        keys[keyProp] = true;
+        btn.classList.add('touch-btn-pressed');
+      }, { passive: false });
+
+      btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        keys[keyProp] = false;
+        btn.classList.remove('touch-btn-pressed');
+      }, { passive: false });
+
+      btn.addEventListener('touchcancel', () => {
+        keys[keyProp] = false;
+        btn.classList.remove('touch-btn-pressed');
+      });
+
+      btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        sound.init();
+        keys[keyProp] = true;
+      });
+      btn.addEventListener('mouseup', () => { keys[keyProp] = false; });
+      btn.addEventListener('mouseleave', () => { keys[keyProp] = false; });
+    }
+
+    bindTouchBtn(btnLeft, 'left');
+    bindTouchBtn(btnRight, 'right');
+    bindTouchBtn(btnFire, 'fire');
+
+    // Drag-to-steer directly on canvas
+    let isDragging = false;
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (gameState !== 'PLAYING') return;
+      sound.init();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const canvasX = ((touch.clientX - rect.left) / rect.width) * V_WIDTH;
+      loader.x = canvasX - loader.w / 2;
+      isDragging = true;
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (!isDragging || gameState !== 'PLAYING') return;
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const canvasX = ((touch.clientX - rect.left) / rect.width) * V_WIDTH;
+      loader.x = canvasX - loader.w / 2;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    // Keyboard support for testing
+    window.addEventListener('keydown', (e) => {
+      sound.init();
+      if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+      if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        keys.fire = true;
+        if (gameState !== 'PLAYING' && overlayScreen.classList.contains('hidden') === false) {
+          startNewGame();
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+      if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+      if (e.code === 'Space' || e.code === 'ArrowUp') keys.fire = false;
+    });
+  </script>
+  <script>
+    function render(currentTime) {
+      if (!lastTime) lastTime = currentTime;
+      const dt = Math.min((currentTime - lastTime) * 0.001, 0.1);
+      lastTime = currentTime;
+
+      updateGameLogic(dt);
+
+      ctx.save();
+      ctx.scale(canvas.width / V_WIDTH, canvas.height / V_HEIGHT);
+
+      // 1. Arctic Oilfield Scene
+      drawOilfieldEnvironment(ctx, currentTime * 0.001);
+
+      // 2. Berms
+      drawBarriers(ctx);
+
+      // 3. Bonus Service Truck
+      bonusPlow.draw(ctx);
+
+      // 4. Snowflake Aliens
+      for (let sf of snowflakes) {
+        if (sf.alive) {
+          drawSnowflake(ctx, sf, currentTime * 0.001);
+        }
+      }
+
+      // 5. Woody's Gravel Projectiles
+      ctx.fillStyle = '#bae6fd';
+      for (let p of playerProjectiles) {
+        ctx.beginPath();
+        ctx.arc(p.x + p.w / 2, p.y + p.h / 2, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(p.x + 2, p.y + 2, 3, 3);
+        ctx.fillStyle = '#bae6fd';
+      }
+
+      // 6. High-Contrast Alien Projectiles (Bright neon red with molten yellow energy cores)
+      for (let icicle of enemyProjectiles) {
+        const midX = icicle.x + icicle.w / 2;
+
+        ctx.save();
+        ctx.shadowColor = '#ff0033';
+        ctx.shadowBlur = 12;
+
+        // Vivid neon red needle
+        ctx.fillStyle = '#ff0033';
+        ctx.beginPath();
+        ctx.moveTo(midX, icicle.y + icicle.h);
+        ctx.lineTo(icicle.x - 1, icicle.y + 3);
+        ctx.lineTo(midX, icicle.y);
+        ctx.lineTo(icicle.x + icicle.w + 1, icicle.y + 3);
+        ctx.closePath();
+        ctx.fill();
+
+        // Molten yellow core
+        ctx.fillStyle = '#ffea00';
+        ctx.beginPath();
+        ctx.moveTo(midX, icicle.y + icicle.h - 3);
+        ctx.lineTo(icicle.x + 1, icicle.y + 4);
+        ctx.lineTo(midX, icicle.y + 2);
+        ctx.lineTo(icicle.x + icicle.w - 1, icicle.y + 4);
+        ctx.closePath();
+        ctx.fill();
+
+        // White-hot tip
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(midX - 1, icicle.y + icicle.h - 4, 2, 3);
+
+        ctx.restore();
+      }
+
+      // 7. Explosion Particles
+      for (let p of particles) {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+
+      // 8. Woody's Loader
+      if (gameState === 'PLAYING' || gameState === 'WAVECLEAR') {
+        loader.draw(ctx);
+      }
+
+      // 9. Wave Cleared Banner
+      if (gameState === 'WAVECLEAR') {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.fillRect(20, V_HEIGHT / 2 - 40, V_WIDTH - 40, 70);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.strokeRect(20, V_HEIGHT / 2 - 40, V_WIDTH - 40, 70);
+
+        ctx.fillStyle = '#fde047';
+        ctx.font = '13px "Press Start 2P"';
+        ctx.textAlign = 'center';
+        ctx.fillText('PAD SECTOR SECURED!', V_WIDTH / 2, V_HEIGHT / 2 - 8);
+
+        ctx.fillStyle = '#bae6fd';
+        ctx.font = '10px "Press Start 2P"';
+        ctx.fillText(`NEXT SQUAD ADVANCING...`, V_WIDTH / 2, V_HEIGHT / 2 + 16);
+      }
+
+      ctx.restore();
+
+      requestAnimationFrame(render);
+    }
+
+    // Startup
+    window.addEventListener('load', () => {
+      resizeCanvas();
+      hiDisplay.textContent = highScore.toString().padStart(5, '0');
+      initBarriers();
+      updateLivesUI();
+      requestAnimationFrame(render);
+    });
+  </script>
+</body>
+</html>
