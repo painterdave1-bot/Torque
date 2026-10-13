@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Woody's Whiteout: The Pad Loader Chronicles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;800;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b1118;
+      overflow: hidden;
+    }
+    .font-industrial {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+    .hazard-stripe {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f59e0b,
+        #f59e0b 16px,
+        #111827 16px,
+        #111827 32px
+      );
+    }
+    .hazard-stripe-thin {
+      background: repeating-linear-gradient(
+        -45deg,
+        #eab308,
+        #eab308 8px,
+        #1f2937 8px,
+        #1f2937 16px
+      );
+    }
+    .glow-cyan {
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+    .glow-amber {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    }
+    /* Touch ripple animation */
+    .touch-btn:active {
+      transform: scale(0.94);
+      filter: brightness(1.2);
+    }
+  </style>
+</head>
+<body class="w-screen h-screen flex flex-col items-center justify-center p-0 m-0 text-slate-100">
+
+  <div id="game-container" class="relative w-full h-full max-w-lg mx-auto flex flex-col bg-slate-950 overflow-hidden shadow-2xl border-x border-slate-800">
+    
+    <!-- Top Hazard Bar & Status Header -->
+    <header class="w-full z-20 flex flex-col bg-slate-900 border-b border-amber-500/40 shadow-lg">
+      <div class="h-2 w-full hazard-stripe"></div>
+      <div class="px-3 py-2 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="inline-flex h-3 w-3 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="font-industrial text-xs tracking-wider text-amber-400 uppercase font-black">PAD LOADER // 980K</span>
+        </div>
+        
+        <div class="flex items-center space-x-3 text-xs">
+          <!-- Audio Toggle -->
+          <button id="btn-audio" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 font-semibold flex items-center space-x-1">
+            <span id="audio-icon">🔊</span>
+            <span id="audio-label" class="hidden sm:inline">SFX</span>
+          </button>
+          
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 uppercase font-mono block">BEST CU YDS</span>
+            <span id="high-score-display" class="font-industrial text-amber-300 font-bold text-sm">0 yd³</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Realtime Meter HUD -->
+      <div class="grid grid-cols-2 gap-2 px-3 pb-2 pt-1">
+        <!-- Pad Drift Bar -->
+        <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+          <div class="flex justify-between items-center text-[10px] uppercase font-bold mb-1">
+            <span class="text-sky-300">Pad Snowpack:</span>
+            <span id="drift-pct" class="font-mono text-sky-400">0%</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
+            <div id="drift-bar" class="h-full bg-gradient-to-r from-sky-400 to-red-500 rounded-full transition-all duration-200" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Loader Health / Blade Durability -->
+        <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+          <div class="flex justify-between items-center text-[10px] uppercase font-bold mb-1">
+            <span class="text-amber-300">Bucket Integrity:</span>
+            <span id="durability-pct" class="font-mono text-emerald-400">100%</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
+            <div id="durability-bar" class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-200" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Score & Multiplier Tracker -->
+      <div class="flex items-center justify-between px-3 py-1 bg-slate-900/90 border-t border-slate-800 text-xs font-mono">
+        <div class="flex items-center space-x-1">
+          <span class="text-slate-400">CLEARED:</span>
+          <span id="yards-counter" class="text-lg font-black text-amber-400 font-industrial tracking-wide">0</span>
+          <span class="text-[10px] text-amber-500">yd³</span>
+        </div>
+
+        <div id="boost-indicator" class="hidden items-center space-x-1.5 bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/50 animate-pulse font-bold text-[11px]">
+          <span>☕ COFFEE TURBO</span>
+          <span id="boost-timer" class="text-white">3.0s</span>
+        </div>
+
+        <div class="text-slate-400 text-right">
+          <span id="shift-time">SHIFT 00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- The Arcade Canvas -->
+    <div class="relative flex-1 w-full h-full bg-slate-950 overflow-hidden cursor-crosshair">
+      <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+      <!-- Woody Radio Call / Floating Dialogue Overlay -->
+      <div id="woody-quote-bubble" class="absolute top-4 left-1/2 -translate-x-1/2 w-11/12 max-w-sm pointer-events-none transition-all duration-300 transform opacity-0 translate-y-3 z-30">
+        <div class="bg-amber-500 text-slate-950 px-3.5 py-2 rounded-lg shadow-2xl border-2 border-slate-950 flex items-start space-x-2">
+          <div class="font-black text-lg leading-none pt-0.5 font-industrial">📻</div>
+          <div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-900/80">Radio 19 // WOODY:</div>
+            <div id="woody-quote-text" class="text-xs font-bold leading-tight font-industrial">"Watch the survey pins, boys!"</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- In-Game floating notification (floating points / alerts) -->
+      <div id="floating-tags" class="absolute inset-0 pointer-events-none z-20"></div>
+
+      <!-- Start Overlay Screen -->
+      <div id="start-screen" class="absolute inset-0 z-40 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-16 h-16 mb-2 rounded-2xl bg-amber-500 flex items-center justify-center border-4 border-slate-900 shadow-xl">
+          <span class="text-3xl">🚜</span>
+        </div>
+        <div class="text-[11px] font-mono tracking-widest text-amber-400 uppercase font-black">ARCTIC PAD MAINTENANCE</div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white font-industrial leading-tight mt-1 mb-1 tracking-tight">
+          HELP WOODY CLEAN UP <span class="text-amber-400">KCS PAD</span>
+        </h1>
+        <p class="text-xs text-sky-200/80 max-w-xs font-medium mb-4">
+          The blizzards are pounding KCS Pad. Clear the drifts before the camp haul road gets completely buried!
+        </p>
+
+        <!-- Brief Guide Cards -->
+        <div class="grid grid-cols-2 gap-2 text-left w-full max-w-xs text-xs mb-5">
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-sky-300 flex items-center space-x-1">
+              <span>❄️</span> <span>Snow Drifts</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Ram them full throttle to clear snow & lower drift meter!</p>
+          </div>
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-amber-300 flex items-center space-x-1">
+              <span>☕</span> <span>Hot Coffee Cup</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Steaming hot brew! Turbo boost speed & 2x yardage!</p>
+          </div>
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-red-400 flex items-center space-x-1">
+              <span>🛻</span> <span>Fleet Pickup</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">White crew truck with red stripes! Total truck crunch!</p>
+          </div>
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-orange-400 flex items-center space-x-1">
+              <span>🔩</span> <span>Flanged Pipe</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Rusty bolted pipe risers! Crushes bucket & breaks pins!</p>
+          </div>
+        </div>
+
+        <button id="btn-start" class="w-full max-w-xs py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black font-industrial text-lg rounded-xl shadow-xl border-b-4 border-amber-800 active:translate-y-1 transition-transform tracking-wider">
+          CLIMB IN CAB & CLOCK IN
+        </button>
+        <span class="text-[10px] text-slate-500 mt-2 font-mono">Controls: Tap Left/Right buttons, Arrow Keys, or WASD</span>
+      </div>
+
+      <!-- Game Over Summary Screen -->
+      <div id="game-over-screen" class="hidden absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+        <div class="hazard-stripe-thin w-full max-w-xs h-3 rounded-t-lg mb-3"></div>
+        <div id="gameover-title" class="text-xl sm:text-2xl font-extrabold text-amber-400 font-industrial uppercase mb-1 leading-tight">
+          WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!
+        </div>
+        <div id="gameover-reason" class="text-xs text-slate-300 font-medium mb-4 max-w-xs">
+          The pad road is completely snowed in!
+        </div>
+
+        <div class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl space-y-3 mb-5">
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-xs font-mono text-slate-400">SNOW MOVED</span>
+            <span id="final-yards" class="text-xl font-black text-amber-400 font-industrial">0 yd³</span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-xs font-mono text-slate-400">DRIFTS RAMMED</span>
+            <span id="final-drifts" class="text-base font-bold text-sky-300 font-industrial">0</span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-xs font-mono text-slate-400">COFFEE CHUGGED</span>
+            <span id="final-coffees" class="text-base font-bold text-amber-200 font-industrial">0</span>
+          </div>
+
+          <div class="pt-1 text-center">
+            <span class="text-[10px] font-mono tracking-widest text-slate-500 uppercase block mb-1">OPERATOR RATING</span>
+            <div id="final-rank" class="text-lg font-black font-industrial text-amber-400 uppercase py-1 px-2 rounded bg-amber-500/10 border border-amber-500/30">
+              GREENHORN SWAMPER
+            </div>
+            <p id="rank-flavor" class="text-[10px] text-slate-400 italic mt-1">"You left a six-foot ridge on the main haul road!"</p>
+          </div>
+        </div>
+
+        <button id="btn-restart" class="w-full max-w-xs py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black font-industrial text-lg rounded-xl shadow-xl border-b-4 border-amber-800 active:translate-y-1 transition-transform tracking-wider">
+          RESTART SHIFT 🚜
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Control Deck -->
+    <footer class="w-full bg-slate-900 border-t border-slate-800 p-2 sm:p-3 z-30 select-none">
+      <div class="grid grid-cols-3 gap-2 h-16 sm:h-20">
+        <!-- Steer Left -->
+        <button id="btn-left" class="touch-btn h-full bg-slate-800 active:bg-slate-700 text-amber-400 border border-slate-700 rounded-xl flex flex-col items-center justify-center font-industrial font-bold shadow-md">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+          <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400">STEER L</span>
+        </button>
+
+        <!-- Power Scoop / Turbo -->
+        <button id="btn-boost" class="touch-btn h-full bg-gradient-to-b from-amber-500 to-amber-600 active:from-amber-400 active:to-amber-500 text-slate-950 border-2 border-amber-400 rounded-xl flex flex-col items-center justify-center font-industrial font-black shadow-lg">
+          <span class="text-xl sm:text-2xl leading-none">⚡</span>
+          <span class="text-[11px] sm:text-xs font-black uppercase tracking-wider mt-0.5">SCOOP POWER</span>
+        </button>
+
+        <!-- Steer Right -->
+        <button id="btn-right" class="touch-btn h-full bg-slate-800 active:bg-slate-700 text-amber-400 border border-slate-700 rounded-xl flex flex-col items-center justify-center font-industrial font-bold shadow-md">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
+          <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400">STEER R</span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    /* North Slope Sound Synthesizer via Web Audio API */
+    class AudioController {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.dieselOsc = null;
+        this.dieselGain = null;
+        this.isEngineRunning = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      startEngine() {
+        if (!this.ctx || !this.enabled || this.isEngineRunning) return;
+        try {
+          // Low frequency rumble for heavy CAT loader engine
+          this.dieselOsc = this.ctx.createOscillator();
+          this.dieselGain = this.ctx.createGain();
+          
+          this.dieselOsc.type = 'sawtooth';
+          this.dieselOsc.frequency.setValueAtTime(42, this.ctx.currentTime); // Low chug
+          this.dieselGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+
+          // Low pass filter to make it sound like an engine compartment
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(140, this.ctx.currentTime);
+
+          this.dieselOsc.connect(filter);
+          filter.connect(this.dieselGain);
+          this.dieselGain.connect(this.ctx.destination);
+
+          this.dieselOsc.start();
+          this.isEngineRunning = true;
+        } catch (e) {
+          console.warn('Audio initialisation suppressed', e);
+        }
+      }
+
+      setEnginePitch(multiplier) {
+        if (this.dieselOsc && this.ctx && this.isEngineRunning) {
+          const target = Math.min(85, 42 * multiplier);
+          this.dieselOsc.frequency.setTargetAtTime(target, this.ctx.currentTime, 0.1);
+        }
+      }
+
+      stopEngine() {
+        if (this.dieselOsc && this.isEngineRunning) {
+          try {
+            this.dieselOsc.stop();
+            this.dieselOsc.disconnect();
+          } catch(e){}
+          this.isEngineRunning = false;
+        }
+      }
+
+      playSnowScoop() {
+        if (!this.ctx || !this.enabled) return;
+        try {
+          // White noise burst for plowing deep powder
+          const bufferSize = this.ctx.sampleRate * 0.25;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(450, this.ctx.currentTime);
+          filter.Q.setValueAtTime(1.8, this.ctx.currentTime);
+
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start();
+        } catch (e) {}
+      }
+
+      playClank() {
+        if (!this.ctx || !this.enabled) return;
+        try {
+          // Metal crunch & automotive horn crash for striking company pickup
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(310, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(70, this.ctx.currentTime + 0.22);
+          
+          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.23);
+        } catch (e) {}
+      }
+
+      playPipeCrunch() {
+        if (!this.ctx || !this.enabled) return;
+        try {
+          // Heavy resonant steel pipe impact with harsh metallic rattle
+          const now = this.ctx.currentTime;
+          
+          // Heavy tone osc
+          const osc1 = this.ctx.createOscillator();
+          const gain1 = this.ctx.createGain();
+          osc1.type = 'sawtooth';
+          osc1.frequency.setValueAtTime(160, now);
+          osc1.frequency.exponentialRampToValueAtTime(45, now + 0.35);
+
+          gain1.gain.setValueAtTime(0.35, now);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc1.connect(gain1);
+          gain1.connect(this.ctx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.36);
+
+          // High frequency resonant ring (like a steel bell/pipe flange ding)
+          const oscRing = this.ctx.createOscillator();
+          const gainRing = this.ctx.createGain();
+          oscRing.type = 'triangle';
+          oscRing.frequency.setValueAtTime(820, now);
+          oscRing.frequency.exponentialRampToValueAtTime(320, now + 0.4);
+
+          gainRing.gain.setValueAtTime(0.25, now);
+          gainRing.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+          oscRing.connect(gainRing);
+          gainRing.connect(this.ctx.destination);
+          oscRing.start(now);
+          oscRing.stop(now + 0.42);
+        } catch (e) {}
+      }
+
+      playCoffeeChug() {
+        if (!this.ctx || !this.enabled) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(640, this.ctx.currentTime + 0.2);
+
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.22);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.22);
+        } catch(e) {}
+      }
+
+      toggle() {
+        this.enabled = !this.enabled;
+        if (!this.enabled && this.isEngineRunning) {
+          this.stopEngine();
+        } else if (this.enabled && !this.isEngineRunning) {
+          this.startEngine();
+        }
+        return this.enabled;
+      }
+    }
+
+    const sound = new AudioController();
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Slope operator quotes from Woody
+    const WOODY_QUOTES = [
+      "Just shaving the crown on KCS Pad, baby!",
+      "That's 40 yards a minute right there!",
+      "Watch the white pickups! Don't crunch the fleet truck!",
+      "Shift's almost over, Phil's probably on his way!",
+      "Hot coffee's the only thing keeping KCS Pad running!",
+      "Watch the line pipe, don't ding the flange!",
+      "Welder's gonna kill me if I bend that riser spool!",
+      "Loader heater is stuck on high blast!",
+      "Watch that rusted flange stub, safety's watching!",
+      "Whiteout on KCS Pad! Keep the blade dropped!"
+    ];
+
+    // High Score Handling
+    let highScore = parseInt(localStorage.getItem('woodys_whiteout_highscore') || '0', 10);
+    document.getElementById('high-score-display').textContent = `${highScore.toLocaleString()} yd³`;
+
+    // Game Core State
+    let state = {
+      running: false,
+      scoreYards: 0,
+      driftsCleared: 0,
+      coffeesDrank: 0,
+      driftPack: 0,          // 0 to 100%
+      durability: 100,       // 0 to 100%
+      speed: 300,            // base road scroll speed
+      baseSpeed: 300,
+      boostTimeRemaining: 0,
+      startTime: 0,
+      elapsedTime: 0,
+      screenShake: 0,
+      quoteTimer: 0
+    };
+
+    // Controls tracking
+    const keys = {
+      left: false,
+      right: false,
+      boost: false
+    };
+
+    // Canvas size and Loader entity
+    let width = 0;
+    let height = 0;
+    let roadLeft = 0;
+    let roadRight = 0;
+    let roadWidth = 0;
+
+    const loader = {
+      x: 0,
+      y: 0,
+      width: 58,
+      height: 94,
+      targetX: 0,
+      speedX: 520,
+      bucketWidth: 70
+    };
+
+    // Object pools & particles
+    let hazards = [];
+    let particles = [];
+    let roadMarkers = [];
+    let backgroundSnowflakes = [];
+
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      width = container.clientWidth;
+      height = container.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      // Define pad road boundaries (72% of width, centered)
+      roadWidth = Math.min(width * 0.78, 380);
+      roadLeft = (width - roadWidth) / 2;
+      roadRight = roadLeft + roadWidth;
+
+      // Position loader near bottom center
+      loader.y = height - loader.height - 30;
+      if (loader.x === 0) {
+        loader.x = width / 2;
+        loader.targetX = width / 2;
+      }
+
+      // Initialize background snowflakes
+      backgroundSnowflakes = [];
+      for (let i = 0; i < 90; i++) {
+        backgroundSnowflakes.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 2.8 + 1,
+          speed: Math.random() * 180 + 120,
+          wind: Math.random() * 60 - 30
+        });
+      }
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    class HazardItem {
+      constructor(type, x, y) {
+        this.type = type; // 'drift', 'pickup', 'flange', 'coffee'
+        this.x = x;
+        this.y = y;
+        this.collected = false;
+
+        switch (type) {
+          case 'drift':
+            this.width = Math.random() * 40 + 75; // broad snowbank
+            this.height = 36;
+            this.color = '#e2f3fc';
+            break;
+          case 'pickup':
+            // White North Slope fleet pickup truck with red stripe
+            this.width = 46;
+            this.height = 76;
+            this.color = '#ffffff';
+            break;
+          case 'flange':
+            // Substantially larger flanged pipe stub sticking out of the snow
+            this.width = 48;
+            this.height = 54;
+            this.color = '#c2410c';
+            break;
+          case 'coffee':
+            // Steaming hot coffee cup
+            this.width = 34;
+            this.height = 34;
+            this.color = '#f59e0b';
+            break;
+        }
+      }
+    }
+
+    let spawnTimer = 0;
+
+    function spawnHazards(dt) {
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) {
+        // Interval decreases as shift goes on
+        const difficultyRatio = Math.min(state.scoreYards / 2500, 1);
+        spawnTimer = Math.max(0.65 - difficultyRatio * 0.35, 0.32);
+
+        // Random horizontal position on the pad road
+        const padding = 45;
+        const spawnX = roadLeft + padding + Math.random() * (roadWidth - padding * 2);
+
+        // Weight item types
+        const roll = Math.random();
+        let type = 'drift';
+        if (roll < 0.46) {
+          type = 'drift';       // Main objective!
+        } else if (roll < 0.68) {
+          type = 'pickup';      // White fleet pickup with red stripe
+        } else if (roll < 0.85) {
+          type = 'flange';      // Rusty line pipe with bolted flange
+        } else {
+          type = 'coffee';      // Steaming hot coffee cup
+        }
+
+        hazards.push(new HazardItem(type, spawnX, -60));
+      }
+    }
+
+    function addSnowBurst(x, y, count = 25, isMega = false) {
+      for (let i = 0; i < count; i++) {
+        const angle = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.85);
+        const speed = isMega ? Math.random() * 320 + 160 : Math.random() * 220 + 80;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * (isMega ? 6 : 4) + 2,
+          color: isMega ? '#bae6fd' : '#f8fafc',
+          life: 1.0,
+          decay: Math.random() * 1.5 + 1.2
+        });
+      }
+    }
+
+    function addSparkBurst(x, y) {
+      for (let i = 0; i < 16; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 180 + 60;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 2.5 + 1.5,
+          color: '#fbbf24',
+          life: 0.7,
+          decay: 2.2
+        });
+      }
+    }
+
+    function showFloatingText(text, x, y, color = '#38bdf8') {
+      const container = document.getElementById('floating-tags');
+      const el = document.createElement('div');
+      el.className = 'absolute font-industrial font-black text-sm pointer-events-none transition-all duration-700 -translate-x-1/2';
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.color = color;
+      el.style.textShadow = '0 2px 8px rgba(0,0,0,0.8)';
+      el.textContent = text;
+      container.appendChild(el);
+
+      requestAnimationFrame(() => {
+        el.style.transform = 'translate(-50%, -35px) scale(1.15)';
+        el.style.opacity = '0';
+      });
+
+      setTimeout(() => el.remove(), 700);
+    }
+
+    function showWoodyQuote(quote) {
+      const bubble = document.getElementById('woody-quote-bubble');
+      const text = document.getElementById('woody-quote-text');
+      text.textContent = `"${quote}"`;
+      bubble.style.opacity = '1';
+      bubble.style.transform = 'translate(-50%, 0)';
+      
+      setTimeout(() => {
+        bubble.style.opacity = '0';
+        bubble.style.transform = 'translate(-50%, 12px)';
+      }, 2600);
+    }
+
+    function checkCollisions() {
+      // Loader bounding box with wide plow bucket
+      const bucketBox = {
+        x: loader.x - loader.bucketWidth / 2,
+        y: loader.y - 12,
+        w: loader.bucketWidth,
+        h: 24
+      };
+
+      const bodyBox = {
+        x: loader.x - loader.width / 2,
+        y: loader.y,
+        w: loader.width,
+        h: loader.height
+      };
+
+      for (let i = hazards.length - 1; i >= 0; i--) {
+        const item = hazards[i];
+        if (item.collected) continue;
+
+        // Simple AABB overlap check
+        const halfW = item.width / 2;
+        const halfH = item.height / 2;
+
+        const overlapsBucket = (
+          item.x - halfW < bucketBox.x + bucketBox.w &&
+          item.x + halfW > bucketBox.x &&
+          item.y - halfH < bucketBox.y + bucketBox.h &&
+          item.y + halfH > bucketBox.y
+        );
+
+        if (overlapsBucket) {
+          item.collected = true;
+
+          if (item.type === 'drift') {
+            // RAM THE DRIFT!
+            const bonus = state.boostTimeRemaining > 0 ? 2 : 1;
+            const yardsCleared = Math.floor((Math.random() * 25 + 30) * bonus);
+            state.scoreYards += yardsCleared;
+            state.driftsCleared++;
+            // Lower drift pack meter
+            state.driftPack = Math.max(0, state.driftPack - 9);
+
+            sound.playSnowScoop();
+            addSnowBurst(item.x, item.y, bonus > 1 ? 40 : 25, bonus > 1);
+            showFloatingText(`+${yardsCleared} yd³!`, item.x, item.y, '#38bdf8');
+
+            if (Math.random() < 0.28) {
+              const q = WOODY_QUOTES[Math.floor(Math.random() * WOODY_QUOTES.length)];
+              showWoodyQuote(q);
+            }
+          } 
+          else if (item.type === 'coffee') {
+            // STEAMING HOT COFFEE CUP BOOST
+            state.coffeesDrank++;
+            state.boostTimeRemaining = 4.5;
+            state.durability = Math.min(100, state.durability + 12);
+            sound.playCoffeeChug();
+            showFloatingText("FRESH HOT COFFEE!! ☕⚡", item.x, item.y, '#f59e0b');
+            showWoodyQuote("Fresh pot from the break shack!");
+          } 
+          else if (item.type === 'pickup') {
+            // WHITE FLEET PICKUP WITH RED STRIPE COLLISION
+            state.durability = Math.max(0, state.durability - 25);
+            state.screenShake = 0.42;
+            sound.playClank();
+            addSparkBurst(item.x, item.y);
+            showFloatingText("PARKED CREW TRUCK! -25%", item.x, item.y, '#ef4444');
+            showWoodyQuote("Who parked the crew cab in the middle of KCS Pad?!");
+          } 
+          else if (item.type === 'flange') {
+            // HEAVY FLANGED PIPE SPOOL COLLISION
+            state.durability = Math.max(0, state.durability - 25);
+            state.screenShake = 0.45;
+            sound.playPipeCrunch();
+            addSparkBurst(item.x, item.y);
+            showFloatingText("BENT FLANGE RISER! -25%", item.x, item.y, '#f97316');
+            showWoodyQuote("Watch that flange stub! Welder's gonna chew my ear off!");
+          }
+        }
+      }
+    }
+
+    function drawDrillSiteBackground() {
+      // Midnight North Slope Arctic Sky Gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, '#030712');
+      grad.addColorStop(0.35, '#0b1626');
+      grad.addColorStop(1, '#0e2439');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Distant Drill Rig Silhouettes & Pipe Racks
+      ctx.save();
+      ctx.fillStyle = '#061320';
+      // Distant drill derrick tower on left
+      ctx.beginPath();
+      ctx.moveTo(roadLeft * 0.25, height * 0.42);
+      ctx.lineTo(roadLeft * 0.4, height * 0.16);
+      ctx.lineTo(roadLeft * 0.55, height * 0.42);
+      ctx.fill();
+      // Derrick safety light
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(roadLeft * 0.4, height * 0.16, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Right distant fuel tanks and drill mast
+      ctx.fillStyle = '#071626';
+      const rightX = roadRight + (width - roadRight) * 0.35;
+      ctx.fillRect(rightX, height * 0.30, 48, 30); // Camp trailer/shack
+      ctx.beginPath();
+      ctx.moveTo(rightX + 60, height * 0.45);
+      ctx.lineTo(rightX + 75, height * 0.22);
+      ctx.lineTo(rightX + 90, height * 0.45);
+      ctx.fill();
+      ctx.restore();
+
+      // Arctic Tundra Snow Berms (left & right)
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, roadLeft, height);
+      ctx.fillRect(roadRight, 0, width - roadRight, height);
+
+      // Flare stack flame flickering in the distant tundra
+      ctx.save();
+      const flareX = roadRight + (width - roadRight) * 0.72;
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(flareX - 2, height * 0.12, 4, height * 0.25);
+      // Flame flicker
+      const flameH = 14 + Math.sin(state.elapsedTime * 22) * 5;
+      const flameGrad = ctx.createRadialGradient(flareX, height * 0.12, 2, flareX, height * 0.12 - flameH / 2, 16);
+      flameGrad.addColorStop(0, '#fef08a');
+      flameGrad.addColorStop(0.5, '#f97316');
+      flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+      ctx.fillStyle = flameGrad;
+      ctx.beginPath();
+      ctx.arc(flareX, height * 0.12, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Pad Gravel/Ice Packed Road Surface
+      const roadGrad = ctx.createLinearGradient(roadLeft, 0, roadRight, 0);
+      roadGrad.addColorStop(0, '#1c2836');
+      roadGrad.addColorStop(0.5, '#29394c');
+      roadGrad.addColorStop(1, '#1c2836');
+      ctx.fillStyle = roadGrad;
+      ctx.fillRect(roadLeft, 0, roadWidth, height);
+
+      // Road boundary berm reflectors
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([14, 18]);
+      ctx.lineDashOffset = -state.elapsedTime * 90;
+      ctx.beginPath();
+      ctx.moveTo(roadLeft + 4, 0);
+      ctx.lineTo(roadLeft + 4, height);
+      ctx.moveTo(roadRight - 4, 0);
+      ctx.lineTo(roadRight - 4, height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawLoader(x, y) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Coffee Boost glow ring
+      if (state.boostTimeRemaining > 0) {
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, loader.height / 2, 48, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // 1. Heavy Rubber Tires (4 big aggressive tread tires)
+      ctx.fillStyle = '#0f172a';
+      // Front Left & Right
+      ctx.fillRect(-loader.width / 2 - 5, 8, 10, 24);
+      ctx.fillRect(loader.width / 2 - 5, 8, 10, 24);
+      // Rear Left & Right
+      ctx.fillRect(-loader.width / 2 - 5, loader.height - 30, 10, 24);
+      ctx.fillRect(loader.width / 2 - 5, loader.height - 30, 10, 24);
+
+      // 2. Yellow Heavy Chassis Body (CAT 980 Style)
+      ctx.fillStyle = '#eab308'; // Safety Yellow
+      ctx.beginPath();
+      ctx.roundRect(-loader.width / 2 + 3, 14, loader.width - 6, loader.height - 20, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#ca8a04';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Rear Engine Grille & Exhaust
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-14, loader.height - 18, 28, 10);
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.arc(-8, loader.height - 22, 3, 0, Math.PI * 2); // Exhaust pipe
+      ctx.fill();
+
+      // 3. ROPS Operator Cab & Tinted Glass
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-loader.width / 2 + 9, 32, loader.width - 18, 30);
+      // Arctic Tinted Blue Glass
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-loader.width / 2 + 12, 35, loader.width - 24, 24);
+
+      // Woody's silhouette inside cab!
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(0, 48, 6.5, 0, Math.PI * 2); // Head & Hardhat
+      ctx.fill();
+      // Orange High-vis vest shoulders
+      ctx.fillStyle = '#f97316';
+      ctx.fillRect(-8, 54, 16, 5);
+
+      // 4. Strobe Beacon on Cab Roof
+      const strobeOn = Math.floor(state.elapsedTime * 8) % 2 === 0;
+      ctx.fillStyle = strobeOn ? '#fbbf24' : '#b45309';
+      ctx.beginPath();
+      ctx.arc(0, 31, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 5. Front Hydraulic Lift Arms
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(-18, 0, 7, 24);
+      ctx.fillRect(11, 0, 7, 24);
+
+      // 6. Massive Front Snow Plow / Heavy Steel Bucket
+      const bW = loader.bucketWidth;
+      ctx.fillStyle = '#f59e0b'; // Amber plow
+      ctx.beginPath();
+      ctx.moveTo(-bW / 2, -10);
+      ctx.lineTo(bW / 2, -10);
+      ctx.lineTo(bW / 2 - 4, 4);
+      ctx.lineTo(-bW / 2 + 4, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Heavy Cutting Edge / Hardox steel blade
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(-bW / 2 - 1, -12, bW + 2, 4);
+
+      // High-intensity HID Headlights casting beam forward
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.22)';
+      ctx.beginPath();
+      ctx.moveTo(-20, -10);
+      ctx.lineTo(-75, -160);
+      ctx.lineTo(75, -160);
+      ctx.lineTo(20, -10);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawHazard(item) {
+      ctx.save();
+      ctx.translate(item.x, item.y);
+
+      if (item.type === 'drift') {
+        // Deep Arctic Snowdrift Bank
+        ctx.fillStyle = '#e0f2fe';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, item.width / 2, item.height / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#bae6fd';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Fluffy snow highlights
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-item.width * 0.2, -4, 10, 0, Math.PI * 2);
+        ctx.arc(item.width * 0.15, -2, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+      } else if (item.type === 'pickup') {
+        // Slope White Fleet Pickup Truck with Red Stripe (e.g. F-250 / F-350)
+        // 1. Truck shadow
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+        ctx.beginPath();
+        ctx.roundRect(-21, -33, 42, 70, 8);
+        ctx.fill();
+
+        // 2. Heavy snow tires (4 wheels)
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(-22, -26, 6, 16);  // Front Left
+        ctx.fillRect(16, -26, 6, 16);   // Front Right
+        ctx.fillRect(-22, 12, 6, 16);   // Rear Left
+        ctx.fillRect(16, 12, 6, 16);    // Rear Right
+
+        // 3. White Truck Body
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.roundRect(-18, -30, 36, 64, 5);
+        ctx.fill();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 4. Bold Red Company Safety Stripe (running down center/sides)
+        ctx.fillStyle = '#dc2626'; // Bold North Slope company fleet red
+        ctx.fillRect(-18, -12, 36, 8);
+        // Matching red hood accent stripes
+        ctx.fillRect(-14, -28, 4, 14);
+        ctx.fillRect(10, -28, 4, 14);
+
+        // 5. Cab Windshield & Windows
+        ctx.fillStyle = '#38bdf8'; // Arctic tinted glass
+        // Front Windshield
+        ctx.beginPath();
+        ctx.roundRect(-14, -18, 28, 9, 2);
+        ctx.fill();
+        // Rear cab window
+        ctx.fillRect(-12, 2, 24, 4);
+
+        // 6. Amber Cab Clearance Roof Lights
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(-9, -19, 3, 2);
+        ctx.fillRect(-1.5, -19, 3, 2);
+        ctx.fillRect(6, -19, 3, 2);
+
+        // 7. Open Truck Bed with Spare Tire / Headache Rack
+        ctx.fillStyle = '#64748b'; // Bed liner
+        ctx.fillRect(-13, 9, 26, 21);
+        ctx.strokeStyle = '#334155';
+        ctx.strokeRect(-13, 9, 26, 21);
+        // Headache rack black bar
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(-14, 6, 28, 3);
+        // Spare tire in bed
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(0, 20, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 8. Chrome Front Bumper & Headlights
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(-17, -31, 34, 3);
+        ctx.fillStyle = '#fef08a'; // Headlights
+        ctx.fillRect(-16, -30, 5, 2);
+        ctx.fillRect(11, -30, 5, 2);
+
+      } else if (item.type === 'flange') {
+        // Heavy Industrial North Slope Buried Line Pipe with Welded Flange
+        // 1. Snow mound around the base of the pipe
+        ctx.fillStyle = '#dbeafe';
+        ctx.beginPath();
+        ctx.ellipse(0, 20, 22, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 2. Rusty Steel Line Pipe Barrel (Riser Stub)
+        const pipeGrad = ctx.createLinearGradient(-14, 0, 14, 0);
+        pipeGrad.addColorStop(0, '#78350f');   // Dark rust
+        pipeGrad.addColorStop(0.35, '#b45309'); // Iron oxide brown
+        pipeGrad.addColorStop(0.7, '#d97706');  // Highlight
+        pipeGrad.addColorStop(1, '#451a03');   // Shadow
+        ctx.fillStyle = pipeGrad;
+        ctx.beginPath();
+        ctx.roundRect(-14, -6, 28, 26, 2);
+        ctx.fill();
+
+        // Circumferential Weld Bead Seam
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-14, 8);
+        ctx.lineTo(14, 8);
+        ctx.stroke();
+
+        // 3. Thick Raised Flange Ring (ANSI 150/300 style)
+        const flangeGrad = ctx.createLinearGradient(-22, 0, 22, 0);
+        flangeGrad.addColorStop(0, '#9a3412');
+        flangeGrad.addColorStop(0.5, '#ea580c');
+        flangeGrad.addColorStop(1, '#7c2d12');
+        ctx.fillStyle = flangeGrad;
+        ctx.beginPath();
+        ctx.roundRect(-22, -18, 44, 13, 3);
+        ctx.fill();
+        ctx.strokeStyle = '#431407';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 4. Heavy Hex Bolts around the Flange Face
+        ctx.fillStyle = '#e2e8f0'; // Galvanized steel studs/nuts
+        const boltPositions = [-17, -9, 0, 9, 17];
+        boltPositions.forEach(bx => {
+          ctx.beginPath();
+          ctx.arc(bx, -12, 2.2, 0, Math.PI * 2);
+          ctx.fill();
+          // Bolt shadow
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        });
+
+        // 5. Open Pipe Bore / Blind Flange center
+        ctx.fillStyle = '#1c1917';
+        ctx.beginPath();
+        ctx.ellipse(0, -18, 12, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 6. Orange North Slope Warning Flag tied to the flange
+        ctx.fillStyle = '#ff5722';
+        ctx.beginPath();
+        ctx.moveTo(14, -18);
+        ctx.lineTo(27, -24);
+        ctx.lineTo(16, -12);
+        ctx.closePath();
+        ctx.fill();
+
+      } else if (item.type === 'coffee') {
+        // Steaming Cup of Fresh Hot Coffee
+        // 1. Saucer / Rim base shadow
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(0, 10, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 2. Ceramic Coffee Mug Body
+        const mugGrad = ctx.createLinearGradient(-11, 0, 11, 0);
+        mugGrad.addColorStop(0, '#f97316');   // High-vis Orange Camp Mug
+        mugGrad.addColorStop(0.4, '#fb923c');
+        mugGrad.addColorStop(1, '#ea580c');
+        ctx.fillStyle = mugGrad;
+        ctx.beginPath();
+        ctx.roundRect(-10, -4, 20, 15, [2, 2, 6, 6]);
+        ctx.fill();
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 3. Mug Handle
+        ctx.strokeStyle = '#ea580c';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(10, 3, 5, -Math.PI / 2, Math.PI / 2);
+        ctx.stroke();
+
+        // 4. Mug Top Rim & Dark Hot Coffee Surface
+        ctx.fillStyle = '#ffedd5';
+        ctx.beginPath();
+        ctx.ellipse(0, -4, 10, 4.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#3e1f0c'; // Rich dark roast coffee
+        ctx.beginPath();
+        ctx.ellipse(0, -4, 8, 3.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 5. Swirling Animated Hot Steam Wisps
+        const steamPhase = state.elapsedTime * 6;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+
+        // Steam wisp 1 (left)
+        ctx.beginPath();
+        ctx.moveTo(-4, -7);
+        ctx.quadraticCurveTo(-7 + Math.sin(steamPhase) * 3, -15, -3 + Math.sin(steamPhase + 1) * 3, -22);
+        ctx.stroke();
+
+        // Steam wisp 2 (right)
+        ctx.beginPath();
+        ctx.moveTo(3, -7);
+        ctx.quadraticCurveTo(6 + Math.cos(steamPhase) * 3, -16, 2 + Math.cos(steamPhase + 1) * 3, -24);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    let lastTimestamp = 0;
+
+    function gameLoop(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.1);
+      lastTimestamp = timestamp;
+
+      if (state.running) {
+        updateGame(dt);
+      }
+
+      renderGame();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function updateGame(dt) {
+      state.elapsedTime += dt;
+
+      // Update Shift Clock display
+      const totalSec = Math.floor(state.elapsedTime);
+      const mins = String(Math.floor(totalSec / 60)).padStart(2, '0');
+      const secs = String(totalSec % 60).padStart(2, '0');
+      document.getElementById('shift-time').textContent = `SHIFT ${mins}:${secs}`;
+
+      // Handle Boost / Coffee Turbo
+      if (state.boostTimeRemaining > 0) {
+        state.boostTimeRemaining = Math.max(0, state.boostTimeRemaining - dt);
+        state.speed = state.baseSpeed * 1.5;
+        sound.setEnginePitch(1.85);
+
+        document.getElementById('boost-indicator').classList.remove('hidden');
+        document.getElementById('boost-indicator').classList.add('flex');
+        document.getElementById('boost-timer').textContent = `${state.boostTimeRemaining.toFixed(1)}s`;
+      } else {
+        state.speed = state.baseSpeed;
+        sound.setEnginePitch(1.0 + (state.scoreYards / 5000));
+        document.getElementById('boost-indicator').classList.add('hidden');
+        document.getElementById('boost-indicator').classList.remove('flex');
+      }
+
+      // Base speed gently ramps up with shift duration
+      state.baseSpeed = Math.min(620, 300 + state.elapsedTime * 5);
+
+      // Drift Meter builds naturally if you're not plowing
+      state.driftPack = Math.min(100, state.driftPack + dt * 2.8);
+
+      // Check failure conditions:
+      if (state.driftPack >= 100) {
+        endShift(
+          "WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!",
+          "Drifts overtook KCS Pad! The entire camp haul road is snowed under!"
+        );
+        return;
+      }
+      if (state.durability <= 0) {
+        endShift(
+          "WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!",
+          "Loader bucket took a beating! Call Phil out to the pad with the service truck!"
+        );
+        return;
+      }
+
+      // Steering Input
+      let moveDir = 0;
+      if (keys.left) moveDir -= 1;
+      if (keys.right) moveDir += 1;
+
+      // Move loader with responsive clamp inside road and snow berms
+      loader.x += moveDir * loader.speedX * dt;
+      loader.x = Math.max(roadLeft + loader.width / 2 - 8, Math.min(roadRight - loader.width / 2 + 8, loader.x));
+
+      // Spawning and moving hazards
+      spawnHazards(dt);
+
+      for (let i = hazards.length - 1; i >= 0; i--) {
+        const item = hazards[i];
+        item.y += state.speed * dt;
+
+        // If drift passed unplowed, punish the drift meter
+        if (item.y > height + 60) {
+          if (item.type === 'drift' && !item.collected) {
+            state.driftPack = Math.min(100, state.driftPack + 12);
+          }
+          hazards.splice(i, 1);
+        }
+      }
+
+      // Check Collisions
+      checkCollisions();
+
+      // Screen Shake Decay
+      if (state.screenShake > 0) {
+        state.screenShake = Math.max(0, state.screenShake - dt);
+      }
+
+      // Update Particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      // Update Ambient Blizzard
+      for (let s of backgroundSnowflakes) {
+        s.y += (s.speed + state.speed * 0.4) * dt;
+        s.x += s.wind * dt;
+        if (s.y > height) {
+          s.y = -10;
+          s.x = Math.random() * width;
+        }
+        if (s.x < 0) s.x = width;
+        if (s.x > width) s.x = 0;
+      }
+
+      // Update HUD values
+      document.getElementById('yards-counter').textContent = state.scoreYards.toLocaleString();
+      
+      const driftBar = document.getElementById('drift-bar');
+      driftBar.style.width = `${state.driftPack}%`;
+      document.getElementById('drift-pct').textContent = `${Math.floor(state.driftPack)}%`;
+
+      const duraBar = document.getElementById('durability-bar');
+      duraBar.style.width = `${state.durability}%`;
+      document.getElementById('durability-pct').textContent = `${Math.floor(state.durability)}%`;
+      if (state.durability < 30) {
+        duraBar.classList.add('bg-red-500');
+      } else {
+        duraBar.classList.remove('bg-red-500');
+      }
+    }
+
+    function renderGame() {
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.save();
+      // Apply screen shake on hard hits
+      if (state.screenShake > 0) {
+        const magnitude = state.screenShake * 16;
+        ctx.translate((Math.random() - 0.5) * magnitude, (Math.random() - 0.5) * magnitude);
+      }
+
+      // 1. Draw Arctic Pad & Road environment
+      drawDrillSiteBackground();
+
+      // 2. Draw Hazards & Items
+      for (let item of hazards) {
+        if (!item.collected) {
+          drawHazard(item);
+        }
+      }
+
+      // 3. Draw The 980 Loader
+      drawLoader(loader.x, loader.y);
+
+      // 4. Draw Snow & Impact Particles
+      for (let p of particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 5. Draw Foreground Arctic Blizzard Snowflakes
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      for (let s of backgroundSnowflakes) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function getOperatorRank(yards) {
+      if (yards < 600) {
+        return {
+          title: "GREENHORN SWAMPER",
+          flavor: "You left a massive windrow right across the camp entrance!"
+        };
+      } else if (yards < 1600) {
+        return {
+          title: "PAD APPRENTICE",
+          flavor: "Good blade control, but you missed a few monster drifts."
+        };
+      } else if (yards < 3200) {
+        return {
+          title: "JOURNEYMAN OPERATOR",
+          flavor: "Clean pad roads! The toolpushers can drive their crew cabs now."
+        };
+      } else if (yards < 5000) {
+        return {
+          title: "NORTH SLOPE CAT SPECIALIST",
+          flavor: "Carving 5-foot banks like butter. Solid Arctic hustle!"
+        };
+      } else {
+        return {
+          title: "SLOPE LEGEND WOODY",
+          flavor: "Top-hand operator! The entire drillsite is spotless in a 60kt gale!"
+        };
+      }
+    }
+
+    function endShift(title, reason) {
+      state.running = false;
+      sound.stopEngine();
+
+      // High Score update
+      if (state.scoreYards > highScore) {
+        highScore = state.scoreYards;
+        localStorage.setItem('woodys_whiteout_highscore', highScore.toString());
+        document.getElementById('high-score-display').textContent = `${highScore.toLocaleString()} yd³`;
+      }
+
+      const rank = getOperatorRank(state.scoreYards);
+
+      document.getElementById('gameover-title').textContent = "WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!";
+      document.getElementById('gameover-reason').textContent = reason;
+      document.getElementById('final-yards').textContent = `${state.scoreYards.toLocaleString()} yd³`;
+      document.getElementById('final-drifts').textContent = state.driftsCleared;
+      document.getElementById('final-coffees').textContent = state.coffeesDrank;
+      document.getElementById('final-rank').textContent = rank.title;
+      document.getElementById('rank-flavor').textContent = `"${rank.flavor}"`;
+
+      document.getElementById('game-over-screen').classList.remove('hidden');
+    }
+
+    function startShift() {
+      sound.init();
+      sound.startEngine();
+
+      state.running = true;
+      state.scoreYards = 0;
+      state.driftsCleared = 0;
+      state.coffeesDrank = 0;
+      state.driftPack = 0;
+      state.durability = 100;
+      state.speed = 300;
+      state.baseSpeed = 300;
+      state.boostTimeRemaining = 0;
+      state.elapsedTime = 0;
+      state.screenShake = 0;
+      hazards = [];
+      particles = [];
+
+      loader.x = width / 2;
+
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('game-over-screen').classList.add('hidden');
+
+      showWoodyQuote("Let's clean up KCS Pad before safety rolls up!");
+    }
+
+    // Mobile Touch Deck Buttons
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnBoost = document.getElementById('btn-boost');
+
+    const handleTouchStart = (dir) => (e) => {
+      e.preventDefault();
+      keys[dir] = true;
+    };
+    const handleTouchEnd = (dir) => (e) => {
+      e.preventDefault();
+      keys[dir] = false;
+    };
+
+    btnLeft.addEventListener('touchstart', handleTouchStart('left'));
+    btnLeft.addEventListener('touchend', handleTouchEnd('left'));
+    btnLeft.addEventListener('mousedown', handleTouchStart('left'));
+    btnLeft.addEventListener('mouseup', handleTouchEnd('left'));
+    btnLeft.addEventListener('mouseleave', handleTouchEnd('left'));
+
+    btnRight.addEventListener('touchstart', handleTouchStart('right'));
+    btnRight.addEventListener('touchend', handleTouchEnd('right'));
+    btnRight.addEventListener('mousedown', handleTouchStart('right'));
+    btnRight.addEventListener('mouseup', handleTouchEnd('right'));
+    btnRight.addEventListener('mouseleave', handleTouchEnd('right'));
+
+    // Manual scoop boost button (if they collected coffee)
+    btnBoost.addEventListener('click', () => {
+      if (state.boostTimeRemaining > 0) {
+        state.speed = state.baseSpeed * 1.8;
+      }
+    });
+
+    // Touch tap directly on Canvas sides
+    canvas.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const touchX = touch.clientX - rect.left;
+      if (touchX < width * 0.45) {
+        keys.left = true;
+      } else if (touchX > width * 0.55) {
+        keys.right = true;
+      }
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', () => {
+      keys.left = false;
+      keys.right = false;
+    });
+
+    // Keyboard bindings (Arrow Keys, A/D, Space)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        keys.left = true;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        keys.right = true;
+      } else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') {
+        if (state.boostTimeRemaining > 0) {
+          state.speed = state.baseSpeed * 1.8;
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        keys.left = false;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        keys.right = false;
+      }
+    });
+
+    // Audio SFX Button
+    document.getElementById('btn-audio').addEventListener('click', () => {
+      sound.init();
+      const isOn = sound.toggle();
+      document.getElementById('audio-icon').textContent = isOn ? '🔊' : '🔇';
+    });
+
+    // UI Buttons
+    document.getElementById('btn-start').addEventListener('click', startShift);
+    document.getElementById('btn-restart').addEventListener('click', startShift);
+
+    // Initial boot
+    window.onload = function() {
+      resizeCanvas();
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
