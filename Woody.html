@@ -99,12 +99,12 @@
         <div class="w-16 h-16 mb-2 rounded-2xl bg-amber-500 flex items-center justify-center border-4 border-slate-900 shadow-xl">
           <span class="text-3xl">🚜</span>
         </div>
-        <div class="text-[11px] font-mono tracking-widest text-amber-400 uppercase font-black">ARCTIC PAD MAINTENANCE</div>
+        <div class="text-[11px] font-mono tracking-widest text-amber-400 uppercase font-black">622 YARD LOADER</div>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-white font-industrial leading-tight mt-1 mb-1 tracking-tight">
           HELP WOODY CLEAN UP <span class="text-amber-400">KCS PAD</span>
         </h1>
-        <p class="text-xs text-sky-200/80 max-w-xs font-medium mb-4">
-          The blizzards are pounding KCS Pad. Clear the drifts before the camp haul road gets completely buried!
+        <p class="text-xs text-amber-300 max-w-xs font-bold mb-4 tracking-wide uppercase">
+          Now get out there and do your frickin' job!
         </p>
 
         <!-- Brief Guide Cards -->
@@ -1114,57 +1114,128 @@
         ctx.fill();
 
       } else if (item.type === 'newhire') {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        // Shadow on snow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
         ctx.beginPath();
-        ctx.ellipse(0, 10, 15, 8, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 22, 16, 6, 0, 0, Math.PI * 2);
         ctx.fill();
 
+        // Heavy Arctic Work Boots
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.roundRect(-10, 15, 8, 9, 3);
+        ctx.roundRect(2, 15, 8, 9, 3);
+        ctx.fill();
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(-10, 21, 8, 3);
+        ctx.fillRect(2, 21, 8, 3);
+
+        // Heavy Work Pants (Dark Carhartt Brown / Navy)
         ctx.fillStyle = '#1e293b';
         ctx.beginPath();
-        ctx.roundRect(-14, -8, 28, 20, 7);
+        ctx.roundRect(-9, 4, 7, 13, 2);
+        ctx.roundRect(2, 4, 7, 13, 2);
         ctx.fill();
 
-        ctx.fillStyle = '#22c55e';
-        ctx.fillRect(-12, -7, 24, 18);
-
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(-12, -2, 24, 3.5);
-        ctx.fillRect(-6, -7, 3, 18);
-        ctx.fillRect(3, -7, 3, 18);
-
-        ctx.fillStyle = '#78350f';
-        ctx.fillRect(8, -12, 10, 13);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(9.5, -10.5, 7, 10);
-
-        ctx.fillStyle = '#f97316';
+        // High-Vis Lime/Yellow Parka with Orange Panels
+        ctx.fillStyle = '#84cc16';
         ctx.beginPath();
-        ctx.arc(-13, 0, 3.5, 0, Math.PI * 2);
-        ctx.arc(10, -5, 3.5, 0, Math.PI * 2);
+        ctx.roundRect(-14, -10, 28, 16, 5);
         ctx.fill();
 
+        // Fluorescent Orange Shoulder & Chest Accents
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(-14, -10, 28, 6);
+
+        // Reflective Silver Safety Harness Stripes ('X' & Waist Band)
+        ctx.strokeStyle = '#f8fafc';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-10, -10);
+        ctx.lineTo(10, 2);
+        ctx.moveTo(10, -10);
+        ctx.lineTo(-10, 2);
+        ctx.moveTo(-14, 2);
+        ctx.lineTo(14, 2);
+        ctx.stroke();
+
+        // Left Arm holding Clipboard
+        ctx.fillStyle = '#84cc16';
+        ctx.beginPath();
+        ctx.roundRect(11, -8, 6, 12, 3);
+        ctx.fill();
+        // Clipboard
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(14, -5, 11, 15);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(15.5, -3.5, 8, 12);
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(16, -7, 7, 3); // Metal clip
+
+        // Right Arm with safety mitten
+        ctx.fillStyle = '#84cc16';
+        ctx.beginPath();
+        ctx.roundRect(-17, -8, 6, 12, 3);
+        ctx.fill();
         ctx.fillStyle = '#ea580c';
         ctx.beginPath();
-        ctx.ellipse(0, -5, 12, 13, 0, 0, Math.PI * 2);
+        ctx.arc(-14, 5, 3.5, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = '#c2410c';
+        // Neck / Beard / Balaclava
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(-4, -12, 8, 4);
+
+        // Face
+        ctx.fillStyle = '#fed7aa';
         ctx.beginPath();
-        ctx.ellipse(0, -14, 9, 4, 0, 0, Math.PI * 2);
+        ctx.arc(0, -13, 7.5, 0, Math.PI * 2);
         ctx.fill();
 
+        // Safety Glasses (Dark Tint)
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(-6, -16, 5, 3.5, 1);
+        ctx.roundRect(1, -16, 5, 3.5, 1);
+        ctx.fill();
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-1, -14.5);
+        ctx.lineTo(1, -14.5);
+        ctx.stroke();
+
+        // Moustache / Warm Face
+        ctx.fillStyle = '#9a3412';
+        ctx.fillRect(-3, -11, 6, 2);
+
+        // Prominent Bright Orange Hard Hat (Emoji 👷‍♂️ Style)
+        ctx.fillStyle = '#f97316';
+        // Hard hat dome
+        ctx.beginPath();
+        ctx.ellipse(0, -19, 12, 9, 0, Math.PI, Math.PI * 2);
+        ctx.fill();
+        // Hard hat curved rim
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        ctx.roundRect(-14, -20, 28, 4.5, 2);
+        ctx.fill();
+        // Center ridge
         ctx.fillStyle = '#fb923c';
         ctx.beginPath();
-        ctx.ellipse(-2, -6, 6, 8, -0.2, 0, Math.PI * 2);
+        ctx.roundRect(-2.5, -27, 5, 9, 1.5);
+        ctx.fill();
+        // Top gloss highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(-4, -22, 4, 2, -0.2, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = '#9a3412';
-        ctx.fillRect(-1.5, -15, 3, 18);
-
+        // Floating Confusion Question Mark above hat
         ctx.fillStyle = '#facc15';
-        ctx.font = 'bold 11px Inter, sans-serif';
+        ctx.font = 'bold 12px Chakra Petch, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('?', 0, -18 + Math.sin(Date.now() * 0.008) * 2.5);
+        ctx.fillText('?', 0, -31 + Math.sin(Date.now() * 0.008) * 3);
 
       } else if (item.type === 'coffee') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
@@ -1212,74 +1283,231 @@
       ctx.save();
       ctx.translate(x, y);
 
-      // Headlight High Beams
-      const beamGrad = ctx.createLinearGradient(0, -loader.height * 0.45, 0, -loader.height * 0.45 - 200);
-      beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.4)');
+      // Headlight High Beams projecting forward across snow
+      const beamGrad = ctx.createLinearGradient(0, -loader.height * 0.48, 0, -loader.height * 0.48 - 220);
+      beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
       beamGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
       ctx.fillStyle = beamGrad;
       ctx.beginPath();
-      ctx.moveTo(-loader.bladeWidth * 0.42, -loader.height * 0.45);
-      ctx.lineTo(-loader.bladeWidth * 1.15, -loader.height * 0.45 - 200);
-      ctx.lineTo(loader.bladeWidth * 1.15, -loader.height * 0.45 - 200);
-      ctx.lineTo(loader.bladeWidth * 0.42, -loader.height * 0.45);
+      ctx.moveTo(-loader.bladeWidth * 0.44, -loader.height * 0.48);
+      ctx.lineTo(-loader.bladeWidth * 1.25, -loader.height * 0.48 - 220);
+      ctx.lineTo(loader.bladeWidth * 1.25, -loader.height * 0.48 - 220);
+      ctx.lineTo(loader.bladeWidth * 0.44, -loader.height * 0.48);
       ctx.closePath();
       ctx.fill();
 
-      // Shadow
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      // Realistic Machine Drop Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
       ctx.beginPath();
-      ctx.roundRect(-loader.width * 0.52, -loader.height * 0.5, loader.width * 1.04, loader.height, 10);
+      ctx.roundRect(-loader.bladeWidth * 0.52, -loader.height * 0.54, loader.bladeWidth * 1.04, loader.height * 1.08, 12);
       ctx.fill();
 
-      // Giant Rubber Tires
-      ctx.fillStyle = '#0f172a';
-      const tireW = 15;
-      const tireH = 34;
-      ctx.fillRect(-loader.width * 0.5 - 2, -loader.height * 0.42, tireW, tireH);
-      ctx.fillRect(loader.width * 0.5 - tireW + 2, -loader.height * 0.42, tireW, tireH);
-      ctx.fillRect(-loader.width * 0.5 - 2, loader.height * 0.12, tireW, tireH);
-      ctx.fillRect(loader.width * 0.5 - tireW + 2, loader.height * 0.12, tireW, tireH);
+      // Helper function to draw 4 distinct heavy-lug articulated loader tires
+      const drawLugTire = (tx, ty) => {
+        const tw = 16;
+        const th = 38;
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(tx - tw / 2, ty - th / 2, tw, th, 4);
+        ctx.fill();
+        ctx.strokeStyle = '#020617';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
 
-      // Chassis Body (CAT Yellow)
+        // Deep rubber traction tread grooves
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2.5;
+        for (let l = -th / 2 + 5; l < th / 2 - 2; l += 6) {
+          ctx.beginPath();
+          ctx.moveTo(tx - tw / 2 + 2, ty + l);
+          ctx.lineTo(tx + tw / 2 - 2, ty + l + 3);
+          ctx.stroke();
+        }
+
+        // Heavy steel wheel hub & lugs
+        ctx.fillStyle = '#ca8a04';
+        ctx.beginPath();
+        ctx.roundRect(tx - 3.5, ty - 9, 7, 18, 2);
+        ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(tx, ty, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      };
+
+      // 4 Distinct Tires (Wide track stance with clear air between tires and chassis)
+      const tireFrontY = -loader.height * 0.22;
+      const tireRearY = loader.height * 0.28;
+      const tireTrackX = loader.width * 0.42;
+
+      // Front Axle Tires
+      drawLugTire(-tireTrackX, tireFrontY);
+      drawLugTire(tireTrackX, tireFrontY);
+
+      // Rear Axle Tires
+      drawLugTire(-tireTrackX, tireRearY);
+      drawLugTire(tireTrackX, tireRearY);
+
+      // Heavy Axle Beams
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-tireTrackX + 6, tireFrontY - 4, (tireTrackX - 6) * 2, 8);
+      ctx.fillRect(-tireTrackX + 6, tireRearY - 4, (tireTrackX - 6) * 2, 8);
+
+      // --- REAR TRACTOR UNIT (Engine Hood, Counterweight, Exhaust) ---
+      // Engine Hood Body
       ctx.fillStyle = '#eab308';
       ctx.beginPath();
-      ctx.roundRect(-loader.width * 0.38, -loader.height * 0.38, loader.width * 0.76, loader.height * 0.76, 8);
+      ctx.roundRect(-loader.width * 0.32, loader.height * 0.05, loader.width * 0.64, loader.height * 0.42, 6);
       ctx.fill();
       ctx.strokeStyle = '#ca8a04';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Articulated Hydraulic Lift Arms
+      // Rear Heavy Cast Counterweight Bumper
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(-loader.width * 0.34, loader.height * 0.42, loader.width * 0.68, 12, 4);
+      ctx.fill();
+      ctx.fillStyle = '#ef4444'; // Red tail reflectors
+      ctx.fillRect(-loader.width * 0.3, loader.height * 0.48, 6, 3);
+      ctx.fillRect(loader.width * 0.3 - 6, loader.height * 0.48, 6, 3);
+
+      // Engine Air Intake Grilles & Access Hatches
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-loader.width * 0.22, loader.height * 0.16, loader.width * 0.44, 14);
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      for (let g = loader.height * 0.18; g <= loader.height * 0.28; g += 3) {
+        ctx.beginPath();
+        ctx.moveTo(-loader.width * 0.2, g);
+        ctx.lineTo(loader.width * 0.2, g);
+        ctx.stroke();
+      }
+
+      // Diesel Exhaust Stack & Rain Cap
       ctx.fillStyle = '#334155';
-      ctx.fillRect(-loader.width * 0.32, -loader.height * 0.5, 8, loader.height * 0.35);
-      ctx.fillRect(loader.width * 0.32 - 8, -loader.height * 0.5, 8, loader.height * 0.35);
-
-      // Front Snow Blade / Bucket
-      ctx.fillStyle = '#64748b';
       ctx.beginPath();
-      ctx.roundRect(-loader.bladeWidth * 0.5, -loader.height * 0.54, loader.bladeWidth, 18, 4);
+      ctx.arc(loader.width * 0.2, loader.height * 0.12, 4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#e2e8f0';
-      ctx.fillRect(-loader.bladeWidth * 0.48, -loader.height * 0.54, loader.bladeWidth * 0.96, 4);
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(loader.width * 0.2, loader.height * 0.12, 2.5, 0, Math.PI * 2);
+      ctx.fill();
 
-      // Operator Cab Glass
+      // --- OPERATOR ROPS CABIN (Positioned behind articulation joint) ---
+      // Outer Cab Canopy
+      ctx.fillStyle = '#ca8a04';
+      ctx.beginPath();
+      ctx.roundRect(-loader.width * 0.28, -loader.height * 0.12, loader.width * 0.56, loader.height * 0.24, 6);
+      ctx.fill();
+
+      // High Visibility Tinted Safety Glass Roof & Windows
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath();
+      ctx.roundRect(-loader.width * 0.23, -loader.height * 0.09, loader.width * 0.46, loader.height * 0.18, 4);
+      ctx.fill();
       ctx.fillStyle = '#38bdf8';
-      ctx.beginPath();
-      ctx.roundRect(-loader.width * 0.28, -loader.height * 0.18, loader.width * 0.56, loader.height * 0.28, 4);
-      ctx.fill();
+      ctx.fillRect(-loader.width * 0.2, -loader.height * 0.07, loader.width * 0.4, 4); // Glass sun visor reflection
 
-      // Woody silhouette in cab
+      // Woody visible in the Operator Seat (Orange parka & hat)
       ctx.fillStyle = '#ea580c';
       ctx.beginPath();
-      ctx.arc(0, -loader.height * 0.05, 7, 0, Math.PI * 2);
+      ctx.arc(0, -loader.height * 0.01, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fed7aa';
+      ctx.beginPath();
+      ctx.arc(0, -loader.height * 0.01 - 2, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Amber Strobe Flash
-      const strobeOn = Math.floor(Date.now() / 180) % 2 === 0;
+      // Side Rearview Mirrors on Cab
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-loader.width * 0.35, -loader.height * 0.08, 3, 7);
+      ctx.fillRect(loader.width * 0.35 - 3, -loader.height * 0.08, 3, 7);
+
+      // --- SKINNY ARTICULATION JOINT & HYDRAULIC STEERING RAMS ---
+      // Narrow Articulation Waist Hitch
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-8, -loader.height * 0.25, 16, loader.height * 0.15);
+
+      // Articulation Center Pivot Pin
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.arc(0, -loader.height * 0.17, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#020617';
+      ctx.beginPath();
+      ctx.arc(0, -loader.height * 0.17, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Twin Angled Hydraulic Steering Cylinders (Left & Right of skinny waist)
+      const drawHydraulicRam = (side) => {
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(side * 6, -loader.height * 0.13);
+        ctx.lineTo(side * 14, -loader.height * 0.23);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#cbd5e1'; // Chrome rod extension
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(side * 11, -loader.height * 0.2);
+        ctx.lineTo(side * 15, -loader.height * 0.24);
+        ctx.stroke();
+      };
+      drawHydraulicRam(-1);
+      drawHydraulicRam(1);
+
+      // --- FRONT CHASSIS FRAME & LIFT ARM BOOM ASSEMBLY ---
+      // Front Nose Frame
+      ctx.fillStyle = '#eab308';
+      ctx.beginPath();
+      ctx.roundRect(-loader.width * 0.26, -loader.height * 0.38, loader.width * 0.52, loader.height * 0.15, 4);
+      ctx.fill();
+
+      // Heavy Front Steel Lift Arms (Z-Bar Loader Linkage)
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-loader.width * 0.24, -loader.height * 0.5, 7, loader.height * 0.26);
+      ctx.fillRect(loader.width * 0.24 - 7, -loader.height * 0.5, 7, loader.height * 0.26);
+
+      // Center Tilt Bellcrank & Dump Cylinder
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-4, -loader.height * 0.46, 8, loader.height * 0.16);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(-2.5, -loader.height * 0.5, 5, 10);
+
+      // --- FRONT SNOW BUCKET / BLADE ---
+      // Heavy Steel Snow Bucket
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.roundRect(-loader.bladeWidth * 0.5, -loader.height * 0.56, loader.bladeWidth, 18, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Hardened Steel Cutting Edge Blade (Hardox Wear Edge)
+      ctx.fillStyle = '#f1f5f9';
+      ctx.fillRect(-loader.bladeWidth * 0.49, -loader.height * 0.56, loader.bladeWidth * 0.98, 4);
+
+      // Heavy End-Bit Side Cutters on Blade Wings
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(-loader.bladeWidth * 0.51, -loader.height * 0.56, 4, 16);
+      ctx.fillRect(loader.bladeWidth * 0.51 - 4, -loader.height * 0.56, 4, 16);
+
+      // Amber Safety Strobe Flashing on Rear Cab Roof
+      const strobeOn = Math.floor(Date.now() / 160) % 2 === 0;
       ctx.fillStyle = strobeOn ? '#fbbf24' : '#78350f';
       ctx.beginPath();
-      ctx.arc(0, loader.height * 0.24, 6, 0, Math.PI * 2);
+      ctx.arc(0, loader.height * 0.05, 5, 0, Math.PI * 2);
       ctx.fill();
+      if (strobeOn) {
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, loader.height * 0.05, 8, 0, Math.PI * 2);
+        ctx.stroke();
+      }
 
       ctx.restore();
     }
