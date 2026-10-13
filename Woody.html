@@ -2,1464 +2,1450 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Woody's Winter Wonderland</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Woody's Whiteout: The Pad Loader Chronicles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;800;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  
   <style>
     * {
-      box-sizing: border-box;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
+      touch-action: manipulation;
       user-select: none;
-      touch-action: none;
+      -webkit-user-select: none;
     }
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b1118;
       overflow: hidden;
-      background-color: #050b14;
-      font-family: 'Press Start 2P', monospace, sans-serif;
     }
-    #game-canvas {
-      display: block;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
+    .font-industrial {
+      font-family: 'Chakra Petch', sans-serif;
     }
-    .arcade-font {
-      font-family: 'Press Start 2P', monospace, sans-serif;
-    }
-    .crt-overlay {
-      background: linear-gradient(
-        rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.28) 50%
-      ), linear-gradient(
-        90deg,
-        rgba(255, 0, 0, 0.02),
-        rgba(0, 255, 0, 0.01),
-        rgba(0, 0, 255, 0.02)
+    .hazard-stripe {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f59e0b,
+        #f59e0b 16px,
+        #111827 16px,
+        #111827 32px
       );
-      background-size: 100% 4px, 6px 100%;
-      pointer-events: none;
     }
-    .touch-btn:active, .touch-btn-pressed {
-      transform: scale(0.92) !important;
-      filter: brightness(1.25) !important;
+    .hazard-stripe-thin {
+      background: repeating-linear-gradient(
+        -45deg,
+        #eab308,
+        #eab308 8px,
+        #1f2937 8px,
+        #1f2937 16px
+      );
+    }
+    #steering-deck {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
   </style>
 </head>
-<body class="flex flex-col items-center justify-center bg-slate-950 text-white select-none">
-  <!-- Outer Mobile Shell -->
-  <div id="game-container" class="relative w-full h-full max-w-md mx-auto flex flex-col justify-between overflow-hidden shadow-2xl border-x border-slate-800 bg-[#060e1d]">
+<body class="w-screen h-screen flex flex-col items-center justify-center p-0 m-0 text-slate-100 bg-slate-950 overflow-hidden">
+
+  <div id="game-container" class="relative w-full h-full max-w-lg mx-auto flex flex-col bg-slate-950 overflow-hidden shadow-2xl border-x border-slate-800">
     
-    <!-- Top HUD Header -->
-    <header class="w-full flex items-center justify-between px-3 py-2 bg-slate-900/95 z-20 border-b border-amber-600/40 text-[10px] sm:text-xs">
-      <div class="flex items-center space-x-2">
-        <span class="text-amber-400 font-bold">SCORE:</span>
-        <span id="score-display" class="text-white tracking-wider">00000</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <span class="text-cyan-300">HI:</span>
-        <span id="hi-display" class="text-white tracking-wider">05000</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <button id="sound-btn" class="px-2 py-1 bg-amber-950/70 hover:bg-amber-900 active:scale-95 border border-amber-500/50 rounded text-amber-200 text-[9px]">
-          SND: ON
-        </button>
-      </div>
-    </header>
-
-    <!-- Sub HUD (Pad Sector & Loaders) -->
-    <div class="w-full flex items-center justify-between px-3 py-1 bg-slate-950/80 z-20 text-[9px] border-b border-slate-800">
-      <div class="flex items-center space-x-1">
-        <span class="text-slate-400">PAD SECTOR:</span>
-        <span id="wave-display" class="text-amber-400 font-bold">1</span>
-      </div>
-      <div class="flex items-center space-x-2" id="lives-container">
-        <span class="text-slate-400">LOADERS:</span>
-        <div id="lives-icons" class="flex space-x-1"></div>
-      </div>
-    </div>
-
-    <!-- Main Canvas Arena -->
-    <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
-      <canvas id="game-canvas" class="w-full h-full"></canvas>
-      <div class="crt-overlay absolute inset-0 z-10 pointer-events-none"></div>
-
-      <!-- Start / Game Over / Message Overlay -->
-      <div id="overlay-screen" class="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-950/90 backdrop-blur-sm transition-opacity duration-300">
-        <div class="text-center max-w-xs space-y-4">
-          <div class="space-y-1">
-            <h1 class="text-amber-400 text-base sm:text-lg font-bold leading-relaxed tracking-wider drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]">
-              WOODY'S<br><span class="text-cyan-300">WINTER WONDERLAND</span>
-            </h1>
-            <p id="overlay-subtitle" class="text-[9px] sm:text-[10px] text-slate-300 leading-normal pt-2">
-              North Slope oilfield under attack! Help Woody keep the gravel pad clear!
-            </p>
-          </div>
-
-          <div id="overlay-stats" class="hidden text-xs space-y-2 py-2 border-y border-amber-700/60 text-amber-200">
-            <div>FINAL SCORE: <span id="final-score" class="text-yellow-300">0</span></div>
-            <div>HIGH SCORE: <span id="final-hi" class="text-white">0</span></div>
-          </div>
-
-          <div class="pt-2">
-            <button id="start-btn" class="w-full py-3.5 px-6 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-600 active:from-amber-600 active:to-yellow-700 text-slate-950 font-bold text-xs sm:text-sm tracking-wider shadow-lg shadow-amber-500/30 border-2 border-yellow-300">
-              TAP TO PLAY
-            </button>
-          </div>
+    <!-- Top Hazard Bar & Status Header -->
+    <header class="w-full z-20 flex flex-col bg-slate-900 border-b border-amber-500/40 shadow-lg">
+      <div class="h-2 w-full hazard-stripe"></div>
+      <div class="px-3 py-2 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="inline-flex h-3 w-3 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="font-industrial text-xs tracking-wider text-amber-400 uppercase font-black">PAD LOADER // 980K</span>
+        </div>
+        
+        <div class="flex items-center space-x-3 text-xs">
+          <!-- Audio Toggle -->
+          <button id="btn-audio" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 font-semibold flex items-center space-x-1">
+            <span id="audio-icon">🔊</span>
+            <span id="audio-label" class="hidden sm:inline">SFX</span>
+          </button>
           
-          <div class="text-[8px] sm:text-[9px] text-slate-400 leading-relaxed pt-2">
-            TOUCH ARROWS OR DRAG TO STEER<br>
-            TAP [FIRE] TO BLAST ICE GRAVEL
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 uppercase font-mono block">BEST CU YDS</span>
+            <span id="high-score-display" class="font-industrial text-amber-300 font-bold text-sm">0 yd³</span>
           </div>
         </div>
       </div>
+
+      <!-- Realtime Meter HUD -->
+      <div class="grid grid-cols-2 gap-2 px-3 pb-2 pt-1">
+        <!-- Pad Drift Bar -->
+        <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+          <div class="flex justify-between items-center text-[10px] uppercase font-bold mb-1">
+            <span class="text-sky-300">Pad Snowpack:</span>
+            <span id="drift-pct" class="font-mono text-sky-400">0%</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
+            <div id="drift-bar" class="h-full bg-gradient-to-r from-sky-400 to-red-500 rounded-full transition-all duration-200" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Loader Health / Blade Durability -->
+        <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+          <div class="flex justify-between items-center text-[10px] uppercase font-bold mb-1">
+            <span class="text-amber-300">Bucket Integrity:</span>
+            <span id="durability-pct" class="font-mono text-emerald-400">100%</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
+            <div id="durability-bar" class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-200" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Score & Multiplier Tracker -->
+      <div class="flex items-center justify-between px-3 py-1 bg-slate-900/90 border-t border-slate-800 text-xs font-mono">
+        <div class="flex items-center space-x-1">
+          <span class="text-slate-400">CLEARED:</span>
+          <span id="yards-counter" class="text-lg font-black text-amber-400 font-industrial tracking-wide">0</span>
+          <span class="text-[10px] text-amber-500">yd³</span>
+        </div>
+
+        <div id="boost-indicator" class="hidden items-center space-x-1.5 bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/50 animate-pulse font-bold text-[11px]">
+          <span>☕ COFFEE TURBO</span>
+          <span id="boost-timer" class="text-white">3.0s</span>
+        </div>
+
+        <div class="text-slate-400 text-right">
+          <span id="shift-time">SHIFT 00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- The Arcade Canvas -->
+    <div class="relative flex-1 w-full h-full bg-slate-950 overflow-hidden">
+      <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+      <!-- Woody Radio Call / Floating Dialogue Overlay -->
+      <div id="woody-quote-bubble" class="absolute top-4 left-1/2 -translate-x-1/2 w-11/12 max-w-sm pointer-events-none transition-all duration-300 transform opacity-0 translate-y-3 z-30">
+        <div class="bg-amber-500 text-slate-950 px-3.5 py-2 rounded-lg shadow-2xl border-2 border-slate-950 flex items-start space-x-2">
+          <div class="font-black text-lg leading-none pt-0.5 font-industrial">📻</div>
+          <div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-900/80">Radio 19 // WOODY:</div>
+            <div id="woody-quote-text" class="text-xs font-bold leading-tight font-industrial">"Watch the survey pins, boys!"</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- In-Game floating notification tags -->
+      <div id="floating-tags" class="absolute inset-0 pointer-events-none z-20"></div>
+
+      <!-- Start Overlay Screen -->
+      <div id="start-screen" class="absolute inset-0 z-40 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-16 h-16 mb-2 rounded-2xl bg-amber-500 flex items-center justify-center border-4 border-slate-900 shadow-xl">
+          <span class="text-3xl">🚜</span>
+        </div>
+        <div class="text-[11px] font-mono tracking-widest text-amber-400 uppercase font-black">ARCTIC PAD MAINTENANCE</div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white font-industrial leading-tight mt-1 mb-1 tracking-tight">
+          HELP WOODY CLEAN UP <span class="text-amber-400">KCS PAD</span>
+        </h1>
+        <p class="text-xs text-sky-200/80 max-w-xs font-medium mb-4">
+          The blizzards are pounding KCS Pad. Clear the drifts before the camp haul road gets completely buried!
+        </p>
+
+        <!-- Brief Guide Cards -->
+        <div class="grid grid-cols-2 gap-2 text-left w-full max-w-xs text-xs mb-5">
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-sky-300 flex items-center space-x-1">
+              <span>❄️</span> <span>Snow Drifts</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Ram them full throttle to clear snow & lower drift meter!</p>
+          </div>
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-amber-300 flex items-center space-x-1">
+              <span>☕</span> <span>Hot Coffee Cup</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Steaming hot brew! Turbo boost speed & 2x yardage!</p>
+          </div>
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-red-400 flex items-center space-x-1">
+              <span>🛻</span> <span>Fleet Pickup</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">White crew truck with red stripes! Avoid heavy collision!</p>
+          </div>
+          <div class="bg-slate-900/90 p-2.5 rounded border border-slate-800">
+            <div class="font-bold text-orange-400 flex items-center space-x-1">
+              <span>👷‍♂️</span> <span>New-Hire Crew</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Wandering the haul road in orange hard hats! Don't hit 'em!</p>
+          </div>
+        </div>
+
+        <button id="btn-start" class="w-full max-w-xs py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black font-industrial text-lg rounded-xl shadow-xl border-b-4 border-amber-800 active:translate-y-1 transition-transform tracking-wider">
+          CLIMB IN CAB & CLOCK IN
+        </button>
+        <span class="text-[10px] text-slate-400 mt-2 font-mono">Controls: Drag the Suicide Knob wheel arc or use Arrow Keys</span>
+      </div>
+
+      <!-- Game Over Summary Screen -->
+      <div id="game-over-screen" class="hidden absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+        <div class="hazard-stripe-thin w-full max-w-xs h-3 rounded-t-lg mb-3"></div>
+        <div id="gameover-title" class="text-xl sm:text-2xl font-extrabold text-amber-400 font-industrial uppercase mb-1 leading-tight">
+          WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!
+        </div>
+        <div id="gameover-reason" class="text-xs text-slate-300 font-medium mb-4 max-w-xs">
+          The pad road is completely snowed in!
+        </div>
+
+        <div class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl space-y-3 mb-5">
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-xs font-mono text-slate-400">SNOW MOVED</span>
+            <span id="final-yards" class="text-xl font-black text-amber-400 font-industrial">0 yd³</span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-xs font-mono text-slate-400">DRIFTS RAMMED</span>
+            <span id="final-drifts" class="text-base font-bold text-sky-300 font-industrial">0</span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-xs font-mono text-slate-400">COFFEE CHUGGED</span>
+            <span id="final-coffees" class="text-base font-bold text-amber-200 font-industrial">0</span>
+          </div>
+
+          <div class="pt-1 text-center">
+            <span class="text-[10px] font-mono tracking-widest text-slate-500 uppercase block mb-1">OPERATOR RATING</span>
+            <div id="final-rank" class="text-lg font-black font-industrial text-amber-400 uppercase py-1 px-2 rounded bg-amber-500/10 border border-amber-500/30">
+              GREENHORN SWAMPER
+            </div>
+            <p id="rank-flavor" class="text-[10px] text-slate-400 italic mt-1">"You left a six-foot ridge on the main haul road!"</p>
+          </div>
+        </div>
+
+        <button id="btn-restart" class="w-full max-w-xs py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black font-industrial text-lg rounded-xl shadow-xl border-b-4 border-amber-800 active:translate-y-1 transition-transform tracking-wider">
+          RESTART SHIFT 🚜
+        </button>
+      </div>
     </div>
 
-    <!-- Mobile Touch Controls Footer (Elevated an additional 80px off the bottom) -->
-    <footer style="padding-bottom: 185px;" class="w-full px-4 pt-3 bg-slate-900/95 border-t-2 border-amber-600/70 z-20 flex items-center justify-between gap-3 shadow-[0_-14px_28px_rgba(0,0,0,0.8)]">
-      <!-- Steering Control Pad -->
-      <div class="flex items-center space-x-3">
-        <button id="btn-left" class="touch-btn w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-b from-slate-700 to-slate-800 border-2 border-amber-500/70 shadow-lg flex items-center justify-center text-amber-300 active:border-yellow-300">
-          <svg class="w-8 h-8 pointer-events-none fill-current" viewBox="0 0 24 24">
-            <polygon points="16,4 6,12 16,20" />
-          </svg>
-        </button>
-        <button id="btn-right" class="touch-btn w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-b from-slate-700 to-slate-800 border-2 border-amber-500/70 shadow-lg flex items-center justify-center text-amber-300 active:border-yellow-300">
-          <svg class="w-8 h-8 pointer-events-none fill-current" viewBox="0 0 24 24">
-            <polygon points="8,4 18,12 8,20" />
-          </svg>
-        </button>
+    <!-- Heavy Equipment Steering Wheel Deck with Suicide Knob -->
+    <footer id="steering-deck" class="relative w-full bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90 border-t border-slate-800/80 px-2 pt-1 pb-2 sm:pb-3 z-30 select-none flex flex-col items-center justify-center">
+      <div class="w-full flex items-center justify-between px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-0.5">
+        <span class="flex items-center space-x-1">
+          <span class="text-amber-400">◀</span>
+          <span>HARD LEFT</span>
+        </span>
+        <span class="font-industrial text-amber-300 font-bold tracking-widest text-[11px] flex items-center space-x-1">
+          <span>CAT HYDRAULIC STEER</span>
+        </span>
+        <span class="flex items-center space-x-1">
+          <span>HARD RIGHT</span>
+          <span class="text-amber-400">▶</span>
+        </span>
       </div>
 
-      <!-- Action Fire Button -->
-      <div class="flex-1 flex justify-end">
-        <button id="btn-fire" class="touch-btn w-32 h-16 sm:w-40 sm:h-20 rounded-xl bg-gradient-to-b from-red-600 to-rose-700 border-2 border-rose-300 shadow-xl shadow-red-900/60 flex items-center justify-center text-white font-bold text-sm sm:text-base tracking-wider active:border-yellow-300 active:from-red-500 active:to-rose-600">
-          FIRE!
-        </button>
+      <!-- Steering Arc Touch Canvas (~3x taller for thumb clearance) -->
+      <div class="relative w-full h-52 sm:h-56 flex items-center justify-center">
+        <canvas id="wheelCanvas" class="w-full h-full block cursor-pointer"></canvas>
       </div>
     </footer>
-
   </div>
+
   <script>
-    /**
-     * Retro 8-bit Audio Synthesizer utilizing Web Audio API
-     */
-    class SoundEngine {
+    class AudioController {
       constructor() {
         this.ctx = null;
         this.enabled = true;
+        this.dieselOsc = null;
+        this.dieselGain = null;
+        this.isEngineRunning = false;
       }
 
       init() {
         if (!this.ctx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContextClass();
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
         }
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume();
         }
       }
 
-      toggle() {
-        this.enabled = !this.enabled;
-        return this.enabled;
+      startEngine() {
+        if (!this.ctx || !this.enabled || this.isEngineRunning) return;
+        try {
+          this.dieselOsc = this.ctx.createOscillator();
+          this.dieselGain = this.ctx.createGain();
+          
+          this.dieselOsc.type = 'sawtooth';
+          this.dieselOsc.frequency.setValueAtTime(42, this.ctx.currentTime);
+          this.dieselGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(140, this.ctx.currentTime);
+
+          this.dieselOsc.connect(filter);
+          filter.connect(this.dieselGain);
+          this.dieselGain.connect(this.ctx.destination);
+
+          this.dieselOsc.start();
+          this.isEngineRunning = true;
+        } catch (e) {
+          console.warn('Audio initialisation suppressed', e);
+        }
       }
 
-      playShoot() {
-        if (!this.enabled || !this.ctx) return;
+      setEnginePitch(multiplier) {
+        if (this.dieselOsc && this.ctx && this.isEngineRunning) {
+          const target = Math.min(85, 42 * multiplier);
+          this.dieselOsc.frequency.setTargetAtTime(target, this.ctx.currentTime, 0.1);
+        }
+      }
+
+      stopEngine() {
+        if (this.dieselOsc && this.isEngineRunning) {
+          try {
+            this.dieselOsc.stop();
+            this.dieselOsc.disconnect();
+          } catch(e){}
+          this.isEngineRunning = false;
+        }
+      }
+
+      playSnowScoop() {
+        if (!this.ctx || !this.enabled) return;
+        try {
+          const bufferSize = this.ctx.sampleRate * 0.25;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(450, this.ctx.currentTime);
+          filter.Q.setValueAtTime(1.8, this.ctx.currentTime);
+
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start();
+        } catch (e) {}
+      }
+
+      playClank() {
+        if (!this.ctx || !this.enabled) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(310, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(70, this.ctx.currentTime + 0.22);
+          
+          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.23);
+        } catch (e) {}
+      }
+
+      playSafetyHonk() {
+        if (!this.ctx || !this.enabled) return;
+        try {
+          const now = this.ctx.currentTime;
+          const horn1 = this.ctx.createOscillator();
+          const horn2 = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          horn1.type = 'sawtooth';
+          horn2.type = 'sawtooth';
+          horn1.frequency.setValueAtTime(320, now);
+          horn2.frequency.setValueAtTime(380, now);
+
+          gain.gain.setValueAtTime(0.32, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+          horn1.connect(gain);
+          horn2.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          horn1.start(now);
+          horn2.start(now);
+          horn1.stop(now + 0.36);
+          horn2.stop(now + 0.36);
+        } catch (e) {}
+      }
+
+      playCoffeeChug() {
+        if (!this.ctx || !this.enabled) return;
         try {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'triangle';
-          const now = this.ctx.currentTime;
-          osc.frequency.setValueAtTime(320, now);
-          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
-          gain.gain.setValueAtTime(0.25, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.13);
-        } catch(e) {}
-      }
+          osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(640, this.ctx.currentTime + 0.2);
 
-      playSnowflakePop() {
-        if (!this.enabled || !this.ctx) return;
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'square';
-          const now = this.ctx.currentTime;
-          osc.frequency.setValueAtTime(580, now);
-          osc.frequency.exponentialRampToValueAtTime(140, now + 0.15);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.16);
-        } catch(e) {}
-      }
-
-      playBarrierCrunch() {
-        if (!this.enabled || !this.ctx) return;
-        try {
-          const node = this.ctx.createBufferSource();
-          const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.08, this.ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < buffer.length; i++) {
-            data[i] = Math.random() * 2 - 1;
-          }
-          node.buffer = buffer;
-          const gain = this.ctx.createGain();
-          const filter = this.ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.value = 600;
           gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
-          node.connect(filter);
-          filter.connect(gain);
-          gain.connect(this.ctx.destination);
-          node.start();
-        } catch(e) {}
-      }
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.22);
 
-      playIcicleDrop() {
-        if (!this.enabled || !this.ctx) return;
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          const now = this.ctx.currentTime;
-          osc.frequency.setValueAtTime(800, now);
-          osc.frequency.linearRampToValueAtTime(260, now + 0.12);
-          gain.gain.setValueAtTime(0.14, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.13);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.22);
         } catch(e) {}
       }
 
-      playPlayerHit() {
-        if (!this.enabled || !this.ctx) return;
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          const now = this.ctx.currentTime;
-          osc.frequency.setValueAtTime(170, now);
-          osc.frequency.linearRampToValueAtTime(35, now + 0.45);
-          gain.gain.setValueAtTime(0.35, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.46);
-        } catch(e) {}
-      }
-
-      playBonusVehicle() {
-        if (!this.enabled || !this.ctx) return;
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          const now = this.ctx.currentTime;
-          osc.frequency.setValueAtTime(100, now);
-          osc.frequency.linearRampToValueAtTime(155, now + 0.16);
-          gain.gain.setValueAtTime(0.12, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.16);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.17);
-        } catch(e) {}
-      }
-
-      playWaveClear() {
-        if (!this.enabled || !this.ctx) return;
-        try {
-          const notes = [330, 440, 550, 660, 880];
-          notes.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'triangle';
-            const start = this.ctx.currentTime + idx * 0.08;
-            osc.frequency.setValueAtTime(freq, start);
-            gain.gain.setValueAtTime(0.2, start);
-            gain.gain.linearRampToValueAtTime(0.01, start + 0.12);
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(start);
-            osc.stop(start + 0.13);
-          });
-        } catch(e) {}
+      toggle() {
+        this.enabled = !this.enabled;
+        if (!this.enabled && this.isEngineRunning) {
+          this.stopEngine();
+        } else if (this.enabled && !this.isEngineRunning) {
+          this.startEngine();
+        }
+        return this.enabled;
       }
     }
 
-    const sound = new SoundEngine();
-  </script>
-  <script>
-    const canvas = document.getElementById('game-canvas');
+    const sound = new AudioController();
+
+    const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // UI Elements
-    const scoreDisplay = document.getElementById('score-display');
-    const hiDisplay = document.getElementById('hi-display');
-    const waveDisplay = document.getElementById('wave-display');
-    const livesIcons = document.getElementById('lives-icons');
-    const soundBtn = document.getElementById('sound-btn');
-    const overlayScreen = document.getElementById('overlay-screen');
-    const startBtn = document.getElementById('start-btn');
-    const overlaySubtitle = document.getElementById('overlay-subtitle');
-    const overlayStats = document.getElementById('overlay-stats');
-    const finalScoreEl = document.getElementById('final-score');
-    const finalHiEl = document.getElementById('final-hi');
+    const wheelCanvas = document.getElementById('wheelCanvas');
+    const wctx = wheelCanvas.getContext('2d');
 
-    // Touch controls
-    const btnLeft = document.getElementById('btn-left');
-    const btnRight = document.getElementById('btn-right');
-    const btnFire = document.getElementById('btn-fire');
+    let steerRatio = 0.5;
+    let isDraggingWheel = false;
 
-    // Virtual Internal Resolution (Maintains pixel fidelity across phone ratios)
-    const V_WIDTH = 480;
-    const V_HEIGHT = 720;
+    const WOODY_QUOTES = [
+      "Just shaving the crown on KCS Pad, baby!",
+      "That's 40 yards a minute right there!",
+      "Watch the white pickups! Don't crunch the fleet truck!",
+      "Shift's almost over, Phil's probably on his way!",
+      "Hot coffee's the only thing keeping KCS Pad running!",
+      "Watch out for the greenhorns wandering around in orange hats!",
+      "Hey! Who let the new hires walk down the active haul road?!",
+      "Safety man's gonna have a stroke if we clip an orange hard hat!",
+      "Loader heater is stuck on high blast!",
+      "Whiteout on KCS Pad! Keep the blade dropped!"
+    ];
+
+    let highScore = parseInt(localStorage.getItem('woodys_whiteout_highscore') || '0', 10);
+    document.getElementById('high-score-display').textContent = `${highScore.toLocaleString()} yd³`;
+
+    let width = 0;
+    let height = 0;
+    let roadLeft = 0;
+    let roadRight = 0;
+    let roadWidth = 0;
+
+    const loader = {
+      x: 0,
+      y: 0,
+      targetX: 0,
+      width: 76,
+      height: 110,
+      bladeWidth: 84
+    };
+
+    const state = {
+      running: false,
+      scoreYards: 0,
+      driftsCleared: 0,
+      coffeesDrank: 0,
+      driftPack: 0,
+      durability: 100,
+      speed: 320,
+      baseSpeed: 320,
+      boostTimeRemaining: 0,
+      elapsedTime: 0,
+      screenShake: 0,
+      lastWoodyQuoteTime: 0
+    };
+
+    const keys = { left: false, right: false };
+    const hazards = [];
+    const particles = [];
+    const backgroundSnowflakes = [];
 
     function resizeCanvas() {
-      const container = canvas.parentElement;
-      const rect = container.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
+      const parent = canvas.parentElement;
+      width = parent.clientWidth;
+      height = parent.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
 
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      roadWidth = Math.min(width * 0.88, 380);
+      roadLeft = (width - roadWidth) / 2;
+      roadRight = roadLeft + roadWidth;
+
+      loader.y = height - 128;
+      if (!state.running) {
+        loader.x = width / 2;
+        loader.targetX = width / 2;
+      }
+
+      if (wheelCanvas) {
+        const wp = wheelCanvas.parentElement;
+        wheelCanvas.width = wp.clientWidth;
+        wheelCanvas.height = wp.clientHeight;
+      }
+
+      if (backgroundSnowflakes.length === 0) {
+        for (let i = 0; i < 75; i++) {
+          backgroundSnowflakes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: Math.random() * 2.5 + 1,
+            speed: Math.random() * 70 + 40,
+            wind: (Math.random() - 0.5) * 50
+          });
+        }
+      }
     }
-
     window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('orientationchange', resizeCanvas);
 
-    // Game Core State
-    let gameState = 'START';
-    let score = 0;
-    let highScore = parseInt(localStorage.getItem('woody_wonderland_hi') || '5000', 10);
-    let wave = 1;
-    let lives = 3;
-    let lastTime = 0;
+    function drawSteeringDeck() {
+      if (!wheelCanvas) return;
+      const ww = wheelCanvas.width;
+      const wh = wheelCanvas.height;
+      if (!ww || !wh) return;
 
-    const keys = {
-      left: false,
-      right: false,
-      fire: false
-    };
+      wctx.clearRect(0, 0, ww, wh);
 
-    // Ambient Snowflakes in Arctic Air
-    const bgSnowflakes = [];
-    for (let i = 0; i < 70; i++) {
-      bgSnowflakes.push({
-        x: Math.random() * V_WIDTH,
-        y: Math.random() * V_HEIGHT,
-        radius: Math.random() * 2 + 0.8,
-        speedY: Math.random() * 0.9 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.5
-      });
+      const centerX = ww / 2;
+      const radius = Math.min(ww * 0.48, wh * 0.72);
+      const centerY = wh * 0.96;
+
+      const startAngle = -Math.PI / 2 - 0.82;
+      const endAngle = -Math.PI / 2 + 0.82;
+
+      wctx.save();
+      wctx.lineWidth = 26;
+      wctx.strokeStyle = '#0f172a';
+      wctx.lineCap = 'round';
+      wctx.beginPath();
+      wctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      wctx.stroke();
+
+      wctx.lineWidth = 18;
+      wctx.strokeStyle = '#1e293b';
+      wctx.beginPath();
+      wctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      wctx.stroke();
+
+      wctx.lineWidth = 4;
+      wctx.strokeStyle = '#334155';
+      const steps = 16;
+      for (let i = 0; i <= steps; i++) {
+        const theta = startAngle + (endAngle - startAngle) * (i / steps);
+        const r1 = radius - 9;
+        const r2 = radius + 9;
+        wctx.beginPath();
+        wctx.moveTo(centerX + Math.cos(theta) * r1, centerY + Math.sin(theta) * r1);
+        wctx.lineTo(centerX + Math.cos(theta) * r2, centerY + Math.sin(theta) * r2);
+        wctx.stroke();
+      }
+
+      const centerTheta = -Math.PI / 2;
+      wctx.strokeStyle = '#eab308';
+      wctx.lineWidth = 8;
+      wctx.beginPath();
+      wctx.moveTo(centerX + Math.cos(centerTheta) * (radius - 12), centerY + Math.sin(centerTheta) * (radius - 12));
+      wctx.lineTo(centerX + Math.cos(centerTheta) * (radius + 12), centerY + Math.sin(centerTheta) * (radius + 12));
+      wctx.stroke();
+
+      const currentAngle = startAngle + (endAngle - startAngle) * steerRatio;
+      wctx.lineWidth = 8;
+      wctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+      wctx.beginPath();
+      wctx.arc(centerX, centerY, radius, Math.min(centerTheta, currentAngle), Math.max(centerTheta, currentAngle));
+      wctx.stroke();
+
+      const knobX = centerX + Math.cos(currentAngle) * radius;
+      const knobY = centerY + Math.sin(currentAngle) * radius;
+
+      wctx.lineWidth = 12;
+      wctx.strokeStyle = '#475569';
+      wctx.lineCap = 'round';
+      wctx.beginPath();
+      wctx.moveTo(centerX, centerY - radius * 0.2);
+      wctx.lineTo(knobX, knobY);
+      wctx.stroke();
+
+      wctx.fillStyle = '#0f172a';
+      wctx.beginPath();
+      wctx.arc(centerX, centerY, radius * 0.35, Math.PI, 2 * Math.PI);
+      wctx.fill();
+      wctx.strokeStyle = '#334155';
+      wctx.lineWidth = 3;
+      wctx.stroke();
+
+      // Suicide Knob Assembly
+      wctx.fillStyle = '#1e293b';
+      wctx.beginPath();
+      wctx.arc(knobX, knobY, 26, 0, Math.PI * 2);
+      wctx.fill();
+      wctx.strokeStyle = '#020617';
+      wctx.lineWidth = 3;
+      wctx.stroke();
+
+      wctx.fillStyle = '#cbd5e1';
+      wctx.beginPath();
+      wctx.arc(knobX, knobY, 22, 0, Math.PI * 2);
+      wctx.fill();
+
+      const knobGrad = wctx.createRadialGradient(knobX - 6, knobY - 6, 4, knobX, knobY, 21);
+      knobGrad.addColorStop(0, '#fef08a');
+      knobGrad.addColorStop(0.35, '#f59e0b');
+      knobGrad.addColorStop(0.85, '#d97706');
+      knobGrad.addColorStop(1, '#78350f');
+      wctx.fillStyle = knobGrad;
+      wctx.beginPath();
+      wctx.arc(knobX, knobY, 19, 0, Math.PI * 2);
+      wctx.fill();
+
+      wctx.fillStyle = '#0f172a';
+      wctx.beginPath();
+      wctx.arc(knobX, knobY, 9, 0, Math.PI * 2);
+      wctx.fill();
+
+      wctx.fillStyle = '#facc15';
+      wctx.font = 'bold 10px Chakra Petch, sans-serif';
+      wctx.textAlign = 'center';
+      wctx.textBaseline = 'middle';
+      wctx.fillText('980', knobX, knobY);
+
+      wctx.restore();
     }
 
-    // Particle explosions
-    let particles = [];
-    function spawnParticles(x, y, color = '#e0f2fe', count = 12, speed = 2.5) {
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const vel = Math.random() * speed + 0.5;
-        particles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * vel,
-          vy: Math.sin(angle) * vel,
-          color: color,
-          size: Math.random() * 3.5 + 1.5,
-          life: 1.0,
-          decay: Math.random() * 0.03 + 0.02
-        });
-      }
-    }
-  </script>
-  <script>
-    /**
-     * Woody's Industrial Front-End Loader
-     * White hair, clean shaven face, blue trucker cap & industrial insulated jacket.
-     */
-    const loader = {
-      w: 64,
-      h: 46,
-      x: V_WIDTH / 2 - 32,
-      y: V_HEIGHT - 92,
-      speed: 245,
-      recoil: 0,
-      invulnerableTimer: 0,
-      fireCooldown: 0,
+    function handleSteerInput(clientX) {
+      if (!wheelCanvas) return;
+      const rect = wheelCanvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const ww = rect.width;
 
-      reset() {
-        this.x = V_WIDTH / 2 - this.w / 2;
-        this.recoil = 0;
-        this.invulnerableTimer = 2.0;
-        this.fireCooldown = 0;
-      },
-
-      update(dt) {
-        if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
-        if (this.fireCooldown > 0) this.fireCooldown -= dt;
-        if (this.recoil > 0) this.recoil = Math.max(0, this.recoil - dt * 18);
-
-        let moveDir = 0;
-        if (keys.left) moveDir -= 1;
-        if (keys.right) moveDir += 1;
-
-        this.x += moveDir * this.speed * dt;
-        if (this.x < 12) this.x = 12;
-        if (this.x + this.w > V_WIDTH - 12) this.x = V_WIDTH - 12 - this.w;
-
-        if (keys.fire && this.fireCooldown <= 0) {
-          this.shoot();
-        }
-      },
-
-      shoot() {
-        this.fireCooldown = 0.28;
-        this.recoil = 4;
-        sound.playShoot();
-
-        const bucketTipX = this.x + this.w - 8;
-        const bucketTipY = this.y + 4;
-
-        playerProjectiles.push({
-          x: bucketTipX - 4,
-          y: bucketTipY,
-          vx: (Math.random() - 0.5) * 16,
-          vy: -480,
-          w: 8,
-          h: 10
-        });
-
-        spawnParticles(bucketTipX, bucketTipY, '#bae6fd', 6, 2.0);
-      },
-
-      draw(ctx) {
-        if (this.invulnerableTimer > 0 && Math.floor(Date.now() / 90) % 2 === 0) {
-          return;
-        }
-
-        ctx.save();
-        ctx.translate(this.x, this.y + this.recoil);
-
-        // 1. Loader Chassis Main Body (Heavy Industrial Yellow)
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(8, 22, 38, 16);
-
-        // Rear engine hood
-        ctx.fillStyle = '#d97706';
-        ctx.fillRect(4, 24, 8, 14);
-
-        // Exhaust stack
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(6, 12, 3, 12);
-        ctx.fillRect(5, 11, 5, 2);
-
-        // 2. Cab Roll Cage & Glass
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(16, 6, 20, 18);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(19, 8, 14, 14);
-
-        // 3. WOODY: White Hair, Clean Shaven, Blue Cap, Arctic Work Jacket
-        ctx.fillStyle = '#1e40af'; // Blue heavy jacket
-        ctx.fillRect(21, 16, 10, 6);
-
-        ctx.fillStyle = '#fed7aa'; // Clean shaven skin tone
-        ctx.fillRect(22, 11, 8, 6);
-
-        // Clean face features (no beard)
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(26, 12, 2, 2); // eye
-        ctx.fillStyle = '#f97316';
-        ctx.fillRect(27, 15, 2, 1); // mouth
-
-        // WHITE HAIR (Sideburns & back head)
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(20, 11, 3, 5); // back hair
-        ctx.fillRect(22, 13, 2, 3); // sideburn
-
-        // Blue Trucker / Work Cap
-        ctx.fillStyle = '#1d4ed8';
-        ctx.fillRect(21, 8, 9, 3);
-        ctx.fillRect(26, 10, 5, 2); // cap brim
-
-        // 4. Hydraulic Boom Arm & Front Scoop Bucket
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(36, 18, 12, 5);
-        ctx.fillRect(44, 12, 8, 6);
-
-        ctx.fillStyle = '#cbd5e1';
-        ctx.fillRect(32, 23, 10, 3); // cylinder
-
-        // Front Steel Shovel Bucket
-        ctx.fillStyle = '#475569';
-        ctx.beginPath();
-        ctx.moveTo(50, 10);
-        ctx.lineTo(62, 10);
-        ctx.lineTo(64, 26);
-        ctx.lineTo(54, 32);
-        ctx.lineTo(48, 22);
-        ctx.closePath();
-        ctx.fill();
-
-        // Bucket teeth
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillRect(61, 10, 3, 15);
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(63, 11, 2, 3);
-        ctx.fillRect(63, 16, 2, 3);
-        ctx.fillRect(63, 21, 2, 3);
-
-        // 5. Heavy Arctic Traction Tires
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(4, 28, 16, 16);
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(8, 32, 8, 8);
-
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(32, 28, 18, 18);
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(37, 33, 8, 8);
-
-        ctx.restore();
-      }
-    };
-
-    let playerProjectiles = [];
-    let enemyProjectiles = [];
-
-    // Destructible Gravel/Snow Pad Barriers
-    const BERM_COLS = 14;
-    const BERM_ROWS = 8;
-    const BERM_BLOCK_SIZE = 4;
-    let barriers = [];
-
-    function initBarriers() {
-      barriers = [];
-      const numBarriers = 3;
-      const barrierWidth = BERM_COLS * BERM_BLOCK_SIZE;
-      const totalSpan = V_WIDTH - 60;
-      const spacing = (totalSpan - (numBarriers * barrierWidth)) / (numBarriers - 1);
-
-      for (let b = 0; b < numBarriers; b++) {
-        const startX = 30 + b * (barrierWidth + spacing);
-        const startY = V_HEIGHT - 175;
-        const grid = [];
-
-        for (let r = 0; r < BERM_ROWS; r++) {
-          const row = [];
-          for (let c = 0; c < BERM_COLS; c++) {
-            let active = true;
-            if (r === 0 && (c < 3 || c > 10)) active = false;
-            if (r === 1 && (c < 1 || c > 12)) active = false;
-            if (r >= 5 && (c >= 4 && c <= 9)) active = false;
-            row.push(active ? 1 : 0);
-          }
-          grid.push(row);
-        }
-
-        barriers.push({
-          x: startX,
-          y: startY,
-          grid: grid,
-          cols: BERM_COLS,
-          rows: BERM_ROWS,
-          blockSize: BERM_BLOCK_SIZE
-        });
-      }
+      const margin = 26;
+      const normalized = Math.max(0, Math.min(1, (x - margin) / (ww - margin * 2)));
+      steerRatio = normalized;
     }
 
-    function erodeBarrier(barrier, gridC, gridR, radius = 1) {
-      for (let dr = -radius; dr <= radius; dr++) {
-        for (let dc = -radius; dc <= radius; dc++) {
-          const targetR = gridR + dr;
-          const targetC = gridC + dc;
-          if (targetR >= 0 && targetR < barrier.rows && targetC >= 0 && targetC < barrier.cols) {
-            barrier.grid[targetR][targetC] = 0;
+    wheelCanvas.addEventListener('touchstart', (e) => {
+      isDraggingWheel = true;
+      handleSteerInput(e.touches[0].clientX);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDraggingWheel && e.touches.length > 0) {
+        handleSteerInput(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      isDraggingWheel = false;
+    });
+
+    wheelCanvas.addEventListener('mousedown', (e) => {
+      isDraggingWheel = true;
+      handleSteerInput(e.clientX);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDraggingWheel) {
+        handleSteerInput(e.clientX);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDraggingWheel = false;
+    });
+
+    function updateGame(dt) {
+      state.elapsedTime += dt;
+
+      const totalSec = Math.floor(state.elapsedTime);
+      const mins = String(Math.floor(totalSec / 60)).padStart(2, '0');
+      const secs = String(totalSec % 60).padStart(2, '0');
+      document.getElementById('shift-time').textContent = `SHIFT ${mins}:${secs}`;
+
+      if (state.boostTimeRemaining > 0) {
+        state.boostTimeRemaining = Math.max(0, state.boostTimeRemaining - dt);
+        state.speed = state.baseSpeed * 1.5;
+        sound.setEnginePitch(1.85);
+
+        document.getElementById('boost-indicator').classList.remove('hidden');
+        document.getElementById('boost-indicator').classList.add('flex');
+        document.getElementById('boost-timer').textContent = `${state.boostTimeRemaining.toFixed(1)}s`;
+      } else {
+        state.speed = state.baseSpeed;
+        sound.setEnginePitch(1.0 + (state.scoreYards / 5000));
+        document.getElementById('boost-indicator').classList.add('hidden');
+        document.getElementById('boost-indicator').classList.remove('flex');
+      }
+
+      state.baseSpeed = Math.min(620, 300 + state.elapsedTime * 5);
+      state.driftPack = Math.min(100, state.driftPack + dt * 2.8);
+
+      if (state.driftPack >= 100) {
+        endShift(
+          "WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!",
+          "Drifts overtook KCS Pad! The entire camp haul road is snowed under!"
+        );
+        return;
+      }
+      if (state.durability <= 0) {
+        endShift(
+          "WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!",
+          "Loader bucket took a beating! Call Phil out to the pad with the service truck!"
+        );
+        return;
+      }
+
+      if (keys.left) {
+        steerRatio = Math.max(0, steerRatio - 2.5 * dt);
+      } else if (keys.right) {
+        steerRatio = Math.min(1, steerRatio + 2.5 * dt);
+      }
+
+      const minX = roadLeft + loader.width / 2 + 4;
+      const maxX = roadRight - loader.width / 2 - 4;
+      loader.targetX = minX + (maxX - minX) * steerRatio;
+      loader.x += (loader.targetX - loader.x) * Math.min(1, dt * 14);
+
+      spawnHazards(dt);
+
+      for (let i = hazards.length - 1; i >= 0; i--) {
+        const item = hazards[i];
+        item.y += state.speed * dt;
+
+        if (item.y > height + 60) {
+          if (item.type === 'drift' && !item.collected) {
+            state.driftPack = Math.min(100, state.driftPack + 12);
           }
-        }
-      }
-    }
-  </script>
-  <script>
-    /**
-     * Snowflake Invaders Swarm Logic
-     */
-    let snowflakes = [];
-    let swarmDirection = 1;
-    let swarmSpeed = 24;
-    let dropShotTimer = 0;
-
-    const SNOWFLAKE_ROWS = 4;
-    const SNOWFLAKE_COLS = 7;
-
-    function initSwarm() {
-      snowflakes = [];
-      const startX = 40;
-      const startY = 88;
-      const spacingX = 54;
-      const spacingY = 44;
-
-      for (let r = 0; r < SNOWFLAKE_ROWS; r++) {
-        let type = 0;
-        let points = 30;
-        if (r === 0) { type = 0; points = 40; }
-        else if (r <= 2) { type = 1; points = 20; }
-        else { type = 2; points = 10; }
-
-        for (let c = 0; c < SNOWFLAKE_COLS; c++) {
-          snowflakes.push({
-            x: startX + c * spacingX,
-            y: startY + r * spacingY,
-            w: 32,
-            h: 30,
-            type: type,
-            points: points,
-            alive: true,
-            animTimer: Math.random() * Math.PI,
-            eyeColor: r === 0 ? '#ff0055' : (r <= 2 ? '#38bdf8' : '#e11d48')
-          });
+          hazards.splice(i, 1);
         }
       }
 
-      swarmDirection = 1;
-      swarmSpeed = 26 + (wave * 6);
-      dropShotTimer = 1.1;
-    }
+      checkCollisions();
 
-    /**
-     * Bonus North Slope Service Truck (Classic UFO equivalent)
-     */
-    const bonusPlow = {
-      active: false,
-      x: -80,
-      y: 50,
-      w: 64,
-      h: 26,
-      speed: 135,
-      dir: 1,
-      spawnTimer: 12 + Math.random() * 8,
-
-      update(dt) {
-        if (!this.active) {
-          this.spawnTimer -= dt;
-          if (this.spawnTimer <= 0) {
-            this.active = true;
-            this.dir = Math.random() > 0.5 ? 1 : -1;
-            this.x = this.dir === 1 ? -this.w : V_WIDTH + 10;
-            this.spawnTimer = 18 + Math.random() * 12;
-            sound.playBonusVehicle();
-          }
-        } else {
-          this.x += this.dir * this.speed * dt;
-          if ((this.dir === 1 && this.x > V_WIDTH + 20) || (this.dir === -1 && this.x < -this.w - 20)) {
-            this.active = false;
-          }
-        }
-      },
-
-      draw(ctx) {
-        if (!this.active) return;
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        if (this.dir === -1) {
-          ctx.scale(-1, 1);
-          ctx.translate(-this.w, 0);
-        }
-
-        // Heavy Arctic Service Truck with utility box
-        ctx.fillStyle = '#ea580c'; // Arctic safety orange
-        ctx.fillRect(8, 6, 40, 14);
-        ctx.fillStyle = '#c2410c';
-        ctx.fillRect(28, 0, 18, 10); // Cab
-
-        // Windshield
-        ctx.fillStyle = '#7dd3fc';
-        ctx.fillRect(36, 2, 8, 7);
-
-        // Flashing amber beacon
-        ctx.fillStyle = Math.floor(Date.now() / 140) % 2 === 0 ? '#fde047' : '#ea580c';
-        ctx.fillRect(32, -4, 6, 4);
-
-        // Front heavy snowplow blade
-        ctx.fillStyle = '#e2e8f0';
-        ctx.beginPath();
-        ctx.moveTo(48, 20);
-        ctx.lineTo(62, 20);
-        ctx.lineTo(58, 4);
-        ctx.lineTo(48, 10);
-        ctx.closePath();
-        ctx.fill();
-
-        // Wheels
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(10, 17, 10, 9);
-        ctx.fillRect(36, 17, 10, 9);
-
-        ctx.restore();
-      }
-    };
-  </script>
-  <script>
-    /**
-     * Draw individual procedural Snowflake Invader
-     */
-    function drawSnowflake(ctx, sf, time) {
-      ctx.save();
-      ctx.translate(sf.x + sf.w / 2, sf.y + sf.h / 2);
-
-      const pulse = Math.sin(time * 6 + sf.animTimer) * 0.12 + 1;
-      ctx.scale(pulse, pulse);
-
-      const color = sf.type === 0 ? '#e0f2fe' : (sf.type === 1 ? '#bae6fd' : '#7dd3fc');
-      ctx.fillStyle = color;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2.5;
-
-      for (let i = 0; i < 6; i++) {
-        ctx.save();
-        ctx.rotate((Math.PI / 3) * i);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -13);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(0, -7);
-        ctx.lineTo(-4, -10);
-        ctx.moveTo(0, -7);
-        ctx.lineTo(4, -10);
-        ctx.stroke();
-
-        ctx.fillRect(-1.5, -14, 3, 3);
-        ctx.restore();
+      if (state.screenShake > 0) {
+        state.screenShake = Math.max(0, state.screenShake - dt);
       }
 
-      ctx.fillStyle = '#0284c7';
-      ctx.beginPath();
-      ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Glowing alien eyes
-      ctx.fillStyle = sf.eyeColor;
-      ctx.fillRect(-3, -2, 2.2, 2.2);
-      ctx.fillRect(1, -2, 2.2, 2.2);
-
-      ctx.restore();
-    }
-
-    /**
-     * Render North Slope / Arctic Oilfield Environment
-     * Features: Drilling rigs/derricks with warning beacons, elevated insulated pipeline racks,
-     * high-mast floodlights, and a flickering gas flare stack.
-     */
-    function drawOilfieldEnvironment(ctx, time) {
-      // 1. Dark Arctic Winter Sky
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
-      skyGrad.addColorStop(0, '#040814');
-      skyGrad.addColorStop(0.45, '#071228');
-      skyGrad.addColorStop(0.75, '#0e203f');
-      skyGrad.addColorStop(1, '#050c18');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
-
-      // 2. Distant Flickering Flare Stack on the horizon
-      const flareX = 50;
-      const flareBaseY = V_HEIGHT - 170;
-      const flareTopY = flareBaseY - 95;
-
-      // Vertical flare pipe & guy-wires
-      ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(flareX, flareBaseY);
-      ctx.lineTo(flareX, flareTopY);
-      ctx.stroke();
-
-      // Guy wires
-      ctx.strokeStyle = 'rgba(100, 116, 139, 0.4)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(flareX, flareTopY + 20);
-      ctx.lineTo(flareX - 25, flareBaseY);
-      ctx.moveTo(flareX, flareTopY + 20);
-      ctx.lineTo(flareX + 25, flareBaseY);
-      ctx.stroke();
-
-      // Flare flame with dynamic flicker
-      const flicker = Math.sin(time * 18) * 4 + Math.cos(time * 26) * 3;
-      const flameHeight = 22 + flicker;
-
-      ctx.save();
-      ctx.shadowColor = '#ea580c';
-      ctx.shadowBlur = 18;
-      const flameGrad = ctx.createRadialGradient(flareX, flareTopY, 2, flareX, flareTopY - flameHeight / 2, flameHeight);
-      flameGrad.addColorStop(0, '#fef08a');
-      flameGrad.addColorStop(0.3, '#f97316');
-      flameGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
-      ctx.fillStyle = flameGrad;
-      ctx.beginPath();
-      ctx.arc(flareX, flareTopY - 6, flameHeight * 0.7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // 3. Oilfield Drilling Rig / Derrick Tower (Right side)
-      const rigX = 390;
-      const rigBaseY = V_HEIGHT - 170;
-      const rigH = 135;
-
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 2;
-      // Derrick frame legs
-      ctx.beginPath();
-      ctx.moveTo(rigX - 28, rigBaseY);
-      ctx.lineTo(rigX - 10, rigBaseY - rigH);
-      ctx.lineTo(rigX + 10, rigBaseY - rigH);
-      ctx.lineTo(rigX + 28, rigBaseY);
-      ctx.stroke();
-
-      // Derrick cross braces
-      for (let step = 0; step < 4; step++) {
-        const y1 = rigBaseY - step * (rigH / 4);
-        const y2 = rigBaseY - (step + 1) * (rigH / 4);
-        const w1 = 28 - step * 4.5;
-        const w2 = 28 - (step + 1) * 4.5;
-
-        ctx.beginPath();
-        ctx.moveTo(rigX - w1, y1);
-        ctx.lineTo(rigX + w2, y2);
-        ctx.moveTo(rigX + w1, y1);
-        ctx.lineTo(rigX - w2, y2);
-        ctx.moveTo(rigX - w2, y2);
-        ctx.lineTo(rigX + w2, y2);
-        ctx.stroke();
-      }
-
-      // Red aircraft obstruction warning beacon atop derrick
-      ctx.fillStyle = Math.floor(Date.now() / 500) % 2 === 0 ? '#ef4444' : '#7f1d1d';
-      ctx.fillRect(rigX - 3, rigBaseY - rigH - 6, 6, 6);
-
-      // 4. Elevated Insulated Pipeline Rack (VSMs - Vertical Support Members)
-      const pipeY = V_HEIGHT - 145;
-
-      // Pipe horizontal insulated casing (Silver / Yellow band)
-      ctx.fillStyle = '#64748b'; // Lower shadow
-      ctx.fillRect(0, pipeY, V_WIDTH, 12);
-      ctx.fillStyle = '#94a3b8'; // Silver insulated pipe
-      ctx.fillRect(0, pipeY + 2, V_WIDTH, 7);
-      ctx.fillStyle = '#facc15'; // Yellow pipeline identification stripe
-      ctx.fillRect(0, pipeY + 4, V_WIDTH, 3);
-
-      // Elevated VSM stanchions
-      for (let vx = 30; vx < V_WIDTH; vx += 70) {
-        // Steel H-beam uprights
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(vx - 3, pipeY + 12, 6, 35);
-        ctx.fillRect(vx - 9, pipeY + 10, 18, 3); // Cross-arm saddle
-      }
-
-      // 5. High-Mast Floodlight Tower casting dramatic cone
-      const floodX = 220;
-      const floodY = V_HEIGHT - 210;
-
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(floodX - 2, floodY, 4, 75);
-
-      // Floodlight head
-      ctx.fillStyle = '#e2e8f0';
-      ctx.fillRect(floodX - 10, floodY - 4, 20, 5);
-
-      // Ambient light cone
-      ctx.save();
-      const lightGrad = ctx.createRadialGradient(floodX, floodY, 10, floodX, floodY + 140, 140);
-      lightGrad.addColorStop(0, 'rgba(254, 240, 138, 0.22)');
-      lightGrad.addColorStop(0.8, 'rgba(254, 240, 138, 0.04)');
-      lightGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
-      ctx.fillStyle = lightGrad;
-      ctx.beginPath();
-      ctx.moveTo(floodX - 8, floodY);
-      ctx.lineTo(floodX - 80, V_HEIGHT - 60);
-      ctx.lineTo(floodX + 80, V_HEIGHT - 60);
-      ctx.lineTo(floodX + 8, floodY);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-
-      // 6. Engineered Arctic Gravel Pad
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(0, V_HEIGHT - 58, V_WIDTH, 58);
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(0, V_HEIGHT - 54, V_WIDTH, 5);
-
-      // Packed snow & gravel texture
-      ctx.fillStyle = '#94a3b8';
-      for (let gx = 10; gx < V_WIDTH; gx += 32) {
-        ctx.fillRect(gx, V_HEIGHT - 48, 12, 2);
-        ctx.fillRect(gx + 14, V_HEIGHT - 38, 16, 2);
-      }
-
-      // 7. Ambient Falling Arctic Snow
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-      for (let flake of bgSnowflakes) {
-        flake.y += flake.speedY;
-        flake.x += flake.speedX;
-        if (flake.y > V_HEIGHT) flake.y = 0;
-        if (flake.x > V_WIDTH) flake.x = 0;
-        if (flake.x < 0) flake.x = V_WIDTH;
-
-        ctx.beginPath();
-        ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    function drawBarriers(ctx) {
-      for (let b of barriers) {
-        for (let r = 0; r < b.rows; r++) {
-          for (let c = 0; c < b.cols; c++) {
-            if (b.grid[r][c] === 1) {
-              const bx = b.x + c * b.blockSize;
-              const by = b.y + r * b.blockSize;
-
-              if (r < 3) {
-                ctx.fillStyle = '#f8fafc'; // Packed snow cap
-              } else if (r < 5) {
-                ctx.fillStyle = '#cbd5e1'; // Frozen crust
-              } else {
-                ctx.fillStyle = '#64748b'; // Pad gravel & salt
-              }
-              ctx.fillRect(bx, by, b.blockSize, b.blockSize);
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <script>
-    function checkAABB(r1, r2) {
-      return (
-        r1.x < r2.x + r2.w &&
-        r1.x + r1.w > r2.x &&
-        r1.y < r2.y + r2.h &&
-        r1.y + r1.h > r2.y
-      );
-    }
-
-    function updateGameLogic(dt) {
-      if (gameState !== 'PLAYING') return;
-
-      loader.update(dt);
-      bonusPlow.update(dt);
-
-      // Loader projectile vs bonus service truck
-      if (bonusPlow.active) {
-        for (let i = playerProjectiles.length - 1; i >= 0; i--) {
-          const p = playerProjectiles[i];
-          if (checkAABB(p, bonusPlow)) {
-            playerProjectiles.splice(i, 1);
-            bonusPlow.active = false;
-            const bonusPts = (Math.floor(Math.random() * 3) + 1) * 100;
-            addScore(bonusPts);
-            spawnParticles(bonusPlow.x + bonusPlow.w / 2, bonusPlow.y + bonusPlow.h / 2, '#f97316', 25, 4.0);
-            sound.playWaveClear();
-            break;
-          }
-        }
-      }
-
-      // Move Loader Shots
-      for (let i = playerProjectiles.length - 1; i >= 0; i--) {
-        const p = playerProjectiles[i];
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-
-        if (p.y < 0) {
-          playerProjectiles.splice(i, 1);
-          continue;
-        }
-
-        // Hit Barriers
-        let hitBarrier = false;
-        for (let b of barriers) {
-          if (
-            p.x + p.w >= b.x && p.x <= b.x + b.cols * b.blockSize &&
-            p.y + p.h >= b.y && p.y <= b.y + b.rows * b.blockSize
-          ) {
-            const gridC = Math.floor((p.x - b.x) / b.blockSize);
-            const gridR = Math.floor((p.y - b.y) / b.blockSize);
-            if (gridR >= 0 && gridR < b.rows && gridC >= 0 && gridC < b.cols && b.grid[gridR][gridC] === 1) {
-              erodeBarrier(b, gridC, gridR, 1);
-              spawnParticles(p.x, p.y, '#e2e8f0', 5, 1.5);
-              sound.playBarrierCrunch();
-              playerProjectiles.splice(i, 1);
-              hitBarrier = true;
-              break;
-            }
-          }
-        }
-        if (hitBarrier) continue;
-
-        // Hit Snowflakes
-        for (let sf of snowflakes) {
-          if (sf.alive && checkAABB(p, sf)) {
-            sf.alive = false;
-            playerProjectiles.splice(i, 1);
-            addScore(sf.points);
-            spawnParticles(sf.x + sf.w / 2, sf.y + sf.h / 2, '#38bdf8', 16, 3.2);
-            sound.playSnowflakePop();
-
-            const remaining = snowflakes.filter(s => s.alive).length;
-            swarmSpeed = Math.min(210, (26 + (wave * 6)) + (28 - remaining) * 4.8);
-
-            if (remaining === 0) {
-              waveCleared();
-            }
-            break;
-          }
-        }
-      }
-
-      // Move Snowflake Swarm
-      const livingSnowflakes = snowflakes.filter(s => s.alive);
-      if (livingSnowflakes.length > 0) {
-        let hitEdge = false;
-        const stepX = swarmDirection * swarmSpeed * dt;
-
-        for (let sf of livingSnowflakes) {
-          sf.x += stepX;
-          if (swarmDirection === 1 && sf.x + sf.w >= V_WIDTH - 14) {
-            hitEdge = true;
-          } else if (swarmDirection === -1 && sf.x <= 14) {
-            hitEdge = true;
-          }
-        }
-
-        if (hitEdge) {
-          swarmDirection *= -1;
-          const dropAmount = 16;
-          for (let sf of livingSnowflakes) {
-            sf.y += dropAmount;
-            if (sf.y + sf.h >= loader.y) {
-              triggerGameOver();
-              return;
-            }
-          }
-        }
-
-        // Enemy Icicle Drop
-        dropShotTimer -= dt;
-        if (dropShotTimer <= 0) {
-          dropShotTimer = Math.max(0.42, 1.35 - (wave * 0.14) - (Math.random() * 0.4));
-          const shooter = livingSnowflakes[Math.floor(Math.random() * livingSnowflakes.length)];
-          if (shooter) {
-            enemyProjectiles.push({
-              x: shooter.x + shooter.w / 2 - 3,
-              y: shooter.y + shooter.h,
-              w: 6,
-              h: 15,
-              vy: 245 + wave * 18,
-              trailTimer: 0
-            });
-            sound.playIcicleDrop();
-          }
-        }
-      }
-
-      // Move Enemy Shots
-      for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
-        const icicle = enemyProjectiles[i];
-        icicle.y += icicle.vy * dt;
-
-        icicle.trailTimer = (icicle.trailTimer || 0) + dt;
-        if (icicle.trailTimer > 0.04) {
-          icicle.trailTimer = 0;
-          particles.push({
-            x: icicle.x + icicle.w / 2 + (Math.random() - 0.5) * 3,
-            y: icicle.y - 2,
-            vx: (Math.random() - 0.5) * 0.8,
-            vy: -0.6,
-            color: Math.random() > 0.5 ? '#ff0033' : '#fde047',
-            size: Math.random() * 2.5 + 1.2,
-            life: 0.6,
-            decay: 0.05
-          });
-        }
-
-        if (icicle.y > V_HEIGHT - 58) {
-          spawnParticles(icicle.x, icicle.y, '#ef4444', 5, 1.4);
-          enemyProjectiles.splice(i, 1);
-          continue;
-        }
-
-        // Berm collision
-        let hitBarrier = false;
-        for (let b of barriers) {
-          if (
-            icicle.x + icicle.w >= b.x && icicle.x <= b.x + b.cols * b.blockSize &&
-            icicle.y + icicle.h >= b.y && icicle.y <= b.y + b.rows * b.blockSize
-          ) {
-            const gridC = Math.floor((icicle.x - b.x) / b.blockSize);
-            const gridR = Math.floor((icicle.y - b.y) / b.blockSize);
-            if (gridR >= 0 && gridR < b.rows && gridC >= 0 && gridC < b.cols && b.grid[gridR][gridC] === 1) {
-              erodeBarrier(b, gridC, gridR, 1);
-              spawnParticles(icicle.x, icicle.y, '#f59e0b', 7, 1.6);
-              sound.playBarrierCrunch();
-              enemyProjectiles.splice(i, 1);
-              hitBarrier = true;
-              break;
-            }
-          }
-        }
-        if (hitBarrier) continue;
-
-        // Player collision
-        if (loader.invulnerableTimer <= 0 && checkAABB(icicle, loader)) {
-          enemyProjectiles.splice(i, 1);
-          playerHit();
-          break;
-        }
-      }
-
-      // Update Particles
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= p.decay;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= p.decay * dt;
         if (p.life <= 0) {
           particles.splice(i, 1);
         }
       }
-    }
-  </script>
-  <script>
-    function addScore(pts) {
-      score += pts;
-      scoreDisplay.textContent = score.toString().padStart(5, '0');
-      if (score > highScore) {
-        highScore = score;
-        hiDisplay.textContent = highScore.toString().padStart(5, '0');
-        localStorage.setItem('woody_wonderland_hi', highScore.toString());
-      }
-    }
 
-    function updateLivesUI() {
-      livesIcons.innerHTML = '';
-      for (let i = 0; i < lives; i++) {
-        const icon = document.createElement('div');
-        icon.className = 'w-4 h-3 bg-amber-400 rounded-sm border border-slate-900 inline-block';
-        icon.title = 'Spare Loader';
-        livesIcons.appendChild(icon);
-      }
-    }
-
-    function playerHit() {
-      lives--;
-      sound.playPlayerHit();
-      spawnParticles(loader.x + loader.w / 2, loader.y + loader.h / 2, '#f59e0b', 30, 4.0);
-      spawnParticles(loader.x + loader.w / 2, loader.y + loader.h / 2, '#38bdf8', 20, 3.5);
-      updateLivesUI();
-
-      if (lives <= 0) {
-        triggerGameOver();
-      } else {
-        loader.reset();
-      }
-    }
-
-    function waveCleared() {
-      sound.playWaveClear();
-      gameState = 'WAVECLEAR';
-      wave++;
-      waveDisplay.textContent = wave;
-
-      setTimeout(() => {
-        initSwarm();
-        playerProjectiles = [];
-        enemyProjectiles = [];
-        loader.reset();
-        gameState = 'PLAYING';
-      }, 1400);
-    }
-
-    function triggerGameOver() {
-      sound.playPlayerHit();
-      gameState = 'GAMEOVER';
-
-      finalScoreEl.textContent = score;
-      finalHiEl.textContent = highScore;
-      overlayStats.classList.remove('hidden');
-
-      // The requested custom Game Over Message
-      overlaySubtitle.innerHTML = `
-        <div class="space-y-2 py-1">
-          <p class="text-rose-400 font-bold text-xs sm:text-sm tracking-wide leading-relaxed">
-            Woody failed (as usual)
-          </p>
-          <p class="text-emerald-400 font-bold text-xs sm:text-sm tracking-wide leading-relaxed drop-shadow-[0_2px_6px_rgba(52,211,153,0.5)]">
-            but Phil will save the day!
-          </p>
-        </div>
-      `;
-
-      startBtn.textContent = 'PUT WOODY BACK TO WORK';
-      overlayScreen.classList.remove('hidden');
-    }
-
-    function startNewGame() {
-      sound.init();
-      score = 0;
-      wave = 1;
-      lives = 3;
-      scoreDisplay.textContent = '00000';
-      hiDisplay.textContent = highScore.toString().padStart(5, '0');
-      waveDisplay.textContent = '1';
-      updateLivesUI();
-
-      playerProjectiles = [];
-      enemyProjectiles = [];
-      particles = [];
-
-      initBarriers();
-      initSwarm();
-      loader.reset();
-      bonusPlow.active = false;
-      bonusPlow.spawnTimer = 14;
-
-      overlayScreen.classList.add('hidden');
-      overlayStats.classList.add('hidden');
-      gameState = 'PLAYING';
-    }
-  </script>
-  <script>
-    // Sound Button
-    soundBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sound.init();
-      const on = sound.toggle();
-      soundBtn.textContent = on ? 'SND: ON' : 'SND: OFF';
-      soundBtn.className = on 
-        ? 'px-2 py-1 bg-amber-950/70 hover:bg-amber-900 active:scale-95 border border-amber-500/50 rounded text-amber-200 text-[9px]'
-        : 'px-2 py-1 bg-rose-950/70 hover:bg-rose-900 active:scale-95 border border-rose-500/50 rounded text-rose-300 text-[9px]';
-    });
-
-    // Start Button
-    startBtn.addEventListener('click', () => {
-      startNewGame();
-    });
-
-    // Touch Buttons
-    function bindTouchBtn(btn, keyProp) {
-      btn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        sound.init();
-        keys[keyProp] = true;
-        btn.classList.add('touch-btn-pressed');
-      }, { passive: false });
-
-      btn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keys[keyProp] = false;
-        btn.classList.remove('touch-btn-pressed');
-      }, { passive: false });
-
-      btn.addEventListener('touchcancel', () => {
-        keys[keyProp] = false;
-        btn.classList.remove('touch-btn-pressed');
-      });
-
-      btn.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        sound.init();
-        keys[keyProp] = true;
-      });
-      btn.addEventListener('mouseup', () => { keys[keyProp] = false; });
-      btn.addEventListener('mouseleave', () => { keys[keyProp] = false; });
-    }
-
-    bindTouchBtn(btnLeft, 'left');
-    bindTouchBtn(btnRight, 'right');
-    bindTouchBtn(btnFire, 'fire');
-
-    // Drag-to-steer directly on canvas
-    let isDragging = false;
-
-    canvas.addEventListener('touchstart', (e) => {
-      if (gameState !== 'PLAYING') return;
-      sound.init();
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const canvasX = ((touch.clientX - rect.left) / rect.width) * V_WIDTH;
-      loader.x = canvasX - loader.w / 2;
-      isDragging = true;
-    }, { passive: true });
-
-    canvas.addEventListener('touchmove', (e) => {
-      if (!isDragging || gameState !== 'PLAYING') return;
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const canvasX = ((touch.clientX - rect.left) / rect.width) * V_WIDTH;
-      loader.x = canvasX - loader.w / 2;
-    }, { passive: true });
-
-    canvas.addEventListener('touchend', () => {
-      isDragging = false;
-    });
-
-    // Keyboard support for testing
-    window.addEventListener('keydown', (e) => {
-      sound.init();
-      if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
-      if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
-      if (e.code === 'Space' || e.code === 'ArrowUp') {
-        keys.fire = true;
-        if (gameState !== 'PLAYING' && overlayScreen.classList.contains('hidden') === false) {
-          startNewGame();
+      for (let s of backgroundSnowflakes) {
+        s.y += (s.speed + state.speed * 0.4) * dt;
+        s.x += s.wind * dt;
+        if (s.y > height) {
+          s.y = -10;
+          s.x = Math.random() * width;
         }
+        if (s.x < 0) s.x = width;
+        if (s.x > width) s.x = 0;
       }
-    });
 
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
-      if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
-      if (e.code === 'Space' || e.code === 'ArrowUp') keys.fire = false;
-    });
-  </script>
-  <script>
-    function render(currentTime) {
-      if (!lastTime) lastTime = currentTime;
-      const dt = Math.min((currentTime - lastTime) * 0.001, 0.1);
-      lastTime = currentTime;
+      document.getElementById('yards-counter').textContent = state.scoreYards.toLocaleString();
+      
+      const driftBar = document.getElementById('drift-bar');
+      driftBar.style.width = `${state.driftPack}%`;
+      document.getElementById('drift-pct').textContent = `${Math.floor(state.driftPack)}%`;
 
-      updateGameLogic(dt);
+      const duraBar = document.getElementById('durability-bar');
+      duraBar.style.width = `${state.durability}%`;
+      document.getElementById('durability-pct').textContent = `${Math.floor(state.durability)}%`;
+      if (state.durability < 30) {
+        duraBar.classList.add('bg-red-500');
+      } else {
+        duraBar.classList.remove('bg-red-500');
+      }
+    }
+
+    function renderGame() {
+      ctx.clearRect(0, 0, width, height);
 
       ctx.save();
-      ctx.scale(canvas.width / V_WIDTH, canvas.height / V_HEIGHT);
+      if (state.screenShake > 0) {
+        const magnitude = state.screenShake * 16;
+        ctx.translate((Math.random() - 0.5) * magnitude, (Math.random() - 0.5) * magnitude);
+      }
 
-      // 1. Arctic Oilfield Scene
-      drawOilfieldEnvironment(ctx, currentTime * 0.001);
+      drawDrillSiteBackground();
 
-      // 2. Berms
-      drawBarriers(ctx);
-
-      // 3. Bonus Service Truck
-      bonusPlow.draw(ctx);
-
-      // 4. Snowflake Aliens
-      for (let sf of snowflakes) {
-        if (sf.alive) {
-          drawSnowflake(ctx, sf, currentTime * 0.001);
+      for (let item of hazards) {
+        if (!item.collected) {
+          drawHazard(item);
         }
       }
 
-      // 5. Woody's Gravel Projectiles
-      ctx.fillStyle = '#bae6fd';
-      for (let p of playerProjectiles) {
-        ctx.beginPath();
-        ctx.arc(p.x + p.w / 2, p.y + p.h / 2, p.w / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(p.x + 2, p.y + 2, 3, 3);
-        ctx.fillStyle = '#bae6fd';
-      }
+      drawLoader(loader.x, loader.y);
 
-      // 6. High-Contrast Alien Projectiles (Bright neon red with molten yellow energy cores)
-      for (let icicle of enemyProjectiles) {
-        const midX = icicle.x + icicle.w / 2;
-
-        ctx.save();
-        ctx.shadowColor = '#ff0033';
-        ctx.shadowBlur = 12;
-
-        // Vivid neon red needle
-        ctx.fillStyle = '#ff0033';
-        ctx.beginPath();
-        ctx.moveTo(midX, icicle.y + icicle.h);
-        ctx.lineTo(icicle.x - 1, icicle.y + 3);
-        ctx.lineTo(midX, icicle.y);
-        ctx.lineTo(icicle.x + icicle.w + 1, icicle.y + 3);
-        ctx.closePath();
-        ctx.fill();
-
-        // Molten yellow core
-        ctx.fillStyle = '#ffea00';
-        ctx.beginPath();
-        ctx.moveTo(midX, icicle.y + icicle.h - 3);
-        ctx.lineTo(icicle.x + 1, icicle.y + 4);
-        ctx.lineTo(midX, icicle.y + 2);
-        ctx.lineTo(icicle.x + icicle.w - 1, icicle.y + 4);
-        ctx.closePath();
-        ctx.fill();
-
-        // White-hot tip
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(midX - 1, icicle.y + icicle.h - 4, 2, 3);
-
-        ctx.restore();
-      }
-
-      // 7. Explosion Particles
       for (let p of particles) {
-        ctx.fillStyle = p.color;
+        ctx.save();
         ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
-      }
-      ctx.globalAlpha = 1.0;
-
-      // 8. Woody's Loader
-      if (gameState === 'PLAYING' || gameState === 'WAVECLEAR') {
-        loader.draw(ctx);
+        ctx.restore();
       }
 
-      // 9. Wave Cleared Banner
-      if (gameState === 'WAVECLEAR') {
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-        ctx.fillRect(20, V_HEIGHT / 2 - 40, V_WIDTH - 40, 70);
-        ctx.strokeStyle = '#f59e0b';
-        ctx.strokeRect(20, V_HEIGHT / 2 - 40, V_WIDTH - 40, 70);
-
-        ctx.fillStyle = '#fde047';
-        ctx.font = '13px "Press Start 2P"';
-        ctx.textAlign = 'center';
-        ctx.fillText('PAD SECTOR SECURED!', V_WIDTH / 2, V_HEIGHT / 2 - 8);
-
-        ctx.fillStyle = '#bae6fd';
-        ctx.font = '10px "Press Start 2P"';
-        ctx.fillText(`NEXT SQUAD ADVANCING...`, V_WIDTH / 2, V_HEIGHT / 2 + 16);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      for (let s of backgroundSnowflakes) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       ctx.restore();
 
-      requestAnimationFrame(render);
+      drawSteeringDeck();
     }
 
-    // Startup
-    window.addEventListener('load', () => {
-      resizeCanvas();
-      hiDisplay.textContent = highScore.toString().padStart(5, '0');
-      initBarriers();
-      updateLivesUI();
-      requestAnimationFrame(render);
+    function getOperatorRank(yards) {
+      if (yards < 600) {
+        return {
+          title: "GREENHORN SWAMPER",
+          flavor: "You left a massive windrow right across the camp entrance!"
+        };
+      } else if (yards < 1600) {
+        return {
+          title: "PAD APPRENTICE",
+          flavor: "Good blade control, but you missed a few monster drifts."
+        };
+      } else if (yards < 3200) {
+        return {
+          title: "JOURNEYMAN OPERATOR",
+          flavor: "Clean pad roads! The toolpushers can drive their crew cabs now."
+        };
+      } else if (yards < 5000) {
+        return {
+          title: "NORTH SLOPE CAT SPECIALIST",
+          flavor: "Carving 5-foot banks like butter. Solid Arctic hustle!"
+        };
+      } else {
+        return {
+          title: "SLOPE LEGEND WOODY",
+          flavor: "Top-hand operator! The entire drillsite is spotless in a 60kt gale!"
+        };
+      }
+    }
+
+    function endShift(title, reason) {
+      state.running = false;
+      sound.stopEngine();
+
+      if (state.scoreYards > highScore) {
+        highScore = state.scoreYards;
+        localStorage.setItem('woodys_whiteout_highscore', highScore.toString());
+        document.getElementById('high-score-display').textContent = `${highScore.toLocaleString()} yd³`;
+      }
+
+      const rank = getOperatorRank(state.scoreYards);
+
+      document.getElementById('gameover-title').textContent = title;
+      document.getElementById('gameover-reason').textContent = reason;
+      document.getElementById('final-yards').textContent = `${state.scoreYards.toLocaleString()} yd³`;
+      document.getElementById('final-drifts').textContent = state.driftsCleared;
+      document.getElementById('final-coffees').textContent = state.coffeesDrank;
+      document.getElementById('final-rank').textContent = rank.title;
+      document.getElementById('rank-flavor').textContent = `"${rank.flavor}"`;
+
+      document.getElementById('game-over-screen').classList.remove('hidden');
+    }
+
+    let quoteHideTimeout = null;
+    function showWoodyQuote(text) {
+      const bubble = document.getElementById('woody-quote-bubble');
+      const label = document.getElementById('woody-quote-text');
+      if (!bubble || !label) return;
+
+      label.textContent = `"${text}"`;
+      bubble.classList.remove('opacity-0', 'translate-y-3');
+      bubble.classList.add('opacity-100', 'translate-y-0');
+
+      if (quoteHideTimeout) clearTimeout(quoteHideTimeout);
+      quoteHideTimeout = setTimeout(() => {
+        bubble.classList.remove('opacity-100', 'translate-y-0');
+        bubble.classList.add('opacity-0', 'translate-y-3');
+      }, 3400);
+    }
+
+    function createFloatingTag(text, x, y, color = '#fbbf24') {
+      const container = document.getElementById('floating-tags');
+      if (!container) return;
+      const el = document.createElement('div');
+      el.className = 'absolute font-industrial font-black text-xs sm:text-sm tracking-wide pointer-events-none transition-all duration-700 ease-out';
+      el.style.left = `${Math.max(10, Math.min(width - 80, x))}px`;
+      el.style.top = `${y}px`;
+      el.style.color = color;
+      el.style.textShadow = '0 2px 6px rgba(0,0,0,0.9)';
+      el.textContent = text;
+      container.appendChild(el);
+
+      requestAnimationFrame(() => {
+        el.style.transform = 'translateY(-34px) scale(1.15)';
+        el.style.opacity = '0';
+      });
+
+      setTimeout(() => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 750);
+    }
+
+    let spawnTimer = 0;
+    function spawnHazards(dt) {
+      spawnTimer += dt;
+      const interval = Math.max(0.65, 1.4 - (state.speed / 800));
+      if (spawnTimer >= interval) {
+        spawnTimer = 0;
+        const roll = Math.random();
+        const spawnX = roadLeft + 25 + Math.random() * (roadWidth - 50);
+
+        if (roll < 0.46) {
+          hazards.push({
+            type: 'drift',
+            x: spawnX,
+            y: -60,
+            width: 72,
+            height: 48,
+            collected: false
+          });
+        } else if (roll < 0.64) {
+          hazards.push({
+            type: 'pickup',
+            x: spawnX,
+            y: -90,
+            width: 44,
+            height: 72,
+            collected: false
+          });
+        } else if (roll < 0.82) {
+          hazards.push({
+            type: 'newhire',
+            x: spawnX,
+            y: -60,
+            width: 46,
+            height: 46,
+            collected: false
+          });
+        } else {
+          hazards.push({
+            type: 'coffee',
+            x: spawnX,
+            y: -50,
+            width: 32,
+            height: 32,
+            collected: false
+          });
+        }
+      }
+
+      if (state.elapsedTime - state.lastWoodyQuoteTime > 14) {
+        state.lastWoodyQuoteTime = state.elapsedTime;
+        const quote = WOODY_QUOTES[Math.floor(Math.random() * WOODY_QUOTES.length)];
+        showWoodyQuote(quote);
+      }
+    }
+
+    function checkCollisions() {
+      const bladeX = loader.x;
+      const bladeY = loader.y - loader.height * 0.45;
+      const bladeW = loader.bladeWidth;
+      const bladeH = 26;
+
+      for (let item of hazards) {
+        if (item.collected) continue;
+
+        const dx = Math.abs(bladeX - item.x);
+        const dy = Math.abs(bladeY - item.y);
+
+        const hitDistX = (bladeW + item.width) * 0.45;
+        const hitDistY = (bladeH + item.height) * 0.45;
+
+        if (dx < hitDistX && dy < hitDistY) {
+          item.collected = true;
+
+          if (item.type === 'drift') {
+            sound.playSnowScoop();
+            const multiplier = state.boostTimeRemaining > 0 ? 2 : 1;
+            const yardsAwarded = Math.floor((35 + Math.random() * 20) * multiplier);
+            state.scoreYards += yardsAwarded;
+            state.driftsCleared++;
+            state.driftPack = Math.max(0, state.driftPack - 18);
+
+            createFloatingTag(`+${yardsAwarded} yd³!`, item.x, item.y, '#38bdf8');
+
+            for (let p = 0; p < 28; p++) {
+              particles.push({
+                x: item.x + (Math.random() - 0.5) * 50,
+                y: item.y,
+                vx: (Math.random() - 0.5) * 220,
+                vy: -Math.random() * 180 - 40,
+                size: Math.random() * 4 + 2,
+                life: 1.0,
+                decay: 1.8,
+                color: Math.random() > 0.4 ? '#ffffff' : '#bae6fd'
+              });
+            }
+
+          } else if (item.type === 'coffee') {
+            sound.playCoffeeChug();
+            state.coffeesDrank++;
+            state.boostTimeRemaining = 4.0;
+            state.durability = Math.min(100, state.durability + 10);
+            createFloatingTag('☕ TURBO BOOST!!', item.x, item.y, '#f59e0b');
+
+            for (let p = 0; p < 18; p++) {
+              particles.push({
+                x: item.x,
+                y: item.y,
+                vx: (Math.random() - 0.5) * 160,
+                vy: (Math.random() - 0.5) * 160,
+                size: Math.random() * 3 + 1,
+                life: 1.0,
+                decay: 2.0,
+                color: '#f59e0b'
+              });
+            }
+
+          } else if (item.type === 'pickup') {
+            sound.playClank();
+            state.durability = Math.max(0, state.durability - 35);
+            state.screenShake = 0.5;
+            createFloatingTag('💥 FLEET TRUCK CRUNCH! -35%', item.x, item.y, '#ef4444');
+
+            for (let p = 0; p < 24; p++) {
+              particles.push({
+                x: item.x,
+                y: item.y,
+                vx: (Math.random() - 0.5) * 280,
+                vy: (Math.random() - 0.5) * 280,
+                size: Math.random() * 3 + 1,
+                life: 1.0,
+                decay: 2.4,
+                color: Math.random() > 0.5 ? '#ef4444' : '#f8fafc'
+              });
+            }
+
+          } else if (item.type === 'newhire') {
+            sound.playSafetyHonk();
+            state.durability = Math.max(0, state.durability - 25);
+            state.screenShake = 0.42;
+            createFloatingTag('🚨 GREENHORN INCIDENT! -25%', item.x, item.y, '#f97316');
+
+            for (let p = 0; p < 22; p++) {
+              particles.push({
+                x: item.x,
+                y: item.y,
+                vx: (Math.random() - 0.5) * 260,
+                vy: (Math.random() - 0.5) * 260,
+                size: Math.random() * 3 + 1.5,
+                life: 1.0,
+                decay: 2.2,
+                color: Math.random() > 0.5 ? '#f97316' : '#38bdf8'
+              });
+            }
+          }
+        }
+      }
+    }
+
+    let roadStripeOffset = 0;
+    function drawDrillSiteBackground() {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, width, height);
+
+      // Distant tundra snow
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, roadLeft, height);
+      ctx.fillRect(roadRight, 0, width - roadRight, height);
+
+      // Distant flare stack silhouette
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(width * 0.88, 30, 6, 80);
+      const flareGlow = ctx.createRadialGradient(width * 0.88 + 3, 26, 1, width * 0.88 + 3, 26, 18);
+      flareGlow.addColorStop(0, '#f97316');
+      flareGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = flareGlow;
+      ctx.beginPath();
+      ctx.arc(width * 0.88 + 3, 26, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Main KCS Pad Haul Road
+      ctx.fillStyle = '#1e2530';
+      ctx.fillRect(roadLeft, 0, roadWidth, height);
+
+      // Road shoulder snowpack edges
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(roadLeft - 3, 0, 3, height);
+      ctx.fillRect(roadRight, 0, 3, height);
+
+      // Hazard dashed border striping
+      roadStripeOffset = (roadStripeOffset + state.speed * 0.035) % 36;
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([18, 18]);
+      ctx.lineDashOffset = -roadStripeOffset;
+
+      ctx.beginPath();
+      ctx.moveTo(roadLeft + 6, 0);
+      ctx.lineTo(roadLeft + 6, height);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(roadRight - 6, 0);
+      ctx.lineTo(roadRight - 6, height);
+      ctx.stroke();
+
+      // Center dash line
+      ctx.strokeStyle = '#eab308';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(width / 2, 0);
+      ctx.lineTo(width / 2, height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawHazard(item) {
+      ctx.save();
+      ctx.translate(item.x, item.y);
+
+      if (item.type === 'drift') {
+        const w = item.width;
+        const h = item.height;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(0, h * 0.25, w * 0.5, h * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#bae6fd';
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.48, h * 0.2);
+        ctx.quadraticCurveTo(-w * 0.35, -h * 0.35, -w * 0.1, -h * 0.45);
+        ctx.quadraticCurveTo(w * 0.15, -h * 0.48, w * 0.38, -h * 0.2);
+        ctx.quadraticCurveTo(w * 0.52, h * 0.15, w * 0.35, h * 0.35);
+        ctx.quadraticCurveTo(0, h * 0.45, -w * 0.35, h * 0.38);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#e0f2fe';
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, h * 0.1);
+        ctx.quadraticCurveTo(-w * 0.15, -h * 0.28, 0, -h * 0.38);
+        ctx.quadraticCurveTo(w * 0.25, -h * 0.35, w * 0.4, -h * 0.1);
+        ctx.quadraticCurveTo(w * 0.2, h * 0.18, -w * 0.15, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, -h * 0.1);
+        ctx.quadraticCurveTo(-w * 0.08, -h * 0.42, w * 0.15, -h * 0.4);
+        ctx.quadraticCurveTo(w * 0.28, -h * 0.18, w * 0.15, -h * 0.02);
+        ctx.quadraticCurveTo(-w * 0.05, -h * 0.04, -w * 0.3, -h * 0.1);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(186, 230, 253, 0.7)';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(-w * 0.1, h * 0.05, w * 0.18, 0.2, Math.PI * 0.8);
+        ctx.stroke();
+
+      } else if (item.type === 'pickup') {
+        const pw = item.width;
+        const ph = item.height;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(-pw * 0.5 - 2, -ph * 0.5 + 4, pw + 4, ph);
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.roundRect(-pw * 0.46, -ph * 0.48, pw * 0.92, ph * 0.96, 6);
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(-pw * 0.46, -ph * 0.25, pw * 0.92, 7);
+        ctx.fillRect(-pw * 0.46, ph * 0.1, pw * 0.92, 7);
+
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(-pw * 0.36, -ph * 0.2, pw * 0.72, ph * 0.24);
+
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(-pw * 0.35, -ph * 0.46, 5, 3);
+        ctx.fillRect(pw * 0.35 - 5, -ph * 0.46, 5, 3);
+
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(-pw * 0.38, ph * 0.26, pw * 0.76, ph * 0.22);
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(0, ph * 0.37, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+      } else if (item.type === 'newhire') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(0, 10, 15, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.roundRect(-14, -8, 28, 20, 7);
+        ctx.fill();
+
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(-12, -7, 24, 18);
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(-12, -2, 24, 3.5);
+        ctx.fillRect(-6, -7, 3, 18);
+        ctx.fillRect(3, -7, 3, 18);
+
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(8, -12, 10, 13);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(9.5, -10.5, 7, 10);
+
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.arc(-13, 0, 3.5, 0, Math.PI * 2);
+        ctx.arc(10, -5, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        ctx.ellipse(0, -5, 12, 13, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#c2410c';
+        ctx.beginPath();
+        ctx.ellipse(0, -14, 9, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#fb923c';
+        ctx.beginPath();
+        ctx.ellipse(-2, -6, 6, 8, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#9a3412';
+        ctx.fillRect(-1.5, -15, 3, 18);
+
+        ctx.fillStyle = '#facc15';
+        ctx.font = 'bold 11px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('?', 0, -18 + Math.sin(Date.now() * 0.008) * 2.5);
+
+      } else if (item.type === 'coffee') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(0, 10, 12, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        ctx.arc(0, 0, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(11, 0, 6, -Math.PI / 2, Math.PI / 2);
+        ctx.stroke();
+
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.arc(0, 0, 9.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        const t = Date.now() * 0.006;
+        for (let s = -1; s <= 1; s++) {
+          const sx = s * 4;
+          ctx.beginPath();
+          ctx.moveTo(sx, -4);
+          ctx.bezierCurveTo(
+            sx + Math.sin(t + s) * 5, -10,
+            sx - Math.sin(t + s) * 5, -16,
+            sx + Math.sin(t + s) * 4, -22
+          );
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function drawLoader(x, y) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Headlight High Beams
+      const beamGrad = ctx.createLinearGradient(0, -loader.height * 0.45, 0, -loader.height * 0.45 - 200);
+      beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.4)');
+      beamGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+      ctx.fillStyle = beamGrad;
+      ctx.beginPath();
+      ctx.moveTo(-loader.bladeWidth * 0.42, -loader.height * 0.45);
+      ctx.lineTo(-loader.bladeWidth * 1.15, -loader.height * 0.45 - 200);
+      ctx.lineTo(loader.bladeWidth * 1.15, -loader.height * 0.45 - 200);
+      ctx.lineTo(loader.bladeWidth * 0.42, -loader.height * 0.45);
+      ctx.closePath();
+      ctx.fill();
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.beginPath();
+      ctx.roundRect(-loader.width * 0.52, -loader.height * 0.5, loader.width * 1.04, loader.height, 10);
+      ctx.fill();
+
+      // Giant Rubber Tires
+      ctx.fillStyle = '#0f172a';
+      const tireW = 15;
+      const tireH = 34;
+      ctx.fillRect(-loader.width * 0.5 - 2, -loader.height * 0.42, tireW, tireH);
+      ctx.fillRect(loader.width * 0.5 - tireW + 2, -loader.height * 0.42, tireW, tireH);
+      ctx.fillRect(-loader.width * 0.5 - 2, loader.height * 0.12, tireW, tireH);
+      ctx.fillRect(loader.width * 0.5 - tireW + 2, loader.height * 0.12, tireW, tireH);
+
+      // Chassis Body (CAT Yellow)
+      ctx.fillStyle = '#eab308';
+      ctx.beginPath();
+      ctx.roundRect(-loader.width * 0.38, -loader.height * 0.38, loader.width * 0.76, loader.height * 0.76, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#ca8a04';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Articulated Hydraulic Lift Arms
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-loader.width * 0.32, -loader.height * 0.5, 8, loader.height * 0.35);
+      ctx.fillRect(loader.width * 0.32 - 8, -loader.height * 0.5, 8, loader.height * 0.35);
+
+      // Front Snow Blade / Bucket
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.roundRect(-loader.bladeWidth * 0.5, -loader.height * 0.54, loader.bladeWidth, 18, 4);
+      ctx.fill();
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(-loader.bladeWidth * 0.48, -loader.height * 0.54, loader.bladeWidth * 0.96, 4);
+
+      // Operator Cab Glass
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.roundRect(-loader.width * 0.28, -loader.height * 0.18, loader.width * 0.56, loader.height * 0.28, 4);
+      ctx.fill();
+
+      // Woody silhouette in cab
+      ctx.fillStyle = '#ea580c';
+      ctx.beginPath();
+      ctx.arc(0, -loader.height * 0.05, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Amber Strobe Flash
+      const strobeOn = Math.floor(Date.now() / 180) % 2 === 0;
+      ctx.fillStyle = strobeOn ? '#fbbf24' : '#78350f';
+      ctx.beginPath();
+      ctx.arc(0, loader.height * 0.24, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    let lastTime = performance.now();
+    function gameLoop(currentTime) {
+      const dt = Math.min(0.08, (currentTime - lastTime) / 1000);
+      lastTime = currentTime;
+
+      if (state.running) {
+        updateGame(dt);
+      }
+      renderGame();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function startNewShift() {
+      sound.init();
+      sound.startEngine();
+
+      state.running = true;
+      state.scoreYards = 0;
+      state.driftsCleared = 0;
+      state.coffeesDrank = 0;
+      state.driftPack = 0;
+      state.durability = 100;
+      state.speed = 320;
+      state.baseSpeed = 320;
+      state.boostTimeRemaining = 0;
+      state.elapsedTime = 0;
+      state.lastWoodyQuoteTime = 0;
+
+      hazards.length = 0;
+      particles.length = 0;
+      steerRatio = 0.5;
+
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('game-over-screen').classList.add('hidden');
+
+      showWoodyQuote("Alright crew, KCS Pad is ours. Keep her between the snowbanks!");
+    }
+
+    document.getElementById('btn-start').addEventListener('click', startNewShift);
+    document.getElementById('btn-restart').addEventListener('click', startNewShift);
+
+    document.getElementById('btn-audio').addEventListener('click', () => {
+      sound.init();
+      const on = sound.toggle();
+      document.getElementById('audio-icon').textContent = on ? '🔊' : '🔇';
     });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        keys.left = true;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        keys.right = true;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        keys.left = false;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        keys.right = false;
+      }
+    });
+
+    window.onload = function() {
+      resizeCanvas();
+      lastTime = performance.now();
+      requestAnimationFrame(gameLoop);
+    };
   </script>
 </body>
 </html>
