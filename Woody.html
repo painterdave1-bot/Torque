@@ -52,69 +52,37 @@
 
   <div id="game-container" class="relative w-full h-full max-w-lg mx-auto flex flex-col bg-slate-950 overflow-hidden shadow-2xl border-x border-slate-800">
     
-    <!-- Top Hazard Bar & Status Header -->
+    <!-- Top Hazard Bar & Consolidated Status Header -->
     <header class="w-full z-20 flex flex-col bg-slate-900 border-b border-amber-500/40 shadow-lg">
       <div class="h-2 w-full hazard-stripe"></div>
-      <div class="px-3 py-2 flex items-center justify-between">
+      
+      <div class="px-2.5 py-1.5 flex items-center justify-between text-xs font-mono">
+        <!-- Left: Audio Toggle, Cleared Yardage, and Coffee Turbo Badge -->
         <div class="flex items-center space-x-2">
-          <span class="inline-flex h-3 w-3 rounded-full bg-emerald-400 animate-ping"></span>
-          <span class="font-industrial text-xs tracking-wider text-amber-400 uppercase font-black">PAD LOADER // 980K</span>
-        </div>
-        
-        <div class="flex items-center space-x-3 text-xs">
-          <!-- Audio Toggle -->
-          <button id="btn-audio" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 font-semibold flex items-center space-x-1">
+          <button id="btn-audio" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 font-semibold text-xs flex items-center space-x-1">
             <span id="audio-icon">🔊</span>
-            <span id="audio-label" class="hidden sm:inline">SFX</span>
           </button>
           
-          <div class="text-right">
-            <span class="text-[10px] text-slate-400 uppercase font-mono block">BEST CU YDS</span>
-            <span id="high-score-display" class="font-industrial text-amber-300 font-bold text-sm">0 yd³</span>
+          <div class="flex items-baseline space-x-1">
+            <span class="text-[10px] text-slate-400 uppercase font-semibold">YDS:</span>
+            <span id="yards-counter" class="text-base font-black text-amber-400 font-industrial tracking-wide">0</span>
+            <span class="text-[9px] text-amber-500 font-bold">yd³</span>
           </div>
-        </div>
-      </div>
 
-      <!-- Realtime Meter HUD -->
-      <div class="grid grid-cols-2 gap-2 px-3 pb-2 pt-1">
-        <!-- Pad Drift Bar -->
-        <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800">
-          <div class="flex justify-between items-center text-[10px] uppercase font-bold mb-1">
-            <span class="text-sky-300">Pad Snowpack:</span>
-            <span id="drift-pct" class="font-mono text-sky-400">0%</span>
-          </div>
-          <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
-            <div id="drift-bar" class="h-full bg-gradient-to-r from-sky-400 to-red-500 rounded-full transition-all duration-200" style="width: 0%"></div>
+          <div id="boost-indicator" class="hidden items-center space-x-1 bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/50 animate-pulse font-bold text-[10px]">
+            <span>☕ TURBO</span>
+            <span id="boost-timer" class="text-white">3.0s</span>
           </div>
         </div>
 
-        <!-- Loader Health / Blade Durability -->
-        <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800">
-          <div class="flex justify-between items-center text-[10px] uppercase font-bold mb-1">
-            <span class="text-amber-300">Bucket Integrity:</span>
-            <span id="durability-pct" class="font-mono text-emerald-400">100%</span>
+        <!-- Right: Best Yards and Shift Clock -->
+        <div class="flex items-center space-x-2.5 text-right">
+          <div class="flex items-baseline space-x-1">
+            <span class="text-[9px] text-slate-400 uppercase font-mono">BEST:</span>
+            <span id="high-score-display" class="font-industrial text-amber-300 font-bold text-xs">0 yd³</span>
           </div>
-          <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
-            <div id="durability-bar" class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-200" style="width: 100%"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Live Score & Multiplier Tracker -->
-      <div class="flex items-center justify-between px-3 py-1 bg-slate-900/90 border-t border-slate-800 text-xs font-mono">
-        <div class="flex items-center space-x-1">
-          <span class="text-slate-400">CLEARED:</span>
-          <span id="yards-counter" class="text-lg font-black text-amber-400 font-industrial tracking-wide">0</span>
-          <span class="text-[10px] text-amber-500">yd³</span>
-        </div>
-
-        <div id="boost-indicator" class="hidden items-center space-x-1.5 bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/50 animate-pulse font-bold text-[11px]">
-          <span>☕ COFFEE TURBO</span>
-          <span id="boost-timer" class="text-white">3.0s</span>
-        </div>
-
-        <div class="text-slate-400 text-right">
-          <span id="shift-time">SHIFT 00:00</span>
+          <span class="text-slate-700">|</span>
+          <span id="shift-time" class="text-[11px] text-slate-300 font-mono">00:00</span>
         </div>
       </div>
     </header>
@@ -122,17 +90,6 @@
     <!-- The Arcade Canvas -->
     <div class="relative flex-1 w-full h-full bg-slate-950 overflow-hidden">
       <canvas id="gameCanvas" class="w-full h-full block"></canvas>
-
-      <!-- Woody Radio Call / Floating Dialogue Overlay -->
-      <div id="woody-quote-bubble" class="absolute top-4 left-1/2 -translate-x-1/2 w-11/12 max-w-sm pointer-events-none transition-all duration-300 transform opacity-0 translate-y-3 z-30">
-        <div class="bg-amber-500 text-slate-950 px-3.5 py-2 rounded-lg shadow-2xl border-2 border-slate-950 flex items-start space-x-2">
-          <div class="font-black text-lg leading-none pt-0.5 font-industrial">📻</div>
-          <div>
-            <div class="text-[10px] font-black uppercase tracking-widest text-slate-900/80">Radio 19 // WOODY:</div>
-            <div id="woody-quote-text" class="text-xs font-bold leading-tight font-industrial">"Watch the survey pins, boys!"</div>
-          </div>
-        </div>
-      </div>
 
       <!-- In-Game floating notification tags -->
       <div id="floating-tags" class="absolute inset-0 pointer-events-none z-20"></div>
@@ -463,14 +420,12 @@
       scoreYards: 0,
       driftsCleared: 0,
       coffeesDrank: 0,
-      driftPack: 0,
       durability: 100,
       speed: 320,
       baseSpeed: 320,
       boostTimeRemaining: 0,
       elapsedTime: 0,
-      screenShake: 0,
-      lastWoodyQuoteTime: 0
+      screenShake: 0
     };
 
     const keys = { left: false, right: false };
@@ -676,7 +631,7 @@
       const totalSec = Math.floor(state.elapsedTime);
       const mins = String(Math.floor(totalSec / 60)).padStart(2, '0');
       const secs = String(totalSec % 60).padStart(2, '0');
-      document.getElementById('shift-time').textContent = `SHIFT ${mins}:${secs}`;
+      document.getElementById('shift-time').textContent = `${mins}:${secs}`;
 
       if (state.boostTimeRemaining > 0) {
         state.boostTimeRemaining = Math.max(0, state.boostTimeRemaining - dt);
@@ -694,15 +649,7 @@
       }
 
       state.baseSpeed = Math.min(620, 300 + state.elapsedTime * 5);
-      state.driftPack = Math.min(100, state.driftPack + dt * 2.8);
 
-      if (state.driftPack >= 100) {
-        endShift(
-          "WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!",
-          "Drifts overtook KCS Pad! The entire camp haul road is snowed under!"
-        );
-        return;
-      }
       if (state.durability <= 0) {
         endShift(
           "WOODY BROKE THE LOADER AGAIN, PHIL WILL SAVE THE DAY SOON!",
@@ -729,9 +676,6 @@
         item.y += state.speed * dt;
 
         if (item.y > height + 60) {
-          if (item.type === 'drift' && !item.collected) {
-            state.driftPack = Math.min(100, state.driftPack + 12);
-          }
           hazards.splice(i, 1);
         }
       }
@@ -764,19 +708,6 @@
       }
 
       document.getElementById('yards-counter').textContent = state.scoreYards.toLocaleString();
-      
-      const driftBar = document.getElementById('drift-bar');
-      driftBar.style.width = `${state.driftPack}%`;
-      document.getElementById('drift-pct').textContent = `${Math.floor(state.driftPack)}%`;
-
-      const duraBar = document.getElementById('durability-bar');
-      duraBar.style.width = `${state.durability}%`;
-      document.getElementById('durability-pct').textContent = `${Math.floor(state.durability)}%`;
-      if (state.durability < 30) {
-        duraBar.classList.add('bg-red-500');
-      } else {
-        duraBar.classList.remove('bg-red-500');
-      }
     }
 
     function renderGame() {
@@ -872,23 +803,6 @@
       document.getElementById('game-over-screen').classList.remove('hidden');
     }
 
-    let quoteHideTimeout = null;
-    function showWoodyQuote(text) {
-      const bubble = document.getElementById('woody-quote-bubble');
-      const label = document.getElementById('woody-quote-text');
-      if (!bubble || !label) return;
-
-      label.textContent = `"${text}"`;
-      bubble.classList.remove('opacity-0', 'translate-y-3');
-      bubble.classList.add('opacity-100', 'translate-y-0');
-
-      if (quoteHideTimeout) clearTimeout(quoteHideTimeout);
-      quoteHideTimeout = setTimeout(() => {
-        bubble.classList.remove('opacity-100', 'translate-y-0');
-        bubble.classList.add('opacity-0', 'translate-y-3');
-      }, 3400);
-    }
-
     function createFloatingTag(text, x, y, color = '#fbbf24') {
       const container = document.getElementById('floating-tags');
       if (!container) return;
@@ -958,12 +872,6 @@
           });
         }
       }
-
-      if (state.elapsedTime - state.lastWoodyQuoteTime > 14) {
-        state.lastWoodyQuoteTime = state.elapsedTime;
-        const quote = WOODY_QUOTES[Math.floor(Math.random() * WOODY_QUOTES.length)];
-        showWoodyQuote(quote);
-      }
     }
 
     function checkCollisions() {
@@ -990,7 +898,6 @@
             const yardsAwarded = Math.floor((35 + Math.random() * 20) * multiplier);
             state.scoreYards += yardsAwarded;
             state.driftsCleared++;
-            state.driftPack = Math.max(0, state.driftPack - 18);
 
             createFloatingTag(`+${yardsAwarded} yd³!`, item.x, item.y, '#38bdf8');
 
@@ -1031,7 +938,7 @@
             sound.playClank();
             state.durability = Math.max(0, state.durability - 35);
             state.screenShake = 0.5;
-            createFloatingTag('💥 FLEET TRUCK CRUNCH! -35%', item.x, item.y, '#ef4444');
+            createFloatingTag('💥 FLEET TRUCK CRUNCH!', item.x, item.y, '#ef4444');
 
             for (let p = 0; p < 24; p++) {
               particles.push({
@@ -1050,7 +957,7 @@
             sound.playSafetyHonk();
             state.durability = Math.max(0, state.durability - 25);
             state.screenShake = 0.42;
-            createFloatingTag('🚨 GREENHORN INCIDENT! -25%', item.x, item.y, '#f97316');
+            createFloatingTag('🚨 GREENHORN INCIDENT!', item.x, item.y, '#f97316');
 
             for (let p = 0; p < 22; p++) {
               particles.push({
@@ -1398,13 +1305,11 @@
       state.scoreYards = 0;
       state.driftsCleared = 0;
       state.coffeesDrank = 0;
-      state.driftPack = 0;
       state.durability = 100;
       state.speed = 320;
       state.baseSpeed = 320;
       state.boostTimeRemaining = 0;
       state.elapsedTime = 0;
-      state.lastWoodyQuoteTime = 0;
 
       hazards.length = 0;
       particles.length = 0;
@@ -1412,8 +1317,6 @@
 
       document.getElementById('start-screen').classList.add('hidden');
       document.getElementById('game-over-screen').classList.add('hidden');
-
-      showWoodyQuote("Alright crew, KCS Pad is ours. Keep her between the snowbanks!");
     }
 
     document.getElementById('btn-start').addEventListener('click', startNewShift);
